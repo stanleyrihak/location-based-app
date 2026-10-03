@@ -51,6 +51,14 @@ export const Fonts = Platform.select({
   },
 });
 
+export const FontFamily = {
+  light: 'DMSans_300Light',
+  regular: 'DMSans_400Regular',
+  medium: 'DMSans_500Medium',
+  semibold: 'DMSans_600SemiBold',
+  bold: 'DMSans_700Bold',
+} as const;
+
 export const Spacing = {
   half: 2,
   one: 4,
