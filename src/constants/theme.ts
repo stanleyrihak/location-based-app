@@ -1,73 +1,91 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Design tokens for the app. Every color, font, text style, spacing step and corner radius
+ * used by components should come from here.
  */
 
-import '@/global.css';
-
-import { Platform } from 'react-native';
+import type { TextStyle } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#18332C',
+    textSecondary: '#6F7F7A',
+    textTertiary: '#A1ABA7',
+    primary: '#176B52',
+    onPrimary: '#FFFFFF',
+    primarySoft: '#E5F2EC',
+    success: '#2D9D72',
+    surfaceInverse: '#18332C',
+    onInverse: '#FFFFFF',
+    onInverseSecondary: 'rgba(255, 255, 255, 0.6)',
+    accentCream: '#F6EEE1',
+    onAccent: '#18332C',
+    background: '#FAFBF9',
+    surface: '#FFFFFF',
+    border: '#E4E9E6',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#E8EFEC',
+    textSecondary: '#9AABA5',
+    textTertiary: '#6B7A75',
+    primary: '#4CBF95',
+    onPrimary: '#0B1F18',
+    primarySoft: '#1C3A30',
+    success: '#4CC795',
+    surfaceInverse: '#1F3A31',
+    onInverse: '#FFFFFF',
+    onInverseSecondary: 'rgba(255, 255, 255, 0.6)',
+    accentCream: '#E9DFCE',
+    onAccent: '#18332C',
+    background: '#0E1412',
+    surface: '#18201D',
+    border: '#2A3531',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
-
+/**
+ * DM Sans, loaded with `useFonts` in `src/app/_layout.tsx`.
+ * Each weight is its own family name, so pick weight here instead of using `fontWeight`.
+ */
 export const FontFamily = {
-  light: 'DMSans_300Light',
   regular: 'DMSans_400Regular',
-  medium: 'DMSans_500Medium',
-  semibold: 'DMSans_600SemiBold',
   bold: 'DMSans_700Bold',
+  extraBold: 'DMSans_800ExtraBold',
 } as const;
+
+export const Typography = {
+  display: { fontFamily: FontFamily.regular, fontSize: 28, lineHeight: 34, letterSpacing: -1.1 },
+  title: { fontFamily: FontFamily.regular, fontSize: 20, lineHeight: 26, letterSpacing: -0.6 },
+  section: { fontFamily: FontFamily.regular, fontSize: 16, lineHeight: 22 },
+  button: { fontFamily: FontFamily.bold, fontSize: 16, lineHeight: 22 },
+  itemTitle: { fontFamily: FontFamily.bold, fontSize: 14, lineHeight: 20 },
+  body: { fontFamily: FontFamily.regular, fontSize: 13, lineHeight: 18 },
+  label: { fontFamily: FontFamily.bold, fontSize: 12, lineHeight: 16 },
+  caption: { fontFamily: FontFamily.regular, fontSize: 12, lineHeight: 16 },
+  small: { fontFamily: FontFamily.regular, fontSize: 11, lineHeight: 15 },
+  overline: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.3,
+    textTransform: 'uppercase',
+  },
+} as const satisfies Record<string, TextStyle>;
 
 export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const Radius = {
+  sm: 10,
+  md: 16,
+  lg: 22,
+  full: 999,
+} as const;

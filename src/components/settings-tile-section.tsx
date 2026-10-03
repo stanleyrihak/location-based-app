@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import SettingsTile, { SettingsTileProps } from '@components/settings-tile';
+import SettingsTile, { SettingsTileProps } from '@/components/settings-tile';
 
 type Props = {
   title: string;

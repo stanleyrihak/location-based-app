@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
-import SettingsTileSection from '@components/settings-tile-section';
+import SettingsTileSection from '@/components/settings-tile-section';
 
-const Settings = () => {
+const Profile = () => {
   return (
     <View style={styles.container}>
       <View>
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default Profile;
