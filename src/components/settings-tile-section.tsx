@@ -1,40 +1,39 @@
-import { View, Text, StyleSheet } from 'react-native';
-import SettingsTile, { SettingsTileProps } from '@/components/settings-tile';
+import { StyleSheet, View } from 'react-native';
+
+import { SettingsTile, type SettingsTileProps } from '@/components/settings-tile';
+import { ThemedText } from '@/components/themed-text';
+import { Radius, Spacing } from '@/constants/theme';
 
 type Props = {
   title: string;
   tiles: SettingsTileProps[];
 };
 
-const SettingsTileSection = ({ title, tiles }: Props) => {
+export function SettingsTileSection({ title, tiles }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <ThemedText type="section" style={styles.title}>
+        {title}
+      </ThemedText>
       <View style={styles.tilesWrapper}>
         {tiles.map((tile, i) => (
-          <SettingsTile key={i} name={tile.name} />
+          <SettingsTile key={tile.name} name={tile.name} showDivider={i < tiles.length - 1} />
         ))}
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    gap: 10,
+    gap: Spacing.sm,
   },
   title: {
-    fontSize: 18,
-    marginLeft: 4,
+    marginLeft: Spacing.xs,
   },
   tilesWrapper: {
-    display: 'flex',
-    gap: 2,
-    //backgroundColor: "#fefefe",
-    borderRadius: 16,
+    borderRadius: Radius.md,
+    borderCurve: 'continuous',
     overflow: 'hidden',
   },
 });
-
-export default SettingsTileSection;

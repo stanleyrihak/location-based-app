@@ -41,9 +41,13 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit",
-    "format": "prettier --write src",
-    "format:check": "prettier --check src"
+    "lint:check": "expo lint",
+    "lint:fix": "expo lint --fix",
+    "types:check": "tsc --noEmit",
+    "format:check": "prettier --check src",
+    "format:fix": "prettier --write src",
+    "check": "npm run lint:check && npm run types:check && npm run format:check",
+    "fix": "npm run lint:fix && npm run format:fix"
   },
   "private": true
 }

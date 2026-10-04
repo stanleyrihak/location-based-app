@@ -1,8 +1,3 @@
-/**
- * Design tokens for the app. Every color, font, text style, spacing step and corner radius
- * used by components should come from here.
- */
-
 import type { TextStyle } from 'react-native';
 
 export const Colors = {
@@ -44,10 +39,6 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-/**
- * DM Sans, loaded with `useFonts` in `src/app/_layout.tsx`.
- * Each weight is its own family name, so pick weight here instead of using `fontWeight`.
- */
 export const FontFamily = {
   regular: 'DMSans_400Regular',
   bold: 'DMSans_700Bold',

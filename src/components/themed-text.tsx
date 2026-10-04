@@ -5,7 +5,6 @@ import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
   type?: keyof typeof Typography;
-  /** Overrides the weight of the chosen `type`, e.g. a bold price in `body` text. */
   weight?: keyof typeof FontFamily;
   themeColor?: ThemeColor;
 };

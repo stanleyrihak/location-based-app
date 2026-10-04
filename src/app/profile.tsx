@@ -1,12 +1,29 @@
-import { View, Text, StyleSheet } from 'react-native';
-import SettingsTileSection from '@/components/settings-tile-section';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const Profile = () => {
+import { SettingsTileSection } from '@/components/settings-tile-section';
+import { ThemedText } from '@/components/themed-text';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+
+export default function Profile() {
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={{ backgroundColor: theme.background }}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[
+        styles.content,
+        Platform.OS === 'android' && { paddingTop: insets.top + Spacing.md },
+      ]}
+    >
       <View>
-        <Text style={styles.subheading}>Your account</Text>
-        <Text style={styles.heading}>Profile</Text>
+        <ThemedText type="overline" themeColor="primary">
+          Your account
+        </ThemedText>
+        <ThemedText type="display">Profile</ThemedText>
       </View>
       <View style={styles.tileSectionsWrapper}>
         <SettingsTileSection
@@ -18,30 +35,18 @@ const Profile = () => {
           tiles={[{ name: 'Language' }, { name: 'Help & Support' }, { name: 'Privacy' }]}
         />
       </View>
-    </View>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFBF9',
-    paddingHorizontal: 12,
-    paddingVertical: 58,
-  },
-  subheading: {
-    fontSize: 12,
-    textTransform: 'uppercase',
-    color: 'green',
-  },
-  heading: {
-    fontSize: 30,
-    color: 'darkgrey',
+  content: {
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.xxxl,
+    gap: Spacing.xxl,
   },
   tileSectionsWrapper: {
-    display: 'flex',
-    gap: 20,
+    gap: Spacing.xxl,
   },
 });
-
-export default Profile;

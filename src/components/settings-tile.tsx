@@ -1,35 +1,48 @@
-import { View, StyleSheet, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { ThemedText } from '@/components/themed-text';
+import { Radius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 export type SettingsTileProps = {
   name: string;
+  showDivider?: boolean;
 };
 
-const SettingsTile = ({ name }: SettingsTileProps) => {
+export function SettingsTile({ name, showDivider = false }: SettingsTileProps) {
+  const theme = useTheme();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.iconWrapper}></View>
-      <Text>{name}</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.surface },
+        showDivider && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.border,
+        },
+      ]}
+    >
+      <View style={[styles.iconWrapper, { backgroundColor: theme.primarySoft }]} />
+      <ThemedText type="label">{name}</ThemedText>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    height: 56,
-    backgroundColor: 'white',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    // minHeight instead of height so the row can grow with larger system text sizes
+    minHeight: 56,
   },
   iconWrapper: {
-    height: 30,
-    width: 30,
-    borderRadius: 8,
-    backgroundColor: '#E5F2EC',
+    width: 34,
+    height: 34,
+    borderRadius: Radius.sm,
+    borderCurve: 'continuous',
   },
 });
-
-export default SettingsTile;
