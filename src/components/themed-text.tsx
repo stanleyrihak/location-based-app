@@ -6,10 +6,10 @@ import { useTheme } from '@/hooks/use-theme';
 export type ThemedTextProps = TextProps & {
   type?: keyof typeof Typography;
   weight?: keyof typeof FontFamily;
-  themeColor?: ThemeColor;
+  color?: ThemeColor;
 };
 
-export function ThemedText({ style, type = 'body', weight, themeColor, ...rest }: ThemedTextProps) {
+export function ThemedText({ style, type = 'body', weight, color, ...rest }: ThemedTextProps) {
   const theme = useTheme();
 
   return (
@@ -17,7 +17,7 @@ export function ThemedText({ style, type = 'body', weight, themeColor, ...rest }
       style={[
         Typography[type],
         weight && { fontFamily: FontFamily[weight] },
-        { color: theme[themeColor ?? 'text'] },
+        { color: theme[color ?? 'text'] },
         style,
       ]}
       {...rest}

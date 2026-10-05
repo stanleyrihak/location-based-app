@@ -20,7 +20,7 @@ export default function Profile() {
       ]}
     >
       <View>
-        <ThemedText type="overline" themeColor="primary">
+        <ThemedText type="overline" color="primary">
           Your account
         </ThemedText>
         <ThemedText type="display">Profile</ThemedText>
@@ -28,11 +28,19 @@ export default function Profile() {
       <View style={styles.tileSectionsWrapper}>
         <SettingsTileSection
           title="Preferences"
-          tiles={[{ name: 'Notifications' }, { name: 'Location' }, { name: 'Payment methods' }]}
+          tiles={[
+            { name: 'Notifications', icon: { ios: 'bell', android: 'notifications' } },
+            { name: 'Location', icon: { ios: 'mappin.and.ellipse', android: 'location_on' } },
+            { name: 'Payment methods', icon: { ios: 'creditcard', android: 'credit_card' } },
+          ]}
         />
         <SettingsTileSection
           title="More"
-          tiles={[{ name: 'Language' }, { name: 'Help & Support' }, { name: 'Privacy' }]}
+          tiles={[
+            { name: 'Language', icon: { ios: 'globe', android: 'language' } },
+            { name: 'Help & Support', icon: { ios: 'questionmark.circle', android: 'help' } },
+            { name: 'Privacy', icon: { ios: 'hand.raised', android: 'privacy_tip' } },
+          ]}
         />
       </View>
     </ScrollView>

@@ -17,7 +17,12 @@ export function SettingsTileSection({ title, tiles }: Props) {
       </ThemedText>
       <View style={styles.tilesWrapper}>
         {tiles.map((tile, i) => (
-          <SettingsTile key={tile.name} name={tile.name} showDivider={i < tiles.length - 1} />
+          <SettingsTile
+            key={tile.name}
+            name={tile.name}
+            icon={tile.icon}
+            showDivider={i < tiles.length - 1}
+          />
         ))}
       </View>
     </View>

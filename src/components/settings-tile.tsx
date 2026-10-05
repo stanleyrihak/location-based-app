@@ -1,15 +1,17 @@
 import { StyleSheet, View } from 'react-native';
 
+import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type SettingsTileProps = {
   name: string;
+  icon: IconName;
   showDivider?: boolean;
 };
 
-export function SettingsTile({ name, showDivider = false }: SettingsTileProps) {
+export function SettingsTile({ name, showDivider = false, icon }: SettingsTileProps) {
   const theme = useTheme();
 
   return (
@@ -23,7 +25,9 @@ export function SettingsTile({ name, showDivider = false }: SettingsTileProps) {
         },
       ]}
     >
-      <View style={[styles.iconWrapper, { backgroundColor: theme.primarySoft }]} />
+      <View style={[styles.iconWrapper, { backgroundColor: theme.primarySoft }]}>
+        <Icon name={icon} size="md" color="primary" />
+      </View>
       <ThemedText type="label">{name}</ThemedText>
     </View>
   );
@@ -36,7 +40,6 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    // minHeight instead of height so the row can grow with larger system text sizes
     minHeight: 56,
   },
   iconWrapper: {
@@ -44,5 +47,7 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: Radius.sm,
     borderCurve: 'continuous',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

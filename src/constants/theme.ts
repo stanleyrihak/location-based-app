@@ -80,3 +80,9 @@ export const Radius = {
   lg: 22,
   full: 999,
 } as const;
+
+export const IconSize = {
+  sm: 12,
+  md: 18,
+  lg: 22,
+} as const;
