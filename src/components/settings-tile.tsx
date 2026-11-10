@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type SettingsTileProps = {
@@ -21,11 +21,11 @@ export function SettingsTile({ name, showDivider = false, icon }: SettingsTilePr
         { backgroundColor: theme.surface },
         showDivider && {
           borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: theme.border,
+          borderBottomColor: theme.line,
         },
       ]}
     >
-      <View style={[styles.iconWrapper, { backgroundColor: theme.primarySoft }]}>
+      <View style={[styles.iconWrapper, { backgroundColor: theme.surface2 }]}>
         <Icon name={icon} size="md" color="primary" />
       </View>
       <ThemedText type="label">{name}</ThemedText>
@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     minHeight: 56,
   },
   iconWrapper: {

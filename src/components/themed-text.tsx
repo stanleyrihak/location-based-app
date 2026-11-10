@@ -1,11 +1,11 @@
 import { Text, type TextProps } from 'react-native';
 
-import { FontFamily, Typography, type ThemeColor } from '@/constants/theme';
+import { FontWeight, type ThemeColor, Typography } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
   type?: keyof typeof Typography;
-  weight?: keyof typeof FontFamily;
+  weight?: keyof typeof FontWeight;
   color?: ThemeColor;
 };
 
@@ -16,8 +16,8 @@ export function ThemedText({ style, type = 'body', weight, color, ...rest }: The
     <Text
       style={[
         Typography[type],
-        weight && { fontFamily: FontFamily[weight] },
-        { color: theme[color ?? 'text'] },
+        weight && { fontWeight: FontWeight[weight] },
+        { color: theme[color ?? 'ink'] },
         style,
       ]}
       {...rest}

@@ -3,7 +3,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SettingsTileSection } from '@/components/settings-tile-section';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function Profile() {
@@ -12,49 +11,26 @@ export default function Profile() {
 
   return (
     <ScrollView
-      style={{ backgroundColor: theme.background }}
+      style={{ backgroundColor: theme.bg }}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={[
         styles.content,
-        Platform.OS === 'android' && { paddingTop: insets.top + Spacing.md },
+        Platform.OS === 'android' && { paddingTop: insets.top + 12 },
       ]}
     >
-      <View>
-        <ThemedText type="overline" color="primary">
-          Your account
-        </ThemedText>
-        <ThemedText type="display">Profile</ThemedText>
-      </View>
-      <View style={styles.tileSectionsWrapper}>
-        <SettingsTileSection
-          title="Preferences"
-          tiles={[
-            { name: 'Notifications', icon: { ios: 'bell', android: 'notifications' } },
-            { name: 'Location', icon: { ios: 'mappin.and.ellipse', android: 'location_on' } },
-            { name: 'Payment methods', icon: { ios: 'creditcard', android: 'credit_card' } },
-          ]}
-        />
-        <SettingsTileSection
-          title="More"
-          tiles={[
-            { name: 'Language', icon: { ios: 'globe', android: 'language' } },
-            { name: 'Help & Support', icon: { ios: 'questionmark.circle', android: 'help' } },
-            { name: 'Privacy', icon: { ios: 'hand.raised', android: 'privacy_tip' } },
-          ]}
-        />
-      </View>
+      <ThemedText type="title">What is up boys</ThemedText>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.xxxl,
-    gap: Spacing.xxl,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
+    gap: 24,
   },
   tileSectionsWrapper: {
-    gap: Spacing.xxl,
+    gap: 24,
   },
 });

@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { SettingsTile, type SettingsTileProps } from '@/components/settings-tile';
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius } from '@/constants/theme';
 
 type Props = {
   title: string;
@@ -12,7 +12,7 @@ type Props = {
 export function SettingsTileSection({ title, tiles }: Props) {
   return (
     <View style={styles.container}>
-      <ThemedText type="section" style={styles.title}>
+      <ThemedText type="title" style={styles.title}>
         {title}
       </ThemedText>
       <View style={styles.tilesWrapper}>
@@ -31,13 +31,13 @@ export function SettingsTileSection({ title, tiles }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.sm,
+    gap: 8,
   },
   title: {
-    marginLeft: Spacing.xs,
+    marginLeft: 4,
   },
   tilesWrapper: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.card,
     borderCurve: 'continuous',
     overflow: 'hidden',
   },
