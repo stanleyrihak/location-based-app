@@ -1,13 +1,13 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { TextLink } from '@/components/text-link';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors, Radius } from '@/constants/theme';
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function WelcomeScreen() {
@@ -25,17 +25,22 @@ export default function WelcomeScreen() {
         paddingBottom: insets.bottom,
       }}
     >
-      <ThemedText type="display" color="accent" style={{ marginBottom: 32 }}>
+      <ThemedText type="display" color="accent" style={{ paddingTop: 20, marginBottom: 32 }}>
         Shoot
       </ThemedText>
-      <ThemedText type="display" color="ink">
+      <ThemedText
+        type="display"
+        color="ink"
+        accessibilityRole="header"
+        style={{ textAlign: 'center' }}
+      >
         Your favourites, delivered right to
       </ThemedText>
-      <ThemedText type="display" color="accent" style={{ marginBottom: 12 }}>
+      <ThemedText type="display" color="accent" style={{ textAlign: 'center' }}>
         your spot.
       </ThemedText>
-      <ThemedText type="body" color="ink" style={{ marginBottom: 24 }}>
-        Skip the queue, the café brings it
+      <ThemedText type="body" color="ink2" style={{ marginTop: 12, textAlign: 'center' }}>
+        Skip the queue. The café brings it to you.
       </ThemedText>
       <View
         style={{
@@ -43,14 +48,16 @@ export default function WelcomeScreen() {
           alignSelf: 'stretch',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: Colors.surfaceMuted,
+          backgroundColor: theme.surface2,
           borderRadius: Radius.card,
+          marginTop: 24,
           marginBottom: 16,
         }}
       >
         <Image
           source={require('@/assets/images/welcome-illustration.svg')}
           contentFit="contain"
+          accessibilityLabel="Three friends sitting together with their coffees"
           style={{ width: '90%', height: '90%' }}
         />
       </View>
@@ -60,12 +67,12 @@ export default function WelcomeScreen() {
       >
         {'Get started'}
       </Button>
-      <Text style={{ textAlign: 'center', color: theme.ink2 }}>
+      <ThemedText type="caption" color="ink2" style={{ textAlign: 'center' }}>
         {'By continuing you agree to the '}
-        <TextLink href={'/'}>{'Terms'}</TextLink>
+        <TextLink href="/terms">{'Terms'}</TextLink>
         {' and '}
-        <TextLink href={'/'}>{'Privacy Policy'}</TextLink>
-      </Text>
+        <TextLink href="/privacy">{'Privacy Policy'}</TextLink>
+      </ThemedText>
     </ThemedView>
   );
 }

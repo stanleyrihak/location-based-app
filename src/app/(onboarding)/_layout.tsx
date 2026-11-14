@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+
 import { useTheme } from '@/hooks/use-theme';
 
 export default function OnboardingLayout() {
@@ -13,7 +14,7 @@ export default function OnboardingLayout() {
         headerShadowVisible: false,
       }}
     >
-      <Stack.Screen name="welcome" />
+      <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="phone-number" />
       <Stack.Screen name="sms-code" />
       <Stack.Screen name="location-permission" />

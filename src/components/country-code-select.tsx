@@ -7,10 +7,11 @@ import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export const COUNTRIES = [
-  { code: 'FI', name: 'Finland', dial: '+358' },
-  { code: 'SE', name: 'Sweden', dial: '+46' },
-  { code: 'NO', name: 'Norway', dial: '+47' },
-  { code: 'EE', name: 'Estonia', dial: '+372' },
+  { code: 'FI', name: 'Finland', dial: '+358', groups: [2, 3, 5], placeholder: '40 123 4567' },
+  { code: 'SK', name: 'Slovakia', dial: '+421', groups: [3, 3, 3], placeholder: '912 345 678' },
+  { code: 'SE', name: 'Sweden', dial: '+46', groups: [2, 3, 2, 2], placeholder: '70 123 45 67' },
+  { code: 'NO', name: 'Norway', dial: '+47', groups: [3, 2, 3], placeholder: '412 34 567' },
+  { code: 'EE', name: 'Estonia', dial: '+372', groups: [4, 4], placeholder: '5123 4567' },
 ] as const;
 
 export type CountryCode = (typeof COUNTRIES)[number]['code'];

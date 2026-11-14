@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { NavigationTheme } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -53,6 +54,15 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { hasOnboarded } = useOnboarding();
+  const theme = useTheme();
+
+  const legalScreenOptions = {
+    headerShown: true,
+    title: '',
+    headerStyle: { backgroundColor: theme.bg },
+    headerShadowVisible: false,
+    headerBackButtonDisplayMode: 'minimal',
+  } as const;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -64,6 +74,9 @@ function RootNavigator() {
       <Stack.Protected guard={!hasOnboarded} redirectTo="/">
         <Stack.Screen name="(onboarding)" />
       </Stack.Protected>
+
+      <Stack.Screen name="terms" options={legalScreenOptions} />
+      <Stack.Screen name="privacy" options={legalScreenOptions} />
     </Stack>
   );
 }

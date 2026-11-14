@@ -1,6 +1,6 @@
 ---
 name: unslop
-description: Use always to cut AI tells from any writing.
+description: Use before sending every reply and before writing any text. Removes AI writing patterns.
 ---
 
 # Unslop
