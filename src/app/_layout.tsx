@@ -6,16 +6,16 @@ import {
 } from '@expo-google-fonts/inter';
 import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
 import { useFonts } from 'expo-font';
-import { ThemeProvider } from 'expo-router';
+import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
-import AppTabs from '@/components/app-tabs';
 import { NavigationTheme } from '@/constants/theme';
+import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts([
     {
       fontFamily: 'Inter',
@@ -32,10 +32,9 @@ export default function TabLayout() {
     },
   ]);
 
-  // Hide the splash screen once fonts are ready; on error, fall back to system fonts.
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      SplashScreen.hide();
     }
   }, [fontsLoaded, fontError]);
 
@@ -45,7 +44,26 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={NavigationTheme}>
-      <AppTabs />
+      <OnboardingProvider>
+        <RootNavigator />
+      </OnboardingProvider>
     </ThemeProvider>
+  );
+}
+
+function RootNavigator() {
+  const { hasOnboarded } = useOnboarding();
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={hasOnboarded} redirectTo="/welcome">
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="cafe/[id]" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!hasOnboarded} redirectTo="/">
+        <Stack.Screen name="(onboarding)" />
+      </Stack.Protected>
+    </Stack>
   );
 }
