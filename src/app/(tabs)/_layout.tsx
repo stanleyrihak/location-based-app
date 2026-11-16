@@ -1,5 +1,4 @@
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
-import { StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabButton } from '@/components/tab-button';
@@ -15,7 +14,7 @@ export default function TabLayout() {
       <TabList
         style={{
           backgroundColor: theme.surfaceTabbar,
-          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopWidth: 1,
           borderTopColor: theme.line,
           paddingTop: 8,
           paddingHorizontal: 8,

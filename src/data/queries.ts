@@ -30,9 +30,19 @@ export function useNearbyCafes() {
     queryFn: near ? () => getCafes(near) : skipToken,
   });
 
+  // Native errors ("kCLErrorDomain error 0") mean nothing to users, so we say
+  // which step failed instead of showing the raw text.
+  let errorMessage: string | undefined;
+  if (location.error) {
+    errorMessage =
+      'We couldn’t find your location. Check that Location Services are on, then try again.';
+  } else if (cafes.error) {
+    errorMessage = 'We couldn’t load cafés nearby. Check your connection, then try again.';
+  }
+
   return {
     cafes: near && cafes.data ? withDistance(cafes.data, near) : undefined,
-    error: location.error ?? cafes.error,
+    errorMessage,
     retry: () => (location.error ? location.refetch() : cafes.refetch()),
   };
 }
