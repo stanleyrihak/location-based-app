@@ -1,13 +1,10 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { useHeaderHeight } from 'expo-router/react-navigation';
-import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { CodeField } from '@/components/code-field';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { FormScreen } from '@/components/form-screen';
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 42;
@@ -19,14 +16,12 @@ function formatCountdown(seconds: number) {
 }
 
 export default function SmsCodeScreen() {
-  const insets = useSafeAreaInsets();
-  const headerHeight = useHeaderHeight();
   const { phone } = useLocalSearchParams<{ phone?: string }>();
   const [code, setCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
 
-  // Counts down one second at a time. Each tick changes secondsLeft, which
-  // runs this effect again and schedules the next tick until it reaches 0.
+  const isVerifying = useRef(false);
+
   useEffect(() => {
     if (secondsLeft <= 0) {
       return;
@@ -36,6 +31,12 @@ export default function SmsCodeScreen() {
     return () => clearTimeout(timer);
   }, [secondsLeft]);
 
+  useFocusEffect(
+    useCallback(() => {
+      isVerifying.current = false;
+    }, []),
+  );
+
   function resendCode() {
     // TODO: ask the backend to send a new code.
     setCode('');
@@ -43,6 +44,11 @@ export default function SmsCodeScreen() {
   }
 
   function verify() {
+    if (isVerifying.current) {
+      return;
+    }
+    isVerifying.current = true;
+
     // TODO: check the code with the backend before moving on.
     router.push('/location-permission');
   }
@@ -50,54 +56,28 @@ export default function SmsCodeScreen() {
   const canResend = secondsLeft <= 0;
 
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        keyboardVerticalOffset={headerHeight}
-        style={{
-          flex: 1,
-        }}
+    <FormScreen
+      title="Enter the code"
+      lede={phone ? `Sent to ${phone}` : undefined}
+      footer={
+        <Button onPress={verify} disabled={code.length < CODE_LENGTH}>
+          {'Verify'}
+        </Button>
+      }
+    >
+      <View style={{ marginTop: 32 }}>
+        <CodeField value={code} onChange={setCode} onComplete={verify} length={CODE_LENGTH} />
+      </View>
+
+      <Button
+        variant="text"
+        size="small"
+        disabled={!canResend}
+        onPress={resendCode}
+        style={{ alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 0 }}
       >
-        <View
-          style={{
-            flex: 1,
-            paddingHorizontal: 24,
-            paddingTop: 12,
-            paddingBottom: insets.bottom + 16,
-          }}
-        >
-          <View style={{ gap: 8 }}>
-            <ThemedText type="headline" accessibilityRole="header">
-              {'Enter the code'}
-            </ThemedText>
-            {phone && (
-              <ThemedText type="body" color="ink2" style={{ fontVariant: ['tabular-nums'] }}>
-                {`Sent to ${phone}`}
-              </ThemedText>
-            )}
-          </View>
-
-          <View style={{ marginTop: 32 }}>
-            <CodeField value={code} onChange={setCode} onComplete={verify} length={CODE_LENGTH} />
-          </View>
-
-          <Button
-            variant="text"
-            size="small"
-            disabled={!canResend}
-            onPress={resendCode}
-            style={{ alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 0 }}
-          >
-            {canResend ? 'Resend code' : `Resend code in ${formatCountdown(secondsLeft)}`}
-          </Button>
-
-          <View style={{ marginTop: 'auto', paddingTop: 16 }}>
-            <Button onPress={verify} disabled={code.length < CODE_LENGTH}>
-              {'Verify'}
-            </Button>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </ThemedView>
+        {canResend ? 'Resend code' : `Resend code in ${formatCountdown(secondsLeft)}`}
+      </Button>
+    </FormScreen>
   );
 }

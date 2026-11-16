@@ -51,13 +51,13 @@ export const Colors = {
   infoBg: Palette.sand,
   focus: Palette.orange,
   focusGlow: 'rgba(208, 98, 36, 0.28)',
+
+  splashBg: Palette.orange,
+  onSplash: Palette.cream,
 } as const;
 
 export type ThemeColor = keyof typeof Colors;
 
-/**
- * Kept apart from `Colors` so these don't appear as options on normal screens.
- */
 export const CameraColors = {
   bg: Palette.brown,
   raised: Palette.brownRaised,
@@ -66,8 +66,8 @@ export const CameraColors = {
   primary: Palette.cream,
   onPrimary: Palette.brown,
   primaryPressed: Palette.sand,
-  dim: 'rgba(74, 44, 30, 0.5)', // camera view outside the QR frame
-  hintBg: 'rgba(74, 44, 30, 0.78)', // brown 78% + transparent
+  dim: 'rgba(74, 44, 30, 0.5)',
+  hintBg: 'rgba(74, 44, 30, 0.78)',
 } as const;
 
 export const FontFamily = {

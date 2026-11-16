@@ -8,8 +8,9 @@ import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
 import { useFonts } from 'expo-font';
 import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import { SplashOverlay } from '@/components/splash-overlay';
 import { NavigationTheme } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
@@ -32,6 +33,8 @@ export default function RootLayout() {
       fontDefinitions: [{ path: Shrikhand_400Regular, weight: 400, style: 'normal' }],
     },
   ]);
+  
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -48,6 +51,7 @@ export default function RootLayout() {
       <OnboardingProvider>
         <RootNavigator />
       </OnboardingProvider>
+      {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
     </ThemeProvider>
   );
 }

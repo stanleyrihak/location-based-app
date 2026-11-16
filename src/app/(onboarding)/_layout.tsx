@@ -17,8 +17,10 @@ export default function OnboardingLayout() {
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="phone-number" />
       <Stack.Screen name="sms-code" />
-      <Stack.Screen name="location-permission" />
-      <Stack.Screen name="location-denied" />
+      <Stack.Screen
+        name="location-permission"
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
     </Stack>
   );
 }
