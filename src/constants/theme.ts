@@ -155,6 +155,11 @@ export const Radius = {
   pill: 999,
 } as const;
 
+/** Shadows from tokens.css, as CSS box-shadow strings (supported by RN's boxShadow). */
+export const Shadow = {
+  card: '0 1px 2px rgba(74, 44, 30, 0.06), 0 6px 16px -6px rgba(74, 44, 30, 0.14)',
+} as const;
+
 export const IconSize = {
   xs: 16,
   sm: 18,

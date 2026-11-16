@@ -5,6 +5,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -16,6 +17,10 @@ import { useTheme } from '@/hooks/use-theme';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
+
+// Created once, outside the component: it holds the cache, so it must
+// survive re-renders of RootLayout.
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts([
@@ -33,7 +38,7 @@ export default function RootLayout() {
       fontDefinitions: [{ path: Shrikhand_400Regular, weight: 400, style: 'normal' }],
     },
   ]);
-  
+
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -47,12 +52,14 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={NavigationTheme}>
-      <OnboardingProvider>
-        <RootNavigator />
-      </OnboardingProvider>
-      {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={NavigationTheme}>
+        <OnboardingProvider>
+          <RootNavigator />
+        </OnboardingProvider>
+        {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -29,7 +29,7 @@ export default function LocationPermissionScreen() {
 
     async function checkOnOpen() {
       const current = await Location.getForegroundPermissionsAsync();
-      
+
       if (cancelled) return;
 
       if (current.granted) {
