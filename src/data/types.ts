@@ -49,3 +49,42 @@ export type Spot = {
   /** What the QR code on the sticker contains. */
   code: string;
 };
+
+/** One product line of an order, copied from the cart when the order was placed. */
+export type OrderLine = {
+  itemId: string;
+  name: string;
+  priceCents: number;
+  quantity: number;
+  image?: number | string;
+  section: MenuSection;
+};
+
+/** Received → Preparing → On the way → Delivered (tracking, 4.x, comes later). */
+export type OrderStatus = 'received' | 'preparing' | 'on-the-way' | 'delivered';
+
+export type Order = {
+  id: string;
+  cafeId: string;
+  /** Copied, so past orders still show the name if the café changes or closes. */
+  cafeName: string;
+  lines: OrderLine[];
+  note: string;
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  totalCents: number;
+  /** How the courier finds you: a scanned spot, or the two photos plus where you were. */
+  delivery:
+    | { kind: 'spot'; spotLabel: string }
+    | { kind: 'photos'; selfie: number | string; spot: number | string; coordinates?: Coordinates };
+  paymentLabel: string;
+  status: OrderStatus;
+  /** ISO date strings: they survive JSON, unlike Date objects, when a real backend sends them. */
+  createdAt: string;
+  readyAt: string;
+};
+
+/** What the app sends to place an order. The backend adds id, status and the times. */
+export type NewOrder = Omit<Order, 'id' | 'status' | 'createdAt' | 'readyAt'> & {
+  readyInMin: number;
+};

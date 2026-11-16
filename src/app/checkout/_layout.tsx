@@ -35,6 +35,17 @@ export default function CheckoutLayout() {
             contentStyle: { backgroundColor: theme.surface },
           }}
         />
+        <Stack.Screen
+          name="pay-sheet"
+          options={{
+            presentation: 'formSheet',
+            sheetAllowedDetents: 'fitToContents',
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 28,
+            // Cream, so the white payment row and summary stand out on it.
+            contentStyle: { backgroundColor: theme.bg },
+          }}
+        />
         {/* The camera screens slide up, like the system camera, instead of in from the side. */}
         <Stack.Screen name="scan" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="photo" options={{ animation: 'slide_from_bottom' }} />

@@ -1,6 +1,7 @@
 import { createContext, type PropsWithChildren, use, useState } from 'react';
 
 import type { Spot } from '@/data/types';
+import { PAYMENT_METHODS, type PaymentMethod } from '@/payments/payment-methods';
 
 /**
  * The two photos that prove where you are. Each is a file URI from the camera
@@ -18,6 +19,9 @@ type CheckoutContextValue = {
   /** Set when the user took the two photos (2.4, 2.4b). */
   photos: SpotPhotos | null;
   setPhotos: (photos: SpotPhotos | null) => void;
+  /** Chosen on 2.7, shown again on the payment sheet (2.8). The wallet is the default. */
+  paymentMethod: PaymentMethod;
+  setPaymentMethod: (method: PaymentMethod) => void;
 };
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -42,6 +46,7 @@ export function useCheckout() {
 export function CheckoutProvider({ children }: PropsWithChildren) {
   const [spot, setSpotState] = useState<Spot | null>(null);
   const [photos, setPhotosState] = useState<SpotPhotos | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
 
   return (
     <CheckoutContext.Provider
@@ -56,6 +61,8 @@ export function CheckoutProvider({ children }: PropsWithChildren) {
           setPhotosState(next);
           if (next) setSpotState(null);
         },
+        paymentMethod,
+        setPaymentMethod,
       }}
     >
       {children}

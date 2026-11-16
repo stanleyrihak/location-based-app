@@ -11,7 +11,8 @@ import { Icon, type IconName } from '@/components/icon';
 import { CameraColors, FontWeight, Radius, Typography, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type Variant = 'primary' | 'secondary' | 'text';
+/** `ink` is the dark brown button of the payment sheet (`.btn-ink`). */
+type Variant = 'primary' | 'secondary' | 'text' | 'ink';
 
 type Props = {
   children: string;
@@ -53,6 +54,11 @@ function getVariantColors(
         content: 'inkInverse',
       },
       text: { background: 'transparent', pressedBackground: 'transparent', content: 'inkInverse' },
+      ink: {
+        background: CameraColors.primary,
+        pressedBackground: CameraColors.primaryPressed,
+        content: 'ink',
+      },
     };
   }
 
@@ -69,6 +75,7 @@ function getVariantColors(
       content: 'ink',
     },
     text: { background: 'transparent', pressedBackground: 'transparent', content: 'primary' },
+    ink: { background: theme.ink, pressedBackground: theme.inkPressed, content: 'inkInverse' },
   };
 }
 

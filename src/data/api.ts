@@ -1,7 +1,7 @@
 import { MOCK_CAFES } from '@/data/mock/cafes';
 import { MOCK_MENU } from '@/data/mock/menu';
 import { MOCK_SPOTS } from '@/data/mock/spots';
-import type { Cafe, Coordinates, MenuItem, Spot } from '@/data/types';
+import type { Cafe, Coordinates, MenuItem, NewOrder, Order, Spot } from '@/data/types';
 import { moveBy } from '@/utils/geo';
 
 /** Pretend network time, so screens show their loading state like they will with a real backend. */
@@ -50,4 +50,30 @@ export async function getMenuItems(cafeIds: string[]): Promise<MenuItem[]> {
 export async function getSpotByCode(cafeId: string, code: string): Promise<Spot | null> {
   await wait(FAKE_DELAY_MS);
   return MOCK_SPOTS.find((spot) => spot.code === code && spot.cafeId === cafeId) ?? null;
+}
+
+// The mock backend's orders, newest first. Kept in memory: closing the app forgets them.
+let mockOrders: Order[] = [];
+
+/** Places an order (after it's paid) and returns it as the backend stored it. */
+export async function createOrder(input: NewOrder): Promise<Order> {
+  await wait(FAKE_DELAY_MS);
+
+  const { readyInMin, ...rest } = input;
+  const now = new Date();
+  const order: Order = {
+    ...rest,
+    id: `order-${now.getTime()}`,
+    status: 'received',
+    createdAt: now.toISOString(),
+    readyAt: new Date(now.getTime() + readyInMin * 60_000).toISOString(),
+  };
+  mockOrders = [order, ...mockOrders];
+  return order;
+}
+
+/** The user's orders, newest first. */
+export async function getOrders(): Promise<Order[]> {
+  await wait(FAKE_DELAY_MS);
+  return mockOrders;
 }

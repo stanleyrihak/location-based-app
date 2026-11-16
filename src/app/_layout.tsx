@@ -84,6 +84,8 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="cafe/[id]" />
         <Stack.Screen name="checkout" />
+        {/* No swipe back: after paying, the only way on is "Done". */}
+        <Stack.Screen name="order-sent/[id]" options={{ gestureEnabled: false }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!hasOnboarded} redirectTo="/">

@@ -29,6 +29,7 @@ export const Colors = {
   surfaceBlur: 'rgba(241, 227, 198, 0.92)', // cream 92% + transparent
 
   ink: Palette.brown,
+  inkPressed: '#513325', // brown 80% + brownSoft, for the dark button
   ink2: Palette.brownSoft,
   inkPlaceholder: Palette.brownFaint,
   inkInverse: Palette.cream,
