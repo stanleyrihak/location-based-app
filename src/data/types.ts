@@ -20,4 +20,22 @@ export type Cafe = {
   /** In cents: 50 means €0.50. */
   deliveryFeeCents: number;
   categories: CafeCategory[];
+  /** The wide photo at the top of the menu (2.1). */
+  coverImage: number | string;
+};
+
+/** Tabs on the café menu. Not the same as CafeCategory: the menu has Tea, the Home filter doesn't. */
+export type MenuSection = 'coffee' | 'tea' | 'pastry' | 'lunch';
+
+export type MenuItem = {
+  id: string;
+  cafeId: string;
+  name: string;
+  description: string;
+  /** In cents, like every price in the app. */
+  priceCents: number;
+  /** Optional: items without a photo show no thumbnail. */
+  image?: number | string;
+  section: MenuSection;
+  soldOut: boolean;
 };

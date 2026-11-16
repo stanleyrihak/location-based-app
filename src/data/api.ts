@@ -1,5 +1,6 @@
 import { MOCK_CAFES } from '@/data/mock/cafes';
-import type { Cafe, Coordinates } from '@/data/types';
+import { MOCK_MENU } from '@/data/mock/menu';
+import type { Cafe, Coordinates, MenuItem } from '@/data/types';
 import { moveBy } from '@/utils/geo';
 
 /** Pretend network time, so screens show their loading state like they will with a real backend. */
@@ -24,4 +25,19 @@ export async function getCafes(near: Coordinates): Promise<Cafe[]> {
     ...cafe,
     coordinates: moveBy(anchor, offset.northM, offset.eastM),
   }));
+}
+
+/** One café's menu, in the order the café lists it. */
+export async function getMenu(cafeId: string): Promise<MenuItem[]> {
+  await wait(FAKE_DELAY_MS);
+  return MOCK_MENU.filter((item) => item.cafeId === cafeId);
+}
+
+/**
+ * Every product of the given cafés, for search on Home. A real backend would search on
+ * the server; with three small mock menus, searching on the phone is simpler.
+ */
+export async function getMenuItems(cafeIds: string[]): Promise<MenuItem[]> {
+  await wait(FAKE_DELAY_MS);
+  return MOCK_MENU.filter((item) => cafeIds.includes(item.cafeId));
 }

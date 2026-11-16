@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { CafeCard } from '@/components/cafe-card';
 import { Chip } from '@/components/chip';
+import { SearchField } from '@/components/search-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { CAFE_FILTERS, type CafeFilterId, filterCafes } from '@/data/cafe-filters';
-import { type NearbyCafe, useNearbyCafes } from '@/data/queries';
+import { CAFE_FILTERS, type CafeFilterId, filterCafes, searchCafes } from '@/data/cafe-filters';
+import { type NearbyCafe, useMenuItems, useNearbyCafes } from '@/data/queries';
 import { useOnboarding } from '@/providers/onboarding-provider';
 
 export default function HomeScreen() {
@@ -18,6 +19,9 @@ export default function HomeScreen() {
   const { cafes, errorMessage, retry } = useNearbyCafes();
   // Hooks run on every render in the same order, so this sits above the early return.
   const [filter, setFilter] = useState<CafeFilterId>('all');
+  const [query, setQuery] = useState('');
+  // Products of the nearby cafés, so search finds "croissant" too, not only café names.
+  const menuItems = useMenuItems(cafes?.map((cafe) => cafe.id));
 
   // No data yet: either it failed, or it's still loading.
   if (cafes === undefined) {
@@ -41,7 +45,7 @@ export default function HomeScreen() {
 
   // Derived during render from `cafes` and `filter`, never stored in state,
   // so it can't fall out of sync when the cafés reload.
-  const visible = filterCafes(cafes, filter, new Date());
+  const visible = searchCafes(filterCafes(cafes, filter, new Date()), query, menuItems.data ?? []);
   const inRange = visible.filter((cafe) => cafe.inRange);
   const outOfRange = visible.filter((cafe) => !cafe.inRange);
 
@@ -55,7 +59,15 @@ export default function HomeScreen() {
           paddingBottom: 24,
         }}
       >
-        <ThemedText type="headline">{'Cafés near you'}</ThemedText>
+        <LocationLine />
+
+        <View style={{ marginTop: 8 }}>
+          <SearchField
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search cafés or products"
+          />
+        </View>
 
         <FilterChips selected={filter} onSelect={setFilter} />
 
@@ -64,7 +76,9 @@ export default function HomeScreen() {
           <CafeGroup title="Out of range · browse only" cafes={outOfRange} />
           {visible.length === 0 && (
             <ThemedText type="body" color="ink2" style={{ textAlign: 'center' }}>
-              {'No cafés match this filter.'}
+              {query.trim() === ''
+                ? 'No cafés match this filter.'
+                : `No cafés or products match “${query.trim()}”.`}
             </ThemedText>
           )}
         </View>
@@ -78,6 +92,29 @@ export default function HomeScreen() {
 }
 
 const GUTTER = 24;
+
+/**
+ * "Delivering to your location / Current location" (`.loc-picker`). Display only for now:
+ * picking another place needs a map or address search. It has no chevron, because a
+ * chevron says "tap me" and nothing would happen.
+ */
+function LocationLine() {
+  return (
+    <View
+      accessible
+      accessibilityRole="header"
+      accessibilityLabel="Cafés near your current location"
+      style={{ gap: 2 }}
+    >
+      <ThemedText type="subhead" color="ink2">
+        {'Delivering to your location'}
+      </ThemedText>
+      <ThemedText type="title" weight="bold">
+        {'Current location'}
+      </ThemedText>
+    </View>
+  );
+}
 
 function FilterChips({
   selected,

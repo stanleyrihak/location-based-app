@@ -1,4 +1,4 @@
-import type { Cafe, CafeCategory } from '@/data/types';
+import type { Cafe, CafeCategory, MenuItem } from '@/data/types';
 
 export type CafeFilterId = 'all' | CafeCategory | 'open';
 
@@ -36,4 +36,29 @@ function isOpen(cafe: Cafe, now: Date): boolean {
   const closesAt = hours * 60 + minutes;
   const current = now.getHours() * 60 + now.getMinutes();
   return current < closesAt;
+}
+
+/**
+ * The cafés whose name, or one of whose products, contains `query`.
+ * Ignores case and accents, so "cafe" finds "Café". An empty query keeps every café.
+ */
+export function searchCafes<T extends Cafe>(cafes: T[], query: string, items: MenuItem[]): T[] {
+  const needle = normalize(query.trim());
+  if (needle === '') {
+    return cafes;
+  }
+  const cafeIdsWithMatch = new Set(
+    items.filter((item) => normalize(item.name).includes(needle)).map((item) => item.cafeId),
+  );
+  return cafes.filter(
+    (cafe) => normalize(cafe.name).includes(needle) || cafeIdsWithMatch.has(cafe.id),
+  );
+}
+
+/** "Café" → "cafe": lower case, accents removed (NFD splits é into e and a combining mark). */
+function normalize(text: string) {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 }

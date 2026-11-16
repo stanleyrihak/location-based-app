@@ -167,6 +167,8 @@ export const IconSize = {
   base: 22,
   lg: 24,
   xl: 26,
+  /** The placeholder icon in a 72 pt product tile, about half its width. */
+  thumb: 36,
 } as const;
 
 export const NavigationTheme: Theme = {

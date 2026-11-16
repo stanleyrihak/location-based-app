@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { SplashOverlay } from '@/components/splash-overlay';
 import { NavigationTheme } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { CartProvider } from '@/providers/cart-provider';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -55,7 +56,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={NavigationTheme}>
         <OnboardingProvider>
-          <RootNavigator />
+          <CartProvider>
+            <RootNavigator />
+          </CartProvider>
         </OnboardingProvider>
         {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
       </ThemeProvider>
@@ -80,6 +83,7 @@ function RootNavigator() {
       <Stack.Protected guard={hasOnboarded} redirectTo="/welcome">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="cafe/[id]" />
+        <Stack.Screen name="checkout" />
       </Stack.Protected>
 
       <Stack.Protected guard={!hasOnboarded} redirectTo="/">
