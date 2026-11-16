@@ -34,8 +34,18 @@ export type MenuItem = {
   description: string;
   /** In cents, like every price in the app. */
   priceCents: number;
-  /** Optional: items without a photo show no thumbnail. */
+  /** Optional: items without a photo show a placeholder icon for their section. */
   image?: number | string;
   section: MenuSection;
   soldOut: boolean;
+};
+
+/** A table or bench with a QR code sticker, so the courier knows exactly where to go. */
+export type Spot = {
+  id: string;
+  cafeId: string;
+  /** Shown to the user and the courier: "Table 4, by the window". */
+  label: string;
+  /** What the QR code on the sticker contains. */
+  code: string;
 };

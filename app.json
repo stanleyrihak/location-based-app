@@ -43,6 +43,14 @@
         {
           "locationWhenInUsePermission": "Used to show cafés within delivery range and to deliver your order to the exact spot."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Used to take the photo that shows the café it’s you and where you are, and to scan the code at your spot.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {

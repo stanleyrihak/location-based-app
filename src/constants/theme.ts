@@ -52,6 +52,12 @@ export const Colors = {
   focus: Palette.orange,
   focusGlow: 'rgba(208, 98, 36, 0.28)',
 
+  // Drawn map (2.3b): land, roads, parks, and the soft ring round "you".
+  mapLand: '#EDD4A9', // sand 55% + cream
+  mapRoad: Palette.white,
+  mapPark: '#CCB475', // olive 30% + sand
+  mapHalo: 'rgba(208, 98, 36, 0.22)', // orange at 22%
+
   splashBg: Palette.orange,
   onSplash: Palette.cream,
 } as const;

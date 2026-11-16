@@ -17,6 +17,16 @@ export function distanceInMetres(a: Coordinates, b: Coordinates) {
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
 
+/** How far `to` is north and east of `from`, in metres (the reverse of moveBy). For drawing a map. */
+export function offsetInMetres(from: Coordinates, to: Coordinates) {
+  const metresPerDegree = (Math.PI * EARTH_RADIUS_M) / 180;
+
+  return {
+    northM: (to.latitude - from.latitude) * metresPerDegree,
+    eastM: (to.longitude - from.longitude) * metresPerDegree * Math.cos(toRadians(from.latitude)),
+  };
+}
+
 /** The point `northM` metres north and `eastM` metres east of `from`. Accurate for short distances. */
 export function moveBy(from: Coordinates, northM: number, eastM: number): Coordinates {
   const metresPerDegree = (Math.PI * EARTH_RADIUS_M) / 180; // about 111 km

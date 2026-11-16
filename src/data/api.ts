@@ -1,6 +1,7 @@
 import { MOCK_CAFES } from '@/data/mock/cafes';
 import { MOCK_MENU } from '@/data/mock/menu';
-import type { Cafe, Coordinates, MenuItem } from '@/data/types';
+import { MOCK_SPOTS } from '@/data/mock/spots';
+import type { Cafe, Coordinates, MenuItem, Spot } from '@/data/types';
 import { moveBy } from '@/utils/geo';
 
 /** Pretend network time, so screens show their loading state like they will with a real backend. */
@@ -40,4 +41,13 @@ export async function getMenu(cafeId: string): Promise<MenuItem[]> {
 export async function getMenuItems(cafeIds: string[]): Promise<MenuItem[]> {
   await wait(FAKE_DELAY_MS);
   return MOCK_MENU.filter((item) => cafeIds.includes(item.cafeId));
+}
+
+/**
+ * The spot a scanned QR code belongs to, or null when the code isn't a spot of this café
+ * (another café's sticker, a random QR code, or a sticker that's no longer active).
+ */
+export async function getSpotByCode(cafeId: string, code: string): Promise<Spot | null> {
+  await wait(FAKE_DELAY_MS);
+  return MOCK_SPOTS.find((spot) => spot.code === code && spot.cafeId === cafeId) ?? null;
 }
