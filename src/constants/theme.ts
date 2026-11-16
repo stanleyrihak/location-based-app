@@ -51,13 +51,13 @@ export const Colors = {
   infoBg: Palette.sand,
   focus: Palette.orange,
   focusGlow: 'rgba(208, 98, 36, 0.28)',
+
+  splashBg: Palette.orange,
+  onSplash: Palette.cream,
 } as const;
 
 export type ThemeColor = keyof typeof Colors;
 
-/**
- * Kept apart from `Colors` so these don't appear as options on normal screens.
- */
 export const CameraColors = {
   bg: Palette.brown,
   raised: Palette.brownRaised,
@@ -66,8 +66,8 @@ export const CameraColors = {
   primary: Palette.cream,
   onPrimary: Palette.brown,
   primaryPressed: Palette.sand,
-  dim: 'rgba(74, 44, 30, 0.5)', // camera view outside the QR frame
-  hintBg: 'rgba(74, 44, 30, 0.78)', // brown 78% + transparent
+  dim: 'rgba(74, 44, 30, 0.5)',
+  hintBg: 'rgba(74, 44, 30, 0.78)',
 } as const;
 
 export const FontFamily = {
@@ -87,7 +87,7 @@ export const Typography = {
     fontFamily: FontFamily.display,
     fontWeight: FontWeight.regular,
     fontSize: 34,
-    lineHeight: 38,
+    lineHeight: 40,
   },
   headlineLarge: {
     fontFamily: FontFamily.ui,
@@ -141,8 +141,6 @@ export const Typography = {
   micro: { fontFamily: FontFamily.ui, fontWeight: FontWeight.medium, fontSize: 12, lineHeight: 14 },
 } as const satisfies Record<string, TextStyle>;
 
-//export const Spacing = {}
-
 export const Radius = {
   xs: 6,
   sm: 8,
@@ -152,6 +150,7 @@ export const Radius = {
   otp: 14,
   input: 16,
   card: 20,
+  frame: 24,
   sheet: 28,
   pill: 999,
 } as const;

@@ -6,16 +6,18 @@ import {
 } from '@expo-google-fonts/inter';
 import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
 import { useFonts } from 'expo-font';
-import { ThemeProvider } from 'expo-router';
+import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import AppTabs from '@/components/app-tabs';
+import { SplashOverlay } from '@/components/splash-overlay';
 import { NavigationTheme } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts([
     {
       fontFamily: 'Inter',
@@ -31,11 +33,12 @@ export default function TabLayout() {
       fontDefinitions: [{ path: Shrikhand_400Regular, weight: 400, style: 'normal' }],
     },
   ]);
+  
+  const [showSplash, setShowSplash] = useState(true);
 
-  // Hide the splash screen once fonts are ready; on error, fall back to system fonts.
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      SplashScreen.hide();
     }
   }, [fontsLoaded, fontError]);
 
@@ -45,7 +48,39 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={NavigationTheme}>
-      <AppTabs />
+      <OnboardingProvider>
+        <RootNavigator />
+      </OnboardingProvider>
+      {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
     </ThemeProvider>
+  );
+}
+
+function RootNavigator() {
+  const { hasOnboarded } = useOnboarding();
+  const theme = useTheme();
+
+  const legalScreenOptions = {
+    headerShown: true,
+    title: '',
+    headerStyle: { backgroundColor: theme.bg },
+    headerShadowVisible: false,
+    headerBackButtonDisplayMode: 'minimal',
+  } as const;
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={hasOnboarded} redirectTo="/welcome">
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="cafe/[id]" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!hasOnboarded} redirectTo="/">
+        <Stack.Screen name="(onboarding)" />
+      </Stack.Protected>
+
+      <Stack.Screen name="terms" options={legalScreenOptions} />
+      <Stack.Screen name="privacy" options={legalScreenOptions} />
+    </Stack>
   );
 }
