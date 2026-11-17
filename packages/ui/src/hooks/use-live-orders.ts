@@ -1,7 +1,22 @@
-import { createLiveConnection, type LiveSocket, type Order, writeLiveOrder } from '@shoot/shared';
+import {
+  applyPosition,
+  createLiveConnection,
+  type LiveSocket,
+  type Order,
+  type Track,
+  writeLiveOrder,
+} from '@shoot/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+
+/**
+ * Where an order's latest positions live in the React Query cache, during the walk. The live
+ * connection writes them here; the order screens read them (and fetch GET …/track once).
+ */
+export function trackKey(orderId: string) {
+  return ['track', orderId] as const;
+}
 
 type Options = {
   /** The server's WebSocket address with the token ("ws://…/ws?token=…"), or null when signed out. */
@@ -56,6 +71,11 @@ export function useLiveOrders({
       onOrder: (order) => {
         const previous = writeLiveOrder(queryClient, latest.current.queryKey, order);
         latest.current.onUpdate?.(order, previous);
+      },
+      onPosition: (message) => {
+        queryClient.setQueryData<Track>(trackKey(message.orderId), (track) =>
+          applyPosition(track, message),
+        );
       },
       onConnectedChange: setConnected,
       onUnauthorized: () => latest.current.onUnauthorized?.(),

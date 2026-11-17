@@ -10,6 +10,7 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "*",
+    "expo-maps": "*",
     "expo-router": "*",
     "react": "*",
     "react-native": "*",

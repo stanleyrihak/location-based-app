@@ -3,6 +3,8 @@
 // everything from '@shoot/ui'. Inside this package, files import each other relatively.
 export * from './components/banner';
 export * from './components/button';
+export * from './components/call-button';
+export * from './components/delivery-map';
 export * from './components/form-screen';
 export * from './components/icon';
 export * from './components/page-header';

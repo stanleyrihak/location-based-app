@@ -40,7 +40,8 @@
         {
           "color": "#D06224"
         }
-      ]
+      ],
+      "expo-maps"
     ],
     "experiments": {
       "typedRoutes": true,
