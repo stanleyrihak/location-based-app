@@ -15,9 +15,10 @@ Order a coffee from your seat, and the café brings it to you. A school project:
 ```bash
 npm install                        # once, at the root
 npm run dev -w @shoot/server       # the server, on port 4000
-cd apps/customer && npx expo start # the customer app
+cd apps/customer && npx expo start # the customer app (iPhone)
+cd apps/seller && npx expo start   # the seller app (Android)
 ```
 
-Your phone and your computer must be on the same Wi-Fi. In development, the SMS code is always `123456`.
+Your phone and your computer must be on the same Wi-Fi. In development, the SMS code is always `123456`, and the seller app signs in with `saaripaahtimo@shoot.test` / `shoot-demo`.
 
 `npm run check` type-checks every part.
