@@ -3,6 +3,7 @@ import { createContext, type PropsWithChildren, use, useEffect, useState } from 
 
 import * as api from '@/data/api';
 import { endSession, getToken, onSessionEnd, setToken } from '@/data/session';
+import { askNotificationPermission } from '@/notifications/new-order-alert';
 
 type SessionValue = {
   /** True while a token is saved: decides between sign-in and the tabs. */
@@ -33,6 +34,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [signedIn, setSignedIn] = useState(() => getToken() !== null);
 
   const me = useQuery({ queryKey: ['seller-me'], queryFn: api.getMe, enabled: signedIn });
+
+  // A signed-in seller needs to hear new orders: ask once, right after sign-in (or app start).
+  useEffect(() => {
+    if (signedIn) void askNotificationPermission();
+  }, [signedIn]);
 
   useEffect(
     () =>

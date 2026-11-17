@@ -19,6 +19,8 @@ export function createExpoPush(db: DatabaseSync) {
         title: message.title,
         body: message.body,
         sound: message.sound ? 'default' : null,
+        data: message.data,
+        channelId: message.channelId,
         // Android shows high-priority notifications at once, even when the phone is idle.
         priority: 'high',
       })),

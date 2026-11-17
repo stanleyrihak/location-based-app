@@ -12,10 +12,13 @@ import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { setUpNotifications } from '@/notifications/new-order-alert';
 import { LiveOrdersProvider } from '@/providers/live-orders-provider';
 import { SessionProvider, useSession } from '@/providers/session-provider';
 
 SplashScreen.preventAutoHideAsync();
+// How notifications look and sound in this app; once, before anything can ring.
+setUpNotifications();
 
 // Created once, outside the component: it holds the cache, so it must survive re-renders.
 const queryClient = new QueryClient();

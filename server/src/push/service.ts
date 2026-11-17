@@ -3,7 +3,16 @@ import type { DatabaseSync } from 'node:sqlite';
 import { messageFor } from './messages.ts';
 import type { Push } from './types.ts';
 
-export type Outgoing = { token: string; title: string; body: string; sound: boolean };
+export type Outgoing = {
+  token: string;
+  title: string;
+  body: string;
+  sound: boolean;
+  /** For the app: which order it's about, to open it and to skip a push it already showed. */
+  data: { orderId: string };
+  /** Android channel. Only the seller app creates 'orders'; elsewhere the default one is used. */
+  channelId?: string;
+};
 
 /** Delivers notifications to phones. Expo's service in real life, a list in tests. */
 export type Sender = (messages: Outgoing[]) => Promise<void>;
@@ -40,6 +49,8 @@ export function createPushService(db: DatabaseSync, sender: Sender) {
           title: message.title,
           body: message.body,
           sound: message.sound,
+          data: { orderId: order.id },
+          ...(message.to === 'seller' ? { channelId: 'orders' } : {}),
         })),
       )
         .catch((error: unknown) => {
