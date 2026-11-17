@@ -22,6 +22,8 @@ export function loadConfig(env: Record<string, string | undefined>) {
     fixedSmsCode: env.SMS_CODE ?? '123456',
     /** Without a key the server uses fake payments (card 0002 declines). */
     stripeSecretKey: env.STRIPE_SECRET_KEY || undefined,
+    /** The app needs this one (pk_test_…) to show Stripe's payment sheet. It isn't secret. */
+    stripePublishableKey: env.STRIPE_PUBLISHABLE_KEY || undefined,
     /** The /dev routes (sell out an item, move the cafés) exist only outside production. */
     devRoutes: env.NODE_ENV !== 'production',
   };
