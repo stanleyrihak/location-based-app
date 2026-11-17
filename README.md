@@ -51,6 +51,31 @@ The maps on Android need a Google Maps API key; the iPhone uses Apple Maps witho
 
 `npm run check` type-checks every part.
 
+## Demo day
+
+On demo day nothing depends on the Wi-Fi: the laptop runs the server, and an HTTPS tunnel (ngrok, fixed address `https://chance-clean-petted.ngrok-free.dev`) makes it reachable from both phones, also on mobile data. Both apps are release builds with that address inside: no `npx expo start` needed.
+
+**Once, on the laptop:** `ngrok config add-authtoken <token>` (the token from dashboard.ngrok.com, never in git).
+
+**The builds** (rebuild the iPhone one at most 7 days before the demo: a free Apple account's apps stop opening after that):
+
+```bash
+# Android, seller app: an APK with the address inside. Download it from the link EAS prints.
+cd apps/seller && npx eas-cli@latest build --profile demo --platform android
+
+# iPhone, customer app: plugged in by cable, trusted in Settings → General → VPN & Device Management.
+cd apps/customer && EXPO_PUBLIC_API_URL=https://chance-clean-petted.ngrok-free.dev npx expo run:ios --device --configuration Release
+```
+
+**On the day,** two terminals:
+
+```bash
+npm run start -w @shoot/server    # the server (prints the SMS code and the seller sign-in)
+npm run tunnel -w @shoot/server   # the tunnel; keep it open
+```
+
+Check the tunnel: `https://chance-clean-petted.ngrok-free.dev/config` in a browser answers `{"payments":…}` (ngrok shows a warning page first in browsers; the apps don't see it).
+
 ## Final test checklist
 
 Everything here was built without trying it on a phone. Reset the database first (`npm run reset -w @shoot/server`), then start the server and both apps.
