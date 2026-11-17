@@ -41,15 +41,25 @@ function OneShotCamera() {
   const isFocused = useIsFocused();
   const camera = useRef<CameraView>(null);
   const [ready, setReady] = useState(false);
+  // Set at the first tap: taking the picture takes a moment, and a second tap in it must not
+  // upload a second photo.
+  const busy = useRef(false);
 
   async function takePicture() {
-    if (!camera.current || save.isPending) return;
+    if (!camera.current || busy.current) return;
+    busy.current = true;
     try {
       const picture = await camera.current.takePictureAsync({ quality: 0.7 });
       save.mutate({ kind: 'photo', spot: picture.uri });
     } catch {
       // The camera failed: the shutter stays, so they can tap again.
+      busy.current = false;
     }
+  }
+
+  function retry() {
+    busy.current = false;
+    save.reset();
   }
 
   return (
@@ -76,7 +86,7 @@ function OneShotCamera() {
         style={{ paddingTop: 16, paddingHorizontal: 16, paddingBottom: insets.bottom + 8, gap: 12 }}
       >
         {save.isError && order ? (
-          <MovedError error={save.error} order={order} onRetry={() => save.reset()} />
+          <MovedError error={save.error} order={order} onRetry={retry} />
         ) : save.isPending ? (
           <ActivityIndicator color={CameraColors.ink} size="large" />
         ) : (

@@ -34,3 +34,7 @@ test('movedFromSpot is false when the fix’s accuracy could explain the distanc
   assert.equal(movedFromSpot(order(), { ...north(50), accuracy: 40 }, none), false);
   assert.equal(movedFromSpot(order(), { ...north(50), accuracy: 15 }, none), true);
 });
+
+test('movedFromSpot is false for an invalid fix (iOS reports a negative accuracy)', () => {
+  assert.equal(movedFromSpot(order(), { ...north(50), accuracy: -1 }, none), false);
+});

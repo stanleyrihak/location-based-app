@@ -33,5 +33,7 @@ export function movedFromSpot(
   if (!isLiveStatus(order.status) || dismissed.has(order.id)) return false;
   const distance = distanceInMetres(order.deliverTo, here);
   if (distance <= MOVED_THRESHOLD_M) return false;
-  return here.accuracy == null || here.accuracy <= distance - MOVED_THRESHOLD_M;
+  if (here.accuracy == null) return true;
+  // iOS reports a negative accuracy for a fix it doesn't trust: don't ask on that.
+  return here.accuracy >= 0 && here.accuracy <= distance - MOVED_THRESHOLD_M;
 }

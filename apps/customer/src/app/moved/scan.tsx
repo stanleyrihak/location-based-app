@@ -2,6 +2,7 @@ import { Button, CameraColors } from '@shoot/ui';
 import { type BarcodeScanningResult, CameraView } from 'expo-camera';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useRef } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -42,6 +43,20 @@ function Scanner() {
   const save = useUpdateSpot(id);
   const isFocused = useIsFocused();
   const scanning = save.isIdle;
+  // The camera reports the same code many times a second, faster than the mutation's state
+  // changes: a ref (set at once) makes sure one scan sends one request.
+  const busy = useRef(false);
+
+  function handleCode(code: string) {
+    if (busy.current) return;
+    busy.current = true;
+    save.mutate({ kind: 'spot', spotCode: code });
+  }
+
+  function retry() {
+    busy.current = false;
+    save.reset();
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: CameraColors.bg, paddingTop: insets.top }}>
@@ -56,10 +71,7 @@ function Scanner() {
           barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
           // Undefined turns scanning off while the code is checked or an error shows.
           onBarcodeScanned={
-            scanning
-              ? (result: BarcodeScanningResult) =>
-                  save.mutate({ kind: 'spot', spotCode: result.data })
-              : undefined
+            scanning ? (result: BarcodeScanningResult) => handleCode(result.data) : undefined
           }
         />
         <QrFrame checking={save.isPending} />
@@ -73,16 +85,9 @@ function Scanner() {
       <View
         style={{ gap: 12, paddingTop: 16, paddingHorizontal: 16, paddingBottom: insets.bottom + 8 }}
       >
-        {save.isError && order && (
-          <MovedError error={save.error} order={order} onRetry={() => save.reset()} />
-        )}
+        {save.isError && order && <MovedError error={save.error} order={order} onRetry={retry} />}
         {__DEV__ && scanning && (
-          <Button
-            variant="text"
-            size="small"
-            camera
-            onPress={() => save.mutate({ kind: 'spot', spotCode: DEV_SPOT_CODE })}
-          >
+          <Button variant="text" size="small" camera onPress={() => handleCode(DEV_SPOT_CODE)}>
             {'Simulate a scan (dev only)'}
           </Button>
         )}
