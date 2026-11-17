@@ -85,12 +85,19 @@ export default function OrderSentScreen() {
             image={order.delivery.kind === 'photos' ? order.delivery.spot : order.cafeImage}
             header={
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-                <ThemedText type="headlineLarge" style={{ fontVariant: ['tabular-nums'] }}>
-                  {`~${minutesLeft(order, openedAt)} min`}
-                </ThemedText>
-                <ThemedText weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>
-                  {`at ${readyTime(order)}`}
-                </ThemedText>
+                {/* Until the café accepts there's no ready time yet: it starts at accept. */}
+                {order.readyAt === null ? (
+                  <ThemedText weight="semibold">{`Waiting for ${order.cafeName} to accept`}</ThemedText>
+                ) : (
+                  <>
+                    <ThemedText type="headlineLarge" style={{ fontVariant: ['tabular-nums'] }}>
+                      {`~${minutesLeft(order, openedAt)} min`}
+                    </ThemedText>
+                    <ThemedText weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>
+                      {`at ${readyTime(order)}`}
+                    </ThemedText>
+                  </>
+                )}
                 <ThemedText type="caption" color="ink2" style={{ marginLeft: 'auto' }}>
                   {`Step ${stepOf(order.status)} of 4`}
                 </ThemedText>

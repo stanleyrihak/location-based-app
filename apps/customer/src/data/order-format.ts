@@ -6,13 +6,16 @@ import { formatClockTime, formatItemCount } from '@/utils/format';
 export const ORDER_STEPS: OrderStatus[] = ['received', 'preparing', 'on-the-way', 'delivered'];
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
-  received: 'Received',
+  received: 'Waiting for the café',
   preparing: 'Preparing',
   'on-the-way': 'On the way',
   delivered: 'Delivered',
+  declined: 'Declined',
+  expired: 'Not accepted',
+  cancelled: 'Cancelled',
 };
 
-/** 1 for received … 4 for delivered. */
+/** 1 for received … 4 for delivered (0 for an order that ended early). */
 export function stepOf(status: OrderStatus) {
   return ORDER_STEPS.indexOf(status) + 1;
 }
@@ -29,14 +32,17 @@ export function orderContents(order: Order) {
     .join(', ');
 }
 
-/** "9:51" */
+/** "9:51", or null until the café accepts: the ready time only starts then. */
 export function readyTime(order: Order) {
-  return formatClockTime(new Date(order.readyAt));
+  return order.readyAt ? formatClockTime(new Date(order.readyAt)) : null;
 }
 
-/** Whole minutes until ready, never below 0. `now` is passed in, so rendering stays pure. */
+/**
+ * Whole minutes until ready, never below 0, or null until the café accepts.
+ * `now` is passed in, so rendering stays pure.
+ */
 export function minutesLeft(order: Order, now: number) {
-  return Math.max(0, Math.round((Date.parse(order.readyAt) - now) / 60_000));
+  return order.readyAt ? Math.max(0, Math.round((Date.parse(order.readyAt) - now) / 60_000)) : null;
 }
 
 /** "5 Nov" */

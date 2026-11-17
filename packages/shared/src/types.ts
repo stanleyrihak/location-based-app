@@ -61,7 +61,21 @@ export type OrderLine = {
 };
 
 /** Received → Preparing → On the way → Delivered (tracking, 4.x, comes later). */
-export type OrderStatus = 'received' | 'preparing' | 'on-the-way' | 'delivered';
+/**
+ * What customers and sellers see. Received → Preparing → On the way → Delivered, or it ends
+ * early: declined by the café, expired (not accepted within 5 minutes), cancelled by the customer.
+ */
+export type OrderStatus =
+  | 'received'
+  | 'preparing'
+  | 'on-the-way'
+  | 'delivered'
+  | 'declined'
+  | 'expired'
+  | 'cancelled';
+
+/** Why a café declined an order. */
+export type DeclineReason = 'sold-out' | 'too-busy' | 'closing-soon' | 'other';
 
 export type Order = {
   id: string;
@@ -84,5 +98,10 @@ export type Order = {
   status: OrderStatus;
   /** ISO date strings: they survive JSON, unlike Date objects, when a real backend sends them. */
   createdAt: string;
-  readyAt: string;
+  /** The café must accept before this, or the order expires. Null once that no longer applies. */
+  acceptBy: string | null;
+  acceptedAt: string | null;
+  /** When it should reach you. Null until the café accepts: the time starts then. */
+  readyAt: string | null;
+  declineReason: DeclineReason | null;
 };

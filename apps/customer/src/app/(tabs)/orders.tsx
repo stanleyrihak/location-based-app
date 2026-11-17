@@ -88,9 +88,11 @@ export default function OrdersScreen() {
               image={order.cafeImage}
               footer={
                 <ThemedText type="subhead" color="ink2" style={{ fontVariant: ['tabular-nums'] }}>
-                  {left > 0
-                    ? `Arriving at ${readyTime(order)} · in ~${left} min`
-                    : `Arriving at ${readyTime(order)} · any moment now`}
+                  {left === null
+                    ? `Waiting for ${order.cafeName} to accept`
+                    : left > 0
+                      ? `Arriving at ${readyTime(order)} · in ~${left} min`
+                      : `Arriving at ${readyTime(order)} · any moment now`}
                 </ThemedText>
               }
             />

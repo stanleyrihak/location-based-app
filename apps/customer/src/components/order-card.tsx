@@ -96,14 +96,14 @@ export function LiveOrderCard({ order, label, title, detail, image, header, foot
   );
 }
 
-/** A delivered order in the "Earlier" list (`.history`). */
+/** A finished order in the "Earlier" list (`.history`): delivered, or ended early. */
 export function PastOrderRow({ order }: { order: Order }) {
   const theme = useTheme();
 
   return (
     <View
       accessible
-      accessibilityLabel={`Order from ${order.cafeName}, ${shortDate(order.createdAt)}, ${orderItemCount(order)}, ${formatPrice(order.totalCents)}, delivered`}
+      accessibilityLabel={`Order from ${order.cafeName}, ${shortDate(order.createdAt)}, ${orderItemCount(order)}, ${formatPrice(order.totalCents)}, ${STATUS_LABEL[order.status]}`}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -136,9 +136,12 @@ export function PastOrderRow({ order }: { order: Order }) {
           backgroundColor: theme.surface2,
         }}
       >
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.success }} />
+        {/* Green for delivered; orders that ended early (declined, not accepted) get no dot. */}
+        {order.status === 'delivered' && (
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.success }} />
+        )}
         <ThemedText type="caption" weight="semibold">
-          {'Delivered'}
+          {STATUS_LABEL[order.status]}
         </ThemedText>
       </View>
     </View>

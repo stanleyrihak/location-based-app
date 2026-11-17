@@ -1,4 +1,4 @@
-import type { Cafe, Coordinates, Order } from '@shoot/shared';
+import { type Cafe, type Coordinates, isLiveStatus, type Order } from '@shoot/shared';
 import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
 import { getCafes, getMenu, getMenuItems, getOrders } from '@/data/api';
@@ -77,9 +77,9 @@ export function useMenuItems(cafeIds: string[] | undefined) {
   });
 }
 
-/** Not delivered yet: shown as a live card, and worth refreshing. */
+/** Not finished yet: shown as a live card, and worth refreshing. */
 export function isLive(order: Order) {
-  return order.status !== 'delivered';
+  return isLiveStatus(order.status);
 }
 
 /** The user's orders, newest first. */
