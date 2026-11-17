@@ -42,6 +42,21 @@ export function getMe() {
   return request<User>('/me');
 }
 
+/** Profile: a new number, proven with the code sent to it (POST /auth/code first). */
+export function changePhone(phone: string, code: string) {
+  return request<User>('/me/phone', { method: 'POST', json: { phone, code } });
+}
+
+/** Profile: sign out on the server too (it also stops push notifications). */
+export function signOut() {
+  return request<void>('/auth/sign-out', { method: 'POST' });
+}
+
+/** Profile: deletes the account. Past orders stay with the café, without your number. */
+export function deleteAccount() {
+  return request<void>('/me', { method: 'DELETE' });
+}
+
 // ── Cafés and menus ──────────────────────────────────────────────────────
 
 /** Cafés near `near`. The app works out each café's distance and whether it's in range. */

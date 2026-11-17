@@ -96,3 +96,9 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] While waiting, "Cancel order" asks first, then shows "You cancelled this order". Cancelling just as the café accepts says it was already accepted.
 - [ ] Finished orders in the Orders tab open the order screen.
 
+**Profile (customer app)**
+- [ ] Your number shows. "Change" sends a code to a new number; after the code, Profile shows the new number. A number another account uses is refused with a message.
+- [ ] Location and Camera say "Allowed" or "Not allowed"; "Open Settings" opens the phone's settings, and coming back shows the change.
+- [ ] Terms and Privacy open.
+- [ ] Sign out goes back to the welcome screen. Delete account asks first, then does the same; signing in again with that number makes a new account.
+

@@ -104,6 +104,8 @@ function RootNavigator() {
             }}
           />
           <Stack.Screen name="moved/photo" />
+          <Stack.Screen name="change-phone" />
+          <Stack.Screen name="change-code" />
           <Stack.Screen name="moved/scan" />
         </Stack.Protected>
 

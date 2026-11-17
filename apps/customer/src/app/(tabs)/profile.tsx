@@ -1,65 +1,188 @@
-import { Button, ThemedText, CameraColors, useTheme } from '@shoot/ui';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Radius, Shadow, ThemedText, ThemedView, useTheme } from '@shoot/ui';
+import { useCameraPermissions } from 'expo-camera';
+import * as Location from 'expo-location';
+import { router } from 'expo-router';
+import { type ReactNode, useEffect } from 'react';
+import { Alert, AppState, Linking, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useOnboarding } from '@/providers/onboarding-provider';
+import { deleteAccount, signOut } from '@/data/api';
+import { useMe } from '@/data/queries';
+import { endSession } from '@/data/session';
 
-export default function Profile() {
-  const theme = useTheme();
+const GUTTER = 24;
+
+/**
+ * Profile: your number, what the app may use, the legal pages, and your account.
+ * Permissions can only be turned back on in the phone's Settings, so the rows link there.
+ */
+export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { resetOnboarding } = useOnboarding();
+  const me = useMe();
+  const [location, , readLocation] = Location.useForegroundPermissions();
+  const [camera, , readCamera] = useCameraPermissions();
+
+  // Back from Settings: read the permissions again.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void readLocation();
+        void readCamera();
+      }
+    });
+    return () => subscription.remove();
+  }, [readLocation, readCamera]);
+
+  async function handleSignOut() {
+    // Tell the server first; sign out here even if that fails (no connection).
+    await signOut().catch(() => {});
+    endSession();
+  }
+
+  function confirmDelete() {
+    Alert.alert(
+      'Delete your account?',
+      'Your number and sign-in are deleted. Cafés keep past orders for their accounts, without your number. This can’t be undone.',
+      [
+        { text: 'Keep account', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              endSession();
+            } catch {
+              Alert.alert('It didn’t work', 'Check your connection and try again.');
+            }
+          },
+        },
+      ],
+    );
+  }
 
   return (
-    <ScrollView
-      style={{ backgroundColor: theme.bg }}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        styles.content,
-        Platform.OS === 'android' && { paddingTop: insets.top + 12 },
-      ]}
-    >
-      <ThemedText type="title">What is up boys</ThemedText>
-      <Button onPress={resetOnboarding}>{'Reset onboarding'}</Button>
+    <ThemedView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top + 16,
+          paddingHorizontal: GUTTER,
+          paddingBottom: 32,
+          gap: 24,
+        }}
+      >
+        <ThemedText type="headlineLarge" accessibilityRole="header">
+          {'Profile'}
+        </ThemedText>
 
-      <Button icon="camera" onPress={() => console.log('tap')}>
-        Take photo
-      </Button>
-      <Button variant="secondary">Not now</Button>
-      <Button variant="text" size="small">
-        Resend code
-      </Button>
-      <Button disabled>Continue</Button>
-      <Button trailing="€11.20">View cart · 3 items</Button>
+        <Section title="Phone number">
+          <Row
+            label={me.data?.phone ?? ' '}
+            action="Change"
+            onPress={() => router.push('/change-phone')}
+          />
+        </Section>
 
-      <View style={styles.cameraBox}>
-        <Button camera icon="camera">
-          Take photo
-        </Button>
-        <Button camera variant="secondary">
-          Retake
-        </Button>
-        <Button camera variant="text">
-          Cancel
-        </Button>
-      </View>
-    </ScrollView>
+        <Section title="Permissions">
+          <Row
+            label="Location"
+            detail={location?.granted ? 'Allowed' : 'Not allowed'}
+            action="Open Settings"
+            onPress={() => void Linking.openSettings()}
+          />
+          <Row
+            label="Camera"
+            detail={camera?.granted ? 'Allowed' : 'Not allowed'}
+            action="Open Settings"
+            onPress={() => void Linking.openSettings()}
+          />
+        </Section>
+
+        <Section title="About">
+          <Row label="Terms of service" onPress={() => router.push('/terms')} />
+          <Row label="Privacy" onPress={() => router.push('/privacy')} />
+        </Section>
+
+        <View style={{ gap: 12 }}>
+          <Button variant="secondary" onPress={handleSignOut}>
+            {'Sign out'}
+          </Button>
+          <Button variant="text" onPress={confirmDelete}>
+            {'Delete account'}
+          </Button>
+        </View>
+
+        {/* Development builds only: __DEV__ is false in release builds. */}
+        {__DEV__ && (
+          <Section title="Developer">
+            <Row label="Reset onboarding" onPress={endSession} />
+          </Section>
+        )}
+      </ScrollView>
+    </ThemedView>
   );
 }
 
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 32,
-    gap: 24,
-  },
-  tileSectionsWrapper: {
-    gap: 24,
-  },
-  cameraBox: {
-    backgroundColor: CameraColors.bg,
-    padding: 20,
-    gap: 12,
-    borderRadius: 20,
-  },
-});
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  const theme = useTheme();
+  return (
+    <View style={{ gap: 8 }}>
+      <ThemedText type="label" color="ink2" accessibilityRole="header">
+        {title}
+      </ThemedText>
+      <View
+        style={{
+          borderRadius: Radius.card,
+          backgroundColor: theme.surface,
+          boxShadow: Shadow.card,
+          overflow: 'hidden',
+        }}
+      >
+        {children}
+      </View>
+    </View>
+  );
+}
+
+function Row({
+  label,
+  detail,
+  action,
+  onPress,
+}: {
+  label: string;
+  detail?: string;
+  action?: string;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={[label, detail, action].filter(Boolean).join(', ')}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        minHeight: 52,
+        paddingHorizontal: 16,
+        backgroundColor: pressed ? theme.surface2 : 'transparent',
+      })}
+    >
+      <View style={{ flex: 1 }}>
+        <ThemedText style={{ fontVariant: ['tabular-nums'] }}>{label}</ThemedText>
+        {detail && (
+          <ThemedText type="subhead" color="ink2">
+            {detail}
+          </ThemedText>
+        )}
+      </View>
+      {action && (
+        <ThemedText weight="semibold" color="primary">
+          {action}
+        </ThemedText>
+      )}
+    </Pressable>
+  );
+}
