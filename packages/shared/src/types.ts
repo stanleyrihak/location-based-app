@@ -90,9 +90,7 @@ export type Order = {
   deliveryFeeCents: number;
   totalCents: number;
   /** How the courier finds you: a scanned spot, or the two photos plus where you were. */
-  delivery:
-    | { kind: 'spot'; spotLabel: string }
-    | { kind: 'photos'; selfie: string; spot: string };
+  delivery: { kind: 'spot'; spotLabel: string } | { kind: 'photos'; selfie: string; spot: string };
   /** Where to bring it: the customer's position when they paid. Moves only if they update it (E10). */
   deliverTo: Coordinates;
   /** For the Call buttons: the café's number for the customer, the customer's for the café. */

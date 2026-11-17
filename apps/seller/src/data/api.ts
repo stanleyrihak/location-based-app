@@ -2,12 +2,14 @@ import {
   type Cafe,
   type Coordinates,
   createApiClient,
+  devServerHost,
   type DeclineReason,
   type MenuItem,
   type Order,
   type Track,
 } from '@shoot/shared';
 import Constants from 'expo-constants';
+import { NativeModules } from 'react-native';
 
 import { endSession, getToken } from '@/data/session';
 
@@ -18,7 +20,12 @@ import { endSession, getToken } from '@/data/session';
 function findApiUrl() {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;
   if (fromEnv) return fromEnv.replace(/\/$/, '');
-  const host = Constants.expoConfig?.hostUri?.split(':')[0] ?? 'localhost';
+  // The code came from Metro on this computer; the server runs next to it, on port 4000.
+  // Old and new React Native architecture expose it differently; one of the two is there.
+  const sourceCode = NativeModules.SourceCode as
+    { scriptURL?: string; getConstants?: () => { scriptURL?: string } } | undefined;
+  const scriptUrl = sourceCode?.scriptURL ?? sourceCode?.getConstants?.().scriptURL;
+  const host = devServerHost(Constants.expoConfig?.hostUri, scriptUrl) ?? 'localhost';
   return `http://${host}:4000`;
 }
 

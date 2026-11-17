@@ -5,7 +5,10 @@ import { distanceInMetres, movedFromSpot } from '../src/geo.ts';
 
 const SPOT = { latitude: 60.45, longitude: 22.27 };
 /** About `metres` north of the spot (1° of latitude ≈ 111.2 km). */
-const north = (metres: number) => ({ latitude: SPOT.latitude + metres / 111_195, longitude: SPOT.longitude });
+const north = (metres: number) => ({
+  latitude: SPOT.latitude + metres / 111_195,
+  longitude: SPOT.longitude,
+});
 const order = (status = 'preparing') => ({ id: 'a', status, deliverTo: SPOT }) as never;
 const none = new Set<string>();
 
