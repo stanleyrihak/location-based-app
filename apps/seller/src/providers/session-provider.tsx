@@ -4,6 +4,7 @@ import { createContext, type PropsWithChildren, use, useEffect, useState } from 
 import * as api from '@/data/api';
 import { endSession, getToken, onSessionEnd, setToken } from '@/data/session';
 import { askNotificationPermission } from '@/notifications/new-order-alert';
+import { registerForPush } from '@/notifications/push-token';
 
 type SessionValue = {
   /** True while a token is saved: decides between sign-in and the tabs. */
@@ -35,9 +36,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   const me = useQuery({ queryKey: ['seller-me'], queryFn: api.getMe, enabled: signedIn });
 
-  // A signed-in seller needs to hear new orders: ask once, right after sign-in (or app start).
+  // A signed-in seller needs to hear new orders: ask once, right after sign-in (or app start),
+  // then tell the server where to send pushes. Without a push token (Expo Go, no permission)
+  // the app still rings while it's open, through the live connection.
   useEffect(() => {
-    if (signedIn) void askNotificationPermission();
+    if (!signedIn) return;
+    void (async () => {
+      await askNotificationPermission();
+      const token = await registerForPush();
+      if (token) await api.registerPushToken(token).catch(() => {});
+    })();
   }, [signedIn]);
 
   useEffect(

@@ -8,7 +8,8 @@ import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
 import { NavigationTheme, useTheme } from '@shoot/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack, ThemeProvider } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { router, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
@@ -67,6 +68,16 @@ export default function RootLayout() {
 function RootNavigator() {
   const { signedIn } = useSession();
   const theme = useTheme();
+
+  // Tapping a "New order" notification opens that order.
+  useEffect(() => {
+    if (!signedIn) return;
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const { orderId } = response.notification.request.content.data as { orderId?: string };
+      if (orderId) router.push({ pathname: '/order/[id]', params: { id: orderId } });
+    });
+    return () => subscription.remove();
+  }, [signedIn]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

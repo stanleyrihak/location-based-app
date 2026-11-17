@@ -44,3 +44,6 @@ example
 # generated native folders, in every app (apps/customer/ios, apps/seller/android, ...)
 ios/
 android/
+
+# Firebase config for push (Android). Not secret, but it's per developer; download your own.
+google-services.json
