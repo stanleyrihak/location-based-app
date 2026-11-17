@@ -5,9 +5,10 @@ Order a coffee from your seat; the café brings it to you. This repository holds
 | Folder | What it is |
 |---|---|
 | `apps/customer` | The customer app (Expo). Its own `AGENTS.md` has the Expo rules. |
-| `apps/seller` | The café's app (Expo). Planned. |
+| `apps/seller` | The café's app (Expo). Same rules as `apps/customer`; its own `AGENTS.md`. |
 | `server` | The backend (Node, TypeScript, SQLite). Runs on its own: `npm run dev -w @shoot/server`. |
-| `packages/shared` | Code both apps and the server use, starting with the data types. |
+| `packages/shared` | Types, order rules and the HTTP client for both apps and the server. No React Native: the server runs it in Node. |
+| `packages/ui` | The design system (theme, components, live-orders hook) for both apps. React Native only. |
 | `docs/superpowers` | Design documents and implementation plans. |
 
 - Run `npm install` at the repository root, never inside a workspace.

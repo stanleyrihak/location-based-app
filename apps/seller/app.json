@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Shoot Seller",
+    "slug": "shoot-seller",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon.png",
+    "scheme": "shootseller",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "icon": "./assets/images/app-icon.png",
+      "bundleIdentifier": "com.stanleyr.shootseller"
+    },
+    "android": {
+      "package": "com.stanleyr.shootseller",
+      "adaptiveIcon": {
+        "backgroundColor": "#D06224",
+        "foregroundImage": "./assets/images/app-icon-foreground.png",
+        "monochromeImage": "./assets/images/app-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#D06224",
+          "image": "./assets/images/splash-wordmark.png",
+          "imageWidth": 230
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

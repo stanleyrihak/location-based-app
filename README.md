@@ -5,9 +5,10 @@ Order a coffee from your seat, and the café brings it to you. A school project:
 ## Layout
 
 - `apps/customer`: the customer app (Expo, iOS and Android)
-- `apps/seller`: the café's app (planned)
+- `apps/seller`: the café's app (Expo, Android first): sign in, see orders, accept or decline
 - `server`: the backend (Node, TypeScript, SQLite). Its API is described in `server/README.md`.
-- `packages/shared`: types and code shared by the apps and the server
+- `packages/shared`: types, order rules and the HTTP client, shared by the apps and the server (no React Native)
+- `packages/ui`: the design system (theme and components), shared by both apps
 
 ## Run it
 
