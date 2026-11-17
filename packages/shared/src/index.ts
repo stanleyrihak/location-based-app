@@ -4,5 +4,6 @@
 // full file names.
 export * from './api-client.ts';
 export * from './live.ts';
+export * from './live-connection.ts';
 export * from './orders.ts';
 export type * from './types.ts';

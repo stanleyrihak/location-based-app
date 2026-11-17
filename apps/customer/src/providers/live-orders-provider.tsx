@@ -2,7 +2,7 @@ import { useLiveOrders } from '@shoot/ui';
 import { createContext, type PropsWithChildren, use } from 'react';
 
 import { API_URL } from '@/data/http';
-import { getToken } from '@/data/session';
+import { endSession, getToken } from '@/data/session';
 import { useOnboarding } from '@/providers/onboarding-provider';
 
 const LiveContext = createContext(false);
@@ -23,7 +23,7 @@ export function LiveOrdersProvider({ children }: PropsWithChildren) {
   const url = token
     ? `${API_URL.replace(/^http/, 'ws')}/ws?token=${encodeURIComponent(token)}`
     : null;
-  const { connected } = useLiveOrders({ url, queryKey: ['orders'] });
+  const { connected } = useLiveOrders({ url, queryKey: ['orders'], onUnauthorized: endSession });
 
   return <LiveContext.Provider value={connected}>{children}</LiveContext.Provider>;
 }

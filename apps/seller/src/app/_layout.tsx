@@ -11,7 +11,7 @@ import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import { router, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { setUpNotifications } from '@/notifications/new-order-alert';
 import { LiveOrdersProvider } from '@/providers/live-orders-provider';
@@ -69,15 +69,19 @@ function RootNavigator() {
   const { signedIn } = useSession();
   const theme = useTheme();
 
-  // Tapping a "New order" notification opens that order.
+  // Tapping a "New order" notification opens that order. The hook also has the tap that
+  // started the app from closed, which a listener added after start-up would miss. The ref
+  // keeps one tap from opening the order again (for example after signing in again).
+  const lastResponse = Notifications.useLastNotificationResponse();
+  const openedTap = useRef<string | null>(null);
   useEffect(() => {
-    if (!signedIn) return;
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const { orderId } = response.notification.request.content.data as { orderId?: string };
-      if (orderId) router.push({ pathname: '/order/[id]', params: { id: orderId } });
-    });
-    return () => subscription.remove();
-  }, [signedIn]);
+    if (!signedIn || !lastResponse) return;
+    const tap = lastResponse.notification.request.identifier;
+    if (openedTap.current === tap) return;
+    openedTap.current = tap;
+    const { orderId } = lastResponse.notification.request.content.data as { orderId?: string };
+    if (orderId) router.push({ pathname: '/order/[id]', params: { id: orderId } });
+  }, [signedIn, lastResponse]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

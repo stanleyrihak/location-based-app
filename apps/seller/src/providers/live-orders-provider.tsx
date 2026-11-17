@@ -2,7 +2,7 @@ import { useLiveOrders } from '@shoot/ui';
 import { createContext, type PropsWithChildren, use } from 'react';
 
 import { liveUrl } from '@/data/api';
-import { getToken } from '@/data/session';
+import { endSession, getToken } from '@/data/session';
 import { alertNewOrder } from '@/notifications/new-order-alert';
 import { useSession } from '@/providers/session-provider';
 
@@ -25,6 +25,8 @@ export function LiveOrdersProvider({ children }: PropsWithChildren) {
   const { connected } = useLiveOrders({
     url: liveUrl(signedIn ? getToken() : null),
     queryKey: QUEUE_KEY,
+    // The server refused the token over the live connection: back to sign-in.
+    onUnauthorized: endSession,
     // Ring when an order becomes "received" (paid, waiting for the café). Orders already in
     // the list when the app opened don't ring: only changes that arrive live do.
     onUpdate: (order, previous) => {

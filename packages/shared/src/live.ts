@@ -1,3 +1,5 @@
+import type { QueryClient } from '@tanstack/query-core';
+
 import type { Order } from './types.ts';
 
 /**
@@ -28,4 +30,25 @@ export function applyOrderUpdate(
  */
 export function reconnectDelayMs(attempt: number): number {
   return Math.min(30_000, 1000 * 2 ** attempt);
+}
+
+/**
+ * Writes an order from the live connection into the cached list under `key`, and returns the
+ * cached copy from before (undefined for a new order).
+ *
+ * If a fetch of the list is running, its answer may be from before this order and would
+ * overwrite it (a new order would vanish). So the fetch starts again: the old answer is
+ * dropped, and the new one includes the order.
+ */
+export function writeLiveOrder(
+  client: QueryClient,
+  key: readonly unknown[],
+  order: Order,
+): Order | undefined {
+  const previous = client.getQueryData<Order[]>(key)?.find((cached) => cached.id === order.id);
+  client.setQueryData<Order[]>(key, (orders) => applyOrderUpdate(orders, order));
+  if (client.isFetching({ queryKey: key }) > 0) {
+    void client.refetchQueries({ queryKey: key }).catch(() => {});
+  }
+  return previous;
 }

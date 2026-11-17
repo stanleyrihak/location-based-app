@@ -9,5 +9,8 @@
     "check": "tsc --noEmit -p . && npm test",
     "test": "node --test \"test/**/*.test.ts\""
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@tanstack/query-core": "^5.107.1"
+  }
 }

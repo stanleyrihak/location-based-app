@@ -4,6 +4,7 @@ import { test } from 'node:test';
 
 import { serve } from '@hono/node-server';
 
+import { createHub } from '../src/realtime/hub.ts';
 import { createTestApp, send, signInCustomer, signInSeller } from './helpers.ts';
 
 const HERE = { latitude: 60.45, longitude: 22.27 };
@@ -113,4 +114,14 @@ test('a bad token is closed with 4401', async () => {
   } finally {
     await s.close();
   }
+});
+
+test('ping sends a small message to every open connection, so phones can tell it is alive', () => {
+  const hub = createHub();
+  const got: string[] = [];
+  const detach = hub.attach({ send: (text) => got.push(text) }, { cafeId: 'saaripaahtimo' }, '');
+  hub.attach({ send: (text) => got.push(text) }, { userId: 'u1' }, '');
+  detach();
+  hub.ping();
+  assert.deepEqual(got, ['{"type":"ping"}']);
 });
