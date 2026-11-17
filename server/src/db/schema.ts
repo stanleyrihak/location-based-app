@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS staff (
   created_at     TEXT NOT NULL
 );
 
+-- Where to send push notifications: one Expo push token per phone, for a customer or a seller.
+CREATE TABLE IF NOT EXISTS push_tokens (
+  token       TEXT PRIMARY KEY,
+  user_id     TEXT REFERENCES users(id) ON DELETE CASCADE,
+  staff_id    TEXT REFERENCES staff(id) ON DELETE CASCADE,
+  created_at  TEXT NOT NULL,
+  CHECK ((user_id IS NULL) != (staff_id IS NULL))
+);
+
 -- A signed-in phone: a customer (user_id) or a seller (staff_id), never both.
 -- The token is the password for every request after sign-in.
 CREATE TABLE IF NOT EXISTS sessions (

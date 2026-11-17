@@ -31,11 +31,12 @@ export function createClock(start = Date.parse('2026-11-17T09:00:00Z')) {
 export function createTestApp() {
   const clock = createClock();
   const payments = createFakePayments();
-  const push = createFakePush();
+  const db = openDb(':memory:');
+  const push = createFakePush(db);
   const hub = createHub();
   const config = loadConfig({});
   const deps: Deps = {
-    db: openDb(':memory:'),
+    db,
     payments,
     push,
     hub,

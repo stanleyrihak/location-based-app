@@ -13,7 +13,7 @@ import { SEED_SELLER_PASSWORD } from './db/seed.ts';
 import type { Deps } from './deps.ts';
 import { createFakePayments } from './payments/fake.ts';
 import { createStripePayments } from './payments/stripe.ts';
-import { createFakePush } from './push/fake.ts';
+import { createExpoPush } from './push/expo.ts';
 import { createHub } from './realtime/hub.ts';
 
 const config = loadConfig(process.env);
@@ -26,10 +26,11 @@ const payments = config.stripeSecretKey
   ? createStripePayments(config.stripeSecretKey)
   : createFakePayments();
 
+const db = openDb(path.join(config.dataDir, 'shoot.db'));
 const deps: Deps = {
-  db: openDb(path.join(config.dataDir, 'shoot.db')),
+  db,
   payments,
-  push: createFakePush(),
+  push: createExpoPush(db),
   hub: createHub(),
   now: Date.now,
   uploadsDir,

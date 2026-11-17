@@ -1,10 +1,12 @@
-import type { Push } from './types.ts';
+import type { DatabaseSync } from 'node:sqlite';
 
-/** Remembers what would have been sent, for tests. Filled in by Task 8 of the server plan. */
-export function createFakePush() {
-  const sent: { token: string; title: string; body: string }[] = [];
-  const push: Push = {
-    orderChanged() {},
-  };
-  return { ...push, sent };
+import { createPushService, type Outgoing } from './service.ts';
+
+/** Push without the network: every notification lands in `sent`, for tests to check. */
+export function createFakePush(db: DatabaseSync) {
+  const sent: Outgoing[] = [];
+  const service = createPushService(db, async (messages) => {
+    sent.push(...messages);
+  });
+  return { ...service, sent };
 }
