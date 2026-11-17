@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS cafes (
   radius_m            INTEGER NOT NULL,
   open_until          TEXT NOT NULL,
   is_open             INTEGER NOT NULL DEFAULT 1,
+  -- "Pause orders": open, but not taking new orders right now.
+  is_paused           INTEGER NOT NULL DEFAULT 0,
   ready_in_min        INTEGER NOT NULL,
   delivery_fee_cents  INTEGER NOT NULL,
   categories          TEXT NOT NULL  -- JSON list
@@ -64,6 +66,8 @@ CREATE TABLE IF NOT EXISTS spots (
 
 -- Lines and delivery are stored as JSON copies, as they were when the order was placed.
 -- A bigger system would give the lines their own table, for reports like "cappuccinos sold".
+-- status: pending-payment → received → preparing → on-the-way → delivered, or it ends early
+-- as declined, expired, cancelled (all after payment) or abandoned (never paid).
 CREATE TABLE IF NOT EXISTS orders (
   id                  TEXT PRIMARY KEY,
   number              INTEGER NOT NULL UNIQUE,
@@ -77,12 +81,18 @@ CREATE TABLE IF NOT EXISTS orders (
   delivery_fee_cents  INTEGER NOT NULL,
   total_cents         INTEGER NOT NULL,
   delivery            TEXT NOT NULL,
+  payment_id          TEXT NOT NULL,
+  payment_method_id   TEXT NOT NULL,
   payment_label       TEXT NOT NULL,
   status              TEXT NOT NULL,
-  -- 1 while the clock moves the status (AUTO_ADVANCE); 0 once staff change it by hand.
-  auto_status         INTEGER NOT NULL DEFAULT 1,
   created_at          TEXT NOT NULL,
-  ready_at            TEXT NOT NULL,
+  -- The café must accept before this (received only).
+  accept_by           TEXT,
+  accepted_at         TEXT,
+  -- Accept time + the café's minutes; null until accepted.
+  ready_at            TEXT,
+  decline_reason      TEXT,
+  ended_at            TEXT,
   updated_at          TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS orders_by_user ON orders(user_id, created_at);

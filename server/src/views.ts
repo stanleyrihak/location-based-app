@@ -11,6 +11,7 @@ export type CafeRow = {
   radius_m: number;
   open_until: string;
   is_open: number;
+  is_paused: number;
   ready_in_min: number;
   delivery_fee_cents: number;
   categories: string;
@@ -40,10 +41,16 @@ export type OrderRow = {
   delivery_fee_cents: number;
   total_cents: number;
   delivery: string;
+  payment_id: string;
+  payment_method_id: string;
   payment_label: string;
   status: string;
   created_at: string;
-  ready_at: string;
+  accept_by: string | null;
+  accepted_at: string | null;
+  ready_at: string | null;
+  decline_reason: string | null;
+  ended_at: string | null;
   updated_at: string;
 };
 
@@ -62,6 +69,7 @@ export function toCafe(row: CafeRow, origin: string) {
     radiusM: row.radius_m,
     openUntil: row.open_until,
     isOpen: row.is_open === 1,
+    isPaused: row.is_paused === 1,
     readyInMin: row.ready_in_min,
     deliveryFeeCents: row.delivery_fee_cents,
     categories: JSON.parse(row.categories) as string[],
@@ -129,7 +137,10 @@ export function toOrder(row: OrderRow, origin: string) {
     paymentLabel: row.payment_label,
     status: row.status,
     createdAt: row.created_at,
+    acceptBy: row.accept_by,
+    acceptedAt: row.accepted_at,
     readyAt: row.ready_at,
+    declineReason: row.decline_reason,
     updatedAt: row.updated_at,
   };
 }
