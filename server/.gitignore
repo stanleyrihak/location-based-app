@@ -1,0 +1,3 @@
+# The database and uploaded photos are created when the server runs.
+data/
+node_modules/

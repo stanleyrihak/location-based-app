@@ -1,0 +1,20 @@
+{
+  "name": "shoot-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A test backend for the Shoot app, until the real one is ready.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch src/main.ts",
+    "start": "node src/main.ts",
+    "reset": "rm -rf data",
+    "types:check": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "~6.0.3"
+  }
+}
