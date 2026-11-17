@@ -227,3 +227,29 @@ test('the checks run before any money is reserved', async () => {
   await rejects(createOrder(deps, userId, input()), 409, 'cafe_paused');
   assert.equal(payments.captures.length + payments.releases.length, 0);
 });
+
+test('cancel, decline or the timer during an accept never both take and release the money', async () => {
+  for (const other of ['cancel', 'decline', 'expire'] as const) {
+    const { deps, userId, clock, payments } = setup();
+    const order = await paidOrder(deps, userId);
+    if (other === 'expire') clock.advance(299_000);
+
+    // Accept starts first (its capture is "in flight"), then the other action arrives.
+    const accept = acceptOrder(deps, CAFE, order.id);
+    if (other === 'expire') clock.advance(2_000);
+    const competing =
+      other === 'cancel'
+        ? cancelOrder(deps, userId, order.id)
+        : other === 'decline'
+          ? declineOrder(deps, CAFE, order.id, 'too-busy')
+          : expireOverdue(deps);
+    await Promise.allSettled([accept, competing]);
+
+    const { status } = deps.db.prepare('SELECT status FROM orders WHERE id = ?').get(order.id) as {
+      status: string;
+    };
+    assert.equal(status, 'preparing', other);
+    assert.equal(payments.captures.length, 1, other);
+    assert.equal(payments.releases.length, 0, other);
+  }
+});

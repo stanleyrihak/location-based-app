@@ -64,6 +64,13 @@ function getCafeOrder(deps: Deps, cafeId: string, orderId: string): OrderRow {
 
 const ENDED = new Set(['delivered', 'declined', 'expired', 'cancelled', 'abandoned']);
 
+// Orders being accepted right now. Taking the money is a network call that takes a moment, and
+// while it runs the order is still `received`. Without this, a second accept could capture
+// again, or a cancel, a decline or the timer could end the order and release the money while
+// the capture goes through: the customer would be charged for an order that says "cancelled".
+// `move` refuses every other change of an order in this Set. One server process, so a Set is enough.
+const accepting = new Set<string>();
+
 /**
  * Moves an order to `to`, setting `fields` in the same write.
  *
@@ -80,6 +87,11 @@ async function move(
   if (!canMove(order.status, to)) {
     throw new HttpError(409, 'status_conflict', `The order is already "${order.status}".`, {
       status: order.status,
+    });
+  }
+  if (accepting.has(order.id) && to !== 'preparing') {
+    throw new HttpError(409, 'status_conflict', 'The café is accepting this order right now.', {
+      status: 'preparing',
     });
   }
   const now = iso(deps.now());
@@ -269,11 +281,6 @@ export async function confirmPayment(deps: Deps, userId: string, orderId: string
   });
 }
 
-// Orders being accepted right now. Taking the money is a network call, so between reading the
-// order and saving "preparing" another accept could start; this stops the second one before it
-// can capture again. One server process, so a Set is enough.
-const accepting = new Set<string>();
-
 /** The café says yes: take the money, start the ready time. */
 export async function acceptOrder(deps: Deps, cafeId: string, orderId: string) {
   const order = getCafeOrder(deps, cafeId, orderId);
@@ -354,10 +361,24 @@ export async function expireOverdue(deps: Deps): Promise<number> {
   const rows = deps.db
     .prepare("SELECT * FROM orders WHERE status = 'received' AND accept_by < ?")
     .all(iso(deps.now())) as OrderRow[];
+  let expired = 0;
   for (const row of rows) {
-    await expire(deps, row);
+    // An order the café is accepting right now (or that just changed) answers 409: skip it,
+    // and keep going with the others.
+    if (await skipConflict(() => expire(deps, row))) expired++;
   }
-  return rows.length;
+  return expired;
+}
+
+/** Runs a timer step; false when the order changed in the meantime (409), so it's skipped. */
+async function skipConflict(step: () => Promise<unknown>): Promise<boolean> {
+  try {
+    await step();
+    return true;
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 409) return false;
+    throw error;
+  }
 }
 
 /** The timer: ends orders that were started but never paid. Returns how many. */
@@ -365,9 +386,13 @@ export async function abandonUnpaid(deps: Deps): Promise<number> {
   const rows = deps.db
     .prepare("SELECT * FROM orders WHERE status = 'pending-payment' AND created_at <= ?")
     .all(iso(deps.now() - UNPAID_LIFETIME_MS)) as OrderRow[];
+  let abandoned = 0;
   for (const row of rows) {
-    await move(deps, row, 'abandoned', 'abandoned');
-    await release(deps, row);
+    const ended = await skipConflict(async () => {
+      await move(deps, row, 'abandoned', 'abandoned');
+      await release(deps, row);
+    });
+    if (ended) abandoned++;
   }
-  return rows.length;
+  return abandoned;
 }
