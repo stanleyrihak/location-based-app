@@ -12,6 +12,15 @@ import { OutOfRangeError } from '@/data/use-check-range';
  * The endpoints are described in server/API.md.
  */
 
+// ── Server ───────────────────────────────────────────────────────────────
+
+/** How payments work on this server: Stripe (its sheet needs the publishable key) or fake. */
+export type ServerConfig = { payments: 'stripe' | 'fake'; stripePublishableKey: string | null };
+
+export function getConfig() {
+  return request<ServerConfig>('/config');
+}
+
 // ── Sign-in ──────────────────────────────────────────────────────────────
 
 export type User = { id: string; phone: string; createdAt: string };
@@ -31,6 +40,21 @@ export function verifySmsCode(phone: string, code: string) {
 
 export function getMe() {
   return request<User>('/me');
+}
+
+/** Profile: a new number, proven with the code sent to it (POST /auth/code first). */
+export function changePhone(phone: string, code: string) {
+  return request<User>('/me/phone', { method: 'POST', json: { phone, code } });
+}
+
+/** Profile: sign out on the server too (it also stops push notifications). */
+export function signOut() {
+  return request<void>('/auth/sign-out', { method: 'POST' });
+}
+
+/** Profile: deletes the account. Past orders stay with the café, without your number. */
+export function deleteAccount() {
+  return request<void>('/me', { method: 'DELETE' });
 }
 
 // ── Cafés and menus ──────────────────────────────────────────────────────
@@ -250,6 +274,15 @@ export async function confirmOrder(orderId: string): Promise<Order> {
     if (error instanceof ApiError && error.code === 'status_conflict') {
       return request<Order>(`/orders/${orderId}`);
     }
+    throw toAppError(error);
+  }
+}
+
+/** Cancel while the café hasn't answered. The reserved money is released. */
+export async function cancelOrder(orderId: string): Promise<Order> {
+  try {
+    return await request<Order>(`/orders/${orderId}/cancel`, { method: 'POST' });
+  } catch (error) {
     throw toAppError(error);
   }
 }

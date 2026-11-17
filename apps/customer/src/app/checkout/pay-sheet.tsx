@@ -16,6 +16,7 @@ import {
 import { type NearbyCafe, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { usePlaceOrder } from '@/data/use-place-order';
+import { PaymentCancelledError, PaymentsNotSetUpError, StripeSheetError } from '@/payments/stripe';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 import { formatDistance } from '@/utils/format';
@@ -43,6 +44,10 @@ export default function PaySheet() {
         // The order has its own copy of the items, so the cart can go.
         cart.clear();
       },
+      // Closing Stripe's sheet isn't a failure: show the payment details again, no message.
+      onError: (error) => {
+        if (error instanceof PaymentCancelledError) placeOrder.reset();
+      },
     });
   }
 
@@ -57,7 +62,7 @@ export default function PaySheet() {
         <MovedOutOfRange cafe={cafe} onBackInRange={() => placeOrder.reset()} />
       ) : placeOrder.error instanceof SoldOutError ? (
         <SoldOutWhilePaying itemIds={placeOrder.error.itemIds} />
-      ) : placeOrder.isError ? (
+      ) : placeOrder.isError && !(placeOrder.error instanceof PaymentCancelledError) ? (
         <PaymentFailed
           reason={
             placeOrder.error instanceof PaymentDeclinedError
@@ -68,7 +73,11 @@ export default function PaySheet() {
                   ? 'spot'
                   : placeOrder.error instanceof PriceChangedError
                     ? 'prices'
-                    : 'other'
+                    : placeOrder.error instanceof PaymentsNotSetUpError
+                      ? 'setup'
+                      : placeOrder.error instanceof StripeSheetError
+                        ? 'declined'
+                        : 'other'
           }
           onTryAgain={() => placeOrder.reset()}
         />
@@ -123,6 +132,8 @@ const FAILURE_TEXT = {
     'You haven’t been charged. Your cart and photo are saved. Try again, or choose another payment method.',
   paused:
     'The café isn’t taking orders right now. You haven’t been charged. Your cart is saved, so you can try again in a moment.',
+  setup:
+    'Payments aren’t set up on the server yet (STRIPE_PUBLISHABLE_KEY is missing). You haven’t been charged.',
   prices:
     'The café changed a price since you added it. You haven’t been charged. Your cart has today’s prices now: check the total and pay again.',
   spot: 'The code at your spot isn’t valid any more. You haven’t been charged. Go back to your cart and choose your spot again.',

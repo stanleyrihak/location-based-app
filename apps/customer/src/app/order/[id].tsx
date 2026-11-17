@@ -1,4 +1,4 @@
-import type { Order } from '@shoot/shared';
+import { applyOrderUpdate, type Order } from '@shoot/shared';
 import {
   Button,
   CallButton,
@@ -11,13 +11,16 @@ import {
   ThemedView,
   useTheme,
 } from '@shoot/ui';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OrderProgress } from '@/components/order-card';
-import { minutesLeft, readyTime, STATUS_LABEL } from '@/data/order-format';
+import { cancelOrder, OrderChangedError } from '@/data/api';
+import { declineText, minutesLeft, readyTime, STATUS_LABEL } from '@/data/order-format';
 import { isLive, useOrders, useTrack } from '@/data/queries';
+import { useOrderAgain } from '@/data/use-order-again';
 import { useShareMyPosition } from '@/hooks/use-share-my-position';
 import { formatPrice } from '@/utils/format';
 
@@ -112,6 +115,12 @@ export default function OrderStatusScreen() {
         <Items order={order} />
 
         {isLive(order) && <CallButton phone={order.cafePhone} label={`Call ${order.cafeName}`} />}
+
+        {order.status === 'received' && <CancelOrder order={order} />}
+
+        {(order.status === 'declined' || order.status === 'expired') && (
+          <OrderAgainButton order={order} />
+        )}
       </ScrollView>
     </ThemedView>
   );
@@ -133,10 +142,53 @@ function statusDetail(order: Order, now: number) {
     case 'delivered':
       return 'Delivered. Enjoy!';
     case 'declined':
+      return `${declineText(order.declineReason, order.cafeName)} You weren’t charged.`;
     case 'expired':
+      return `${order.cafeName} didn’t answer in time. You weren’t charged.`;
     case 'cancelled':
-      return 'You weren’t charged.';
+      return 'You cancelled this order. You weren’t charged.';
   }
+}
+
+/**
+ * Only while the café hasn't answered. Asks first: the order can't come back. If the café
+ * accepts at the same moment, the server says so, and the screen follows the live status.
+ */
+function CancelOrder({ order }: { order: Order }) {
+  const queryClient = useQueryClient();
+  const cancel = useMutation({
+    mutationFn: () => cancelOrder(order.id),
+    onSuccess: (updated) =>
+      queryClient.setQueryData<Order[]>(['orders'], (orders) => applyOrderUpdate(orders, updated)),
+  });
+
+  function ask() {
+    Alert.alert('Cancel this order?', 'You won’t be charged.', [
+      { text: 'Keep it', style: 'cancel' },
+      { text: 'Cancel order', style: 'destructive', onPress: () => cancel.mutate() },
+    ]);
+  }
+
+  return (
+    <View style={{ gap: 8 }}>
+      {cancel.isError && (
+        <ThemedText color="error" accessibilityRole="alert" style={{ textAlign: 'center' }}>
+          {cancel.error instanceof OrderChangedError
+            ? `${order.cafeName} already accepted it.`
+            : 'It didn’t cancel. Check your connection and try again.'}
+        </ThemedText>
+      )}
+      <Button variant="text" onPress={ask} loading={cancel.isPending}>
+        {'Cancel order'}
+      </Button>
+    </View>
+  );
+}
+
+/** After a "no" from the café: the same items in the cart, and the café's menu. */
+function OrderAgainButton({ order }: { order: Order }) {
+  const orderAgain = useOrderAgain();
+  return <Button onPress={() => orderAgain(order)}>{'Order again'}</Button>;
 }
 
 /** What's in it. */

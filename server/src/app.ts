@@ -27,6 +27,19 @@ export function createApp(deps: Deps) {
   // CORS lets a web page on another address call this API. Native apps don't need it.
   app.use(cors());
 
+  /**
+   * How payments work, for the app before it pays: Stripe (with the publishable key for its
+   * payment sheet) or the fake payments. No sign-in needed: nothing here is secret.
+   */
+  app.get('/config', (c) =>
+    c.json({
+      payments: deps.config.stripeSecretKey ? 'stripe' : 'fake',
+      stripePublishableKey: deps.config.stripeSecretKey
+        ? (deps.config.stripePublishableKey ?? null)
+        : null,
+    }),
+  );
+
   app.route('/', authRoutes(deps));
   app.route('/', cafeRoutes(deps));
   app.route('/', fileRoutes(deps));

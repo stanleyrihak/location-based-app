@@ -71,6 +71,7 @@ An error has a status code and a body like this. The apps use `error`, people re
 
 | Request | Answer |
 |---|---|
+| `GET /config` | `{ payments: 'stripe' \| 'fake', stripePublishableKey }`. No sign-in. The key comes from `STRIPE_PUBLISHABLE_KEY`; null without Stripe or when it's missing. |
 | `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories, phone` |
 | `GET /cafes/:id` | One café. |
 | `GET /cafes/:id/menu` | Items: `id, cafeId, name, description, priceCents, image?, section, soldOut` |

@@ -1,6 +1,8 @@
 import type { IconName } from '@shoot/ui';
 import { Platform } from 'react-native';
 
+import { useConfig } from '@/data/queries';
+
 export type PaymentMethod = {
   id: string;
   /** "Apple Pay", "Card ending in 4242". */
@@ -41,3 +43,21 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
   card('4242'),
   ...(__DEV__ ? [{ ...card('0002'), label: 'Card ending in 0002 (declines, dev only)' }] : []),
 ];
+
+/**
+ * With Stripe, its payment sheet asks for the card (and offers Google Pay on Android), so the
+ * app shows one method. Apple Pay needs a paid Apple developer account, so the iPhone gets cards.
+ */
+const STRIPE: PaymentMethod = {
+  id: 'stripe',
+  label: Platform.OS === 'android' ? 'Card or Google Pay' : 'Card',
+  shortLabel: 'Card',
+  icon: 'card',
+  isWallet: false,
+};
+
+/** The methods 2.7 offers: Stripe's, or the fake ones while the server has no Stripe key. */
+export function usePaymentMethods(): PaymentMethod[] {
+  const config = useConfig();
+  return config.data?.payments === 'stripe' ? [STRIPE] : PAYMENT_METHODS;
+}

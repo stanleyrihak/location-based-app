@@ -115,10 +115,12 @@ export function authRoutes(deps: Deps) {
 
   /**
    * Delete the account (Apple requires this in apps that let you sign up). Sessions go with it.
-   * Orders stay without a user, because the café needs them for its accounts.
+   * Orders stay without a user or a number, because the café needs them for its accounts.
    */
   app.delete('/me', (c) => {
     const user = requireUser(c, deps);
+    // The café's copies of past orders keep the items and the amount, not the number.
+    db.prepare("UPDATE orders SET customer_phone = '' WHERE user_id = ?").run(user.id);
     db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
     return c.body(null, 204);
   });

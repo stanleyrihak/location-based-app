@@ -23,6 +23,17 @@ Your phone and your computer must be on the same Wi-Fi. In development, the SMS 
 
 The seller app needs a development build, because Expo Go can't receive push notifications. Install the APK from the latest EAS build (`npx eas-cli@latest build --profile development --platform android` in `apps/seller`), then start it with `--dev-client` as above. The build server gets `google-services.json` from the EAS secret `GOOGLE_SERVICES_JSON`; locally it's `apps/seller/google-services.json`, which is not in git.
 
+### Stripe (test mode)
+
+Without keys the server uses fake payments (the card ending 0002 declines). For Stripe's real payment sheet, put both test keys from dashboard.stripe.com → Developers → API keys in `server/.env.local` (not in git):
+
+```
+STRIPE_SECRET_KEY=sk_test_…
+STRIPE_PUBLISHABLE_KEY=pk_test_…
+```
+
+Then pay with the test card 4242 4242 4242 4242, any future date, any CVC. The card 4000 0000 0000 0002 is declined. Stripe's sheet is a native module: the customer app needs a development build (`npx expo run:ios --device` in `apps/customer`), not Expo Go.
+
 ### Google Maps key (Android)
 
 The maps on Android need a Google Maps API key; the iPhone uses Apple Maps without one. Showing a map in an Android app costs nothing ("Maps SDK for Android"), but Google asks for a billing account.
@@ -72,4 +83,22 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] Menu: tap an item, change the price to "3,90" and the description; the customer app shows both after a refresh.
 - [ ] Stand: "Pause orders" on; the customer app can't order from the café. Off again; it can.
 - [ ] Stand: "Sell from here" with no open orders moves the café on the customer's map and its delivery range. With an open order, the button stays off and says why.
+
+**Paying with Stripe (customer app)**
+- [ ] With both Stripe keys set, "Pay" opens Stripe's sheet; 4242… pays, and the order reaches the café.
+- [ ] Close Stripe's sheet: back to the pay sheet with no error; paying again works (Stripe's dashboard shows one payment, not two).
+- [ ] 4000 0000 0000 0002 is declined inside Stripe's sheet; nothing is charged.
+- [ ] Accept on the seller app: the payment in Stripe's dashboard turns from "Uncaptured" to "Succeeded". Decline: it's cancelled.
+
+**When the café says no (customer app)**
+- [ ] Decline with "Too busy": the order screen says the café is too busy, "You weren’t charged", and "Order again" fills the cart.
+- [ ] Let 5 minutes pass: "didn’t answer in time".
+- [ ] While waiting, "Cancel order" asks first, then shows "You cancelled this order". Cancelling just as the café accepts says it was already accepted.
+- [ ] Finished orders in the Orders tab open the order screen.
+
+**Profile (customer app)**
+- [ ] Your number shows. "Change" sends a code to a new number; after the code, Profile shows the new number. A number another account uses is refused with a message.
+- [ ] Location and Camera say "Allowed" or "Not allowed"; "Open Settings" opens the phone's settings, and coming back shows the change.
+- [ ] Terms and Privacy open.
+- [ ] Sign out goes back to the welcome screen. Delete account asks first, then does the same; signing in again with that number makes a new account.
 
