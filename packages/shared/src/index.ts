@@ -3,6 +3,7 @@
 // The `.ts` extensions are there because the server runs this in Node, whose loader needs
 // full file names.
 export * from './api-client.ts';
+export * from './geo.ts';
 export * from './live.ts';
 export * from './live-connection.ts';
 export * from './map.ts';
