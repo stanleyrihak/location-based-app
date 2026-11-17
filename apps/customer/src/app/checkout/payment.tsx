@@ -9,7 +9,7 @@ import { CheckoutSteps } from '@/components/checkout-steps';
 import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
 import { useNearbyCafe } from '@/data/queries';
-import { PAYMENT_METHODS, type PaymentMethod } from '@/payments/payment-methods';
+import { type PaymentMethod, usePaymentMethods } from '@/payments/payment-methods';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 import { formatPrice } from '@/utils/format';
@@ -22,6 +22,7 @@ export default function PaymentScreen() {
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
   const { spot, photos, paymentMethod, setPaymentMethod } = useCheckout();
+  const paymentMethods = usePaymentMethods();
 
   // Neither a code nor photos (say, after a reload in development): prove the spot first.
   if (!spot && !photos) {
@@ -59,7 +60,7 @@ export default function PaymentScreen() {
           <ThemedText type="title" weight="bold" accessibilityRole="header">
             {'Payment method'}
           </ThemedText>
-          {PAYMENT_METHODS.map((method) => (
+          {paymentMethods.map((method) => (
             <PaymentOption
               key={method.id}
               method={method}

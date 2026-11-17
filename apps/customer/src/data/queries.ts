@@ -2,7 +2,7 @@ import { type Cafe, type Coordinates, isLiveStatus, type Order } from '@shoot/sh
 import { trackKey } from '@shoot/ui';
 import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
-import { getCafes, getMenu, getMenuItems, getOrders, getTrack } from '@/data/api';
+import { getCafes, getConfig, getMenu, getMenuItems, getOrders, getTrack } from '@/data/api';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { useLiveConnected } from '@/providers/live-orders-provider';
 import { distanceInMetres } from '@/utils/geo';
@@ -109,4 +109,11 @@ export function useTrack(orderId: string, onTheWay: boolean) {
     enabled: onTheWay,
     refetchInterval: live ? false : 30_000,
   });
+}
+
+export const CONFIG_KEY = ['config'] as const;
+
+/** How payments work on the server. It doesn't change while the app runs. */
+export function useConfig() {
+  return useQuery({ queryKey: CONFIG_KEY, queryFn: getConfig, staleTime: Infinity });
 }

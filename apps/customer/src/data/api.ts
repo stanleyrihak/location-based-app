@@ -12,6 +12,15 @@ import { OutOfRangeError } from '@/data/use-check-range';
  * The endpoints are described in server/API.md.
  */
 
+// ── Server ───────────────────────────────────────────────────────────────
+
+/** How payments work on this server: Stripe (its sheet needs the publishable key) or fake. */
+export type ServerConfig = { payments: 'stripe' | 'fake'; stripePublishableKey: string | null };
+
+export function getConfig() {
+  return request<ServerConfig>('/config');
+}
+
 // ── Sign-in ──────────────────────────────────────────────────────────────
 
 export type User = { id: string; phone: string; createdAt: string };

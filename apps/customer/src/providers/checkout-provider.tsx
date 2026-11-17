@@ -1,7 +1,7 @@
 import type { Spot } from '@shoot/shared';
 import { createContext, type PropsWithChildren, use, useState } from 'react';
 
-import { PAYMENT_METHODS, type PaymentMethod } from '@/payments/payment-methods';
+import { type PaymentMethod, usePaymentMethods } from '@/payments/payment-methods';
 
 /**
  * The two photos that prove where you are. Each is a file URI from the camera
@@ -46,7 +46,10 @@ export function useCheckout() {
 export function CheckoutProvider({ children }: PropsWithChildren) {
   const [spot, setSpotState] = useState<Spot | null>(null);
   const [photos, setPhotosState] = useState<SpotPhotos | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
+  const methods = usePaymentMethods();
+  const [chosen, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  // The chosen method while the server still offers it, otherwise the first one.
+  const paymentMethod = methods.find((method) => method.id === chosen?.id) ?? methods[0];
 
   return (
     <CheckoutContext.Provider

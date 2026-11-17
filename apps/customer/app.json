@@ -52,7 +52,13 @@
           "recordAudioAndroid": false
         }
       ],
-      "expo-maps"
+      "expo-maps",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "enableGooglePay": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
