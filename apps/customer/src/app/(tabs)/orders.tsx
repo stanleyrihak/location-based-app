@@ -1,7 +1,7 @@
 import { Button, ThemedText, ThemedView } from '@shoot/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LiveOrderCard, PastOrderRow } from '@/components/order-card';
@@ -77,23 +77,30 @@ export default function OrdersScreen() {
         {live.map((order) => {
           const left = minutesLeft(order, now);
           return (
-            <LiveOrderCard
+            // Tapping the card opens 4.2, with the map once the order is on its way.
+            <Pressable
               key={order.id}
-              order={order}
-              label="In progress"
-              title={order.cafeName}
-              detail={STATUS_LABEL[order.status]}
-              image={order.cafeImage}
-              footer={
-                <ThemedText type="subhead" color="ink2" style={{ fontVariant: ['tabular-nums'] }}>
-                  {left === null
-                    ? `Waiting for ${order.cafeName} to accept`
-                    : left > 0
-                      ? `Arriving at ${readyTime(order)} · in ~${left} min`
-                      : `Arriving at ${readyTime(order)} · any moment now`}
-                </ThemedText>
-              }
-            />
+              onPress={() => router.push({ pathname: '/order/[id]', params: { id: order.id } })}
+              accessibilityRole="button"
+              accessibilityHint="Opens the order, with the map"
+            >
+              <LiveOrderCard
+                order={order}
+                label="In progress"
+                title={order.cafeName}
+                detail={STATUS_LABEL[order.status]}
+                image={order.cafeImage}
+                footer={
+                  <ThemedText type="subhead" color="ink2" style={{ fontVariant: ['tabular-nums'] }}>
+                    {left === null
+                      ? `Waiting for ${order.cafeName} to accept`
+                      : left > 0
+                        ? `Arriving at ${readyTime(order)} · in ~${left} min`
+                        : `Arriving at ${readyTime(order)} · any moment now`}
+                  </ThemedText>
+                }
+              />
+            </Pressable>
           );
         })}
 
