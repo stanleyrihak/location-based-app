@@ -13,6 +13,9 @@ import { router, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef } from 'react';
 
+// Defines the background location task when the app starts, before anything renders.
+import '@/location/share-position';
+import { SharePositionProvider } from '@/location/share-position-provider';
 import { setUpNotifications } from '@/notifications/new-order-alert';
 import { LiveOrdersProvider } from '@/providers/live-orders-provider';
 import { SessionProvider, useSession } from '@/providers/session-provider';
@@ -57,7 +60,9 @@ export default function RootLayout() {
       <ThemeProvider value={NavigationTheme}>
         <SessionProvider>
           <LiveOrdersProvider>
-            <RootNavigator />
+            <SharePositionProvider>
+              <RootNavigator />
+            </SharePositionProvider>
           </LiveOrdersProvider>
         </SessionProvider>
       </ThemeProvider>

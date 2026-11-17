@@ -1,13 +1,27 @@
 import { type Order, secondsToAccept } from '@shoot/shared';
-import { Button, Icon, Radius, Shadow, ThemedText, ThemedView, useTheme } from '@shoot/ui';
+import {
+  Button,
+  CallButton,
+  DeliveryMap,
+  Icon,
+  type MapDot,
+  type MapPlace,
+  Radius,
+  Shadow,
+  ThemedText,
+  ThemedView,
+  useTheme,
+} from '@shoot/ui';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Countdown, useNow } from '@/components/countdown';
-import { useQueue } from '@/data/queries';
+import { useQueue, useTrack } from '@/data/queries';
 import { actionErrorMessage, useOrderActions } from '@/data/use-order-actions';
+import { useShareMode } from '@/location/share-position-provider';
+import { useSession } from '@/providers/session-provider';
 import { ago, formatPrice } from '@/utils/format';
 
 const GUTTER = 24;
@@ -79,6 +93,7 @@ export default function OrderScreen() {
         </View>
 
         <Delivery order={order} />
+        <Walk order={order} />
         <Items order={order} />
       </ScrollView>
 
@@ -137,6 +152,59 @@ function Delivery({ order }: { order: Order }) {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+/**
+ * The map (your stand, where the customer is, and their live dot while you walk) and Call.
+ * Only for orders you're still working on.
+ */
+function Walk({ order }: { order: Order }) {
+  const { seller } = useSession();
+  const onTheWay = order.status === 'on-the-way';
+  const track = useTrack(order.id, onTheWay);
+  const shareMode = useShareMode();
+  if (
+    order.status !== 'preparing' &&
+    order.status !== 'on-the-way' &&
+    order.status !== 'received'
+  ) {
+    return null;
+  }
+
+  const places: MapPlace[] = [
+    { id: 'spot', kind: 'spot', coordinates: order.deliverTo, title: 'The customer' },
+  ];
+  const stand = seller?.cafe.coordinates;
+  if (stand) places.push({ id: 'cafe', kind: 'cafe', coordinates: stand, title: 'Your stand' });
+  const customer = onTheWay ? track.data?.customer : null;
+  const dots: MapDot[] = customer
+    ? [{ id: 'customer', kind: 'customer', coordinates: customer }]
+    : [];
+
+  return (
+    <View style={{ gap: 12 }}>
+      <DeliveryMap
+        places={places}
+        dots={dots}
+        showMyLocation
+        style={{ height: 260 }}
+        accessibilityLabel="Map: your stand and where the customer is."
+      />
+      {onTheWay && shareMode === 'foreground' && (
+        <ThemedText type="subhead" color="ink2">
+          {
+            'Keep Shoot open: without “Allow all the time”, the customer only sees you while it’s open.'
+          }
+        </ThemedText>
+      )}
+      {onTheWay && shareMode === 'denied' && (
+        <ThemedText type="subhead" color="ink2">
+          {'Location is off, so the customer can’t see you coming. You can turn it on in Settings.'}
+        </ThemedText>
+      )}
+      <CallButton phone={order.customerPhone} label="Call the customer" />
     </View>
   );
 }

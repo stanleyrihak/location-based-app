@@ -41,7 +41,15 @@
           "color": "#D06224"
         }
       ],
-      "expo-maps"
+      "expo-maps",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Used to show the customer where you are while you bring their order.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
