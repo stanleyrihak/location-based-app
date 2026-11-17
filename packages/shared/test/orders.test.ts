@@ -56,3 +56,11 @@ test('queue groups and orders', async () => {
   );
   assert.equal(queue.onTheWay.length, 0);
 });
+
+test('deliveringOrderId is the on-the-way order', async () => {
+  const { deliveringOrderId } = await import('../src/orders.ts');
+  const o = (id: string, status: string) => ({ id, status }) as never;
+  assert.equal(deliveringOrderId([o('a', 'preparing'), o('b', 'on-the-way')]), 'b');
+  assert.equal(deliveringOrderId([o('a', 'delivered')]), null);
+  assert.equal(deliveringOrderId(undefined), null);
+});

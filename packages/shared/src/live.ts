@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/query-core';
 
-import type { Order } from './types.ts';
+import type { Order, PositionMessage, Track } from './types.ts';
 
 /**
  * Puts an order that arrived over the live connection into a cached list of orders.
@@ -51,4 +51,16 @@ export function writeLiveOrder(
     void client.refetchQueries({ queryKey: key }).catch(() => {});
   }
   return previous;
+}
+
+/**
+ * Puts a position from the live connection into an order's track. An older position than the
+ * one already there is ignored, like an out-of-order order update.
+ */
+export function applyPosition(track: Track | undefined, message: PositionMessage): Track {
+  const current = track ?? { seller: null, customer: null };
+  const side = message.type === 'seller.position' ? 'seller' : 'customer';
+  const known = current[side];
+  if (known && Date.parse(known.at) > Date.parse(message.position.at)) return current;
+  return { ...current, [side]: message.position };
 }

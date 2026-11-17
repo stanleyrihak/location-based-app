@@ -1,5 +1,5 @@
 import { reconnectDelayMs } from './live.ts';
-import type { Order } from './types.ts';
+import type { Order, PositionMessage } from './types.ts';
 
 /** The parts of a WebSocket the connection uses (the browser/React Native WebSocket fits). */
 export type LiveSocket = {
@@ -16,6 +16,8 @@ type Options = {
   onOpen: () => void;
   /** An order changed. */
   onOrder: (order: Order) => void;
+  /** The other side of a delivery walk moved. */
+  onPosition?: (message: PositionMessage) => void;
   onConnectedChange: (connected: boolean) => void;
   /** The server refused the token (close code 4401). */
   onUnauthorized?: () => void;
@@ -83,13 +85,20 @@ export function createLiveConnection(options: Options) {
     current.onmessage = (event) => {
       if (socket !== current) return;
       watchSilence(current);
-      let message: { type?: string; order?: Order };
+      let message: { type?: string; order?: Order; orderId?: string; position?: unknown };
       try {
         message = JSON.parse(String(event.data));
       } catch {
         return;
       }
       if (message.type === 'order.updated' && message.order) options.onOrder(message.order);
+      if (
+        (message.type === 'seller.position' || message.type === 'customer.position') &&
+        message.orderId &&
+        message.position
+      ) {
+        options.onPosition?.(message as PositionMessage);
+      }
     };
 
     current.onclose = (event) => {
