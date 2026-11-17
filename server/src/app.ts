@@ -1,3 +1,4 @@
+import { createNodeWebSocket } from '@hono/node-ws';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
@@ -7,6 +8,7 @@ import { authRoutes } from './routes/auth.ts';
 import { cafeRoutes } from './routes/cafes.ts';
 import { devRoutes } from './routes/dev.ts';
 import { fileRoutes } from './routes/files.ts';
+import { liveRoutes } from './routes/live.ts';
 import { orderRoutes } from './routes/orders.ts';
 import { sellerAuthRoutes } from './routes/seller-auth.ts';
 import { sellerCafeRoutes } from './routes/seller-cafe.ts';
@@ -18,6 +20,9 @@ import { sellerOrderRoutes } from './routes/seller-orders.ts';
  */
 export function createApp(deps: Deps) {
   const app = new Hono();
+  // WebSockets need the HTTP server itself, which only exists once something calls serve().
+  // So the app carries `injectWebSocket(server)` for main.ts (and tests) to call after that.
+  const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 
   // CORS lets a web page on another address call this API. Native apps don't need it.
   app.use(cors());
@@ -29,6 +34,7 @@ export function createApp(deps: Deps) {
   app.route('/', sellerAuthRoutes(deps));
   app.route('/', sellerOrderRoutes(deps));
   app.route('/', sellerCafeRoutes(deps));
+  app.route('/', liveRoutes(deps, upgradeWebSocket));
   if (deps.config.devRoutes) {
     app.route('/', devRoutes(deps));
   }
@@ -49,5 +55,5 @@ export function createApp(deps: Deps) {
     return c.json({ error: 'server_error', message: 'Something went wrong on the server.' }, 500);
   });
 
-  return app;
+  return Object.assign(app, { injectWebSocket });
 }

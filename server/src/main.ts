@@ -39,9 +39,10 @@ const deps: Deps = {
 
 // The logger prints every request ("GET /cafes 200 3ms"); the app itself stays quiet,
 // so tests don't print it.
+const app = createApp(deps);
 const root = new Hono();
 root.use(logger());
-root.route('/', createApp(deps));
+root.route('/', app);
 
 /** The computer's addresses on the Wi-Fi, which a phone on the same network can reach. */
 function lanAddresses() {
@@ -52,7 +53,7 @@ function lanAddresses() {
 }
 
 // 0.0.0.0: listen on every network, not only this computer, so your phone can connect.
-serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
+const server = serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
   console.log(`Shoot server on http://localhost:${config.port}`);
   for (const address of lanAddresses()) {
     console.log(`  from your phone: http://${address}:${config.port}`);
@@ -63,3 +64,4 @@ serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
     console.log(`  seller sign-in: <café id>@shoot.test / ${SEED_SELLER_PASSWORD}`);
   }
 });
+app.injectWebSocket(server);
