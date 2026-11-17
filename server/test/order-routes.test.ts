@@ -31,9 +31,7 @@ async function json<T>(response: Response) {
 async function paidOrder(app: ReturnType<typeof createTestApp>['app'], customer: string) {
   const created = await send(app, 'POST', '/orders', NEW_ORDER, customer);
   assert.equal(created.status, 201);
-  const { order, payment } = await json<{ order: Order; payment: { clientSecret: null } }>(
-    created,
-  );
+  const { order, payment } = await json<{ order: Order; payment: { clientSecret: null } }>(created);
   assert.equal(payment.clientSecret, null);
   const confirmed = await send(app, 'POST', `/orders/${order.id}/confirm`, undefined, customer);
   assert.equal(confirmed.status, 200);
@@ -56,9 +54,17 @@ test('the full happy path, seen by both sides', async () => {
     ['on-my-way', 'on-the-way'],
     ['delivered', 'delivered'],
   ] as const) {
-    const response = await send(app, 'POST', `/seller/orders/${order.id}/${step}`, undefined, seller);
+    const response = await send(
+      app,
+      'POST',
+      `/seller/orders/${order.id}/${step}`,
+      undefined,
+      seller,
+    );
     assert.equal(response.status, 200, step);
-    const seen = await json<Order>(await send(app, 'GET', `/orders/${order.id}`, undefined, customer));
+    const seen = await json<Order>(
+      await send(app, 'GET', `/orders/${order.id}`, undefined, customer),
+    );
     assert.equal(seen.status, status);
   }
 });
@@ -66,7 +72,13 @@ test('the full happy path, seen by both sides', async () => {
 test('decline needs a known reason', async () => {
   const { app, customer, seller } = await setup();
   const order = await paidOrder(app, customer);
-  const bad = await send(app, 'POST', `/seller/orders/${order.id}/decline`, { reason: 'meh' }, seller);
+  const bad = await send(
+    app,
+    'POST',
+    `/seller/orders/${order.id}/decline`,
+    { reason: 'meh' },
+    seller,
+  );
   assert.equal(bad.status, 400);
   const ok = await send(
     app,

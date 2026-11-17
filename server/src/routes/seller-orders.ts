@@ -3,12 +3,7 @@ import { Hono } from 'hono';
 
 import { requireSeller } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
-import {
-  acceptOrder,
-  declineOrder,
-  markDelivered,
-  startDelivery,
-} from '../domain/orders.ts';
+import { acceptOrder, declineOrder, markDelivered, startDelivery } from '../domain/orders.ts';
 import { originOf, readJson } from '../request.ts';
 import { asOneOf } from '../validate.ts';
 import { type OrderRow, toOrder } from '../views.ts';

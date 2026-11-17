@@ -23,9 +23,7 @@ export type NewOrderInput = {
   lines: { itemId: string; quantity: number }[];
   note: string;
   coordinates: Coordinates;
-  delivery:
-    | { kind: 'spot'; spotCode: string }
-    | { kind: 'photos'; selfie: string; spot: string };
+  delivery: { kind: 'spot'; spotCode: string } | { kind: 'photos'; selfie: string; spot: string };
   payment: { methodId: string; label: string };
 };
 

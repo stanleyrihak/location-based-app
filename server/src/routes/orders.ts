@@ -2,12 +2,7 @@ import { Hono } from 'hono';
 
 import { requireUser } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
-import {
-  cancelOrder,
-  confirmPayment,
-  createOrder,
-  type NewOrderInput,
-} from '../domain/orders.ts';
+import { cancelOrder, confirmPayment, createOrder, type NewOrderInput } from '../domain/orders.ts';
 import { HttpError } from '../errors.ts';
 import { originOf, readJson } from '../request.ts';
 import { asArray, asCoordinates, asInteger, asObject, asString } from '../validate.ts';
@@ -30,7 +25,10 @@ function parseNewOrder(body: Record<string, unknown>): NewOrderInput {
 
   let parsedDelivery: NewOrderInput['delivery'];
   if (delivery.kind === 'spot') {
-    parsedDelivery = { kind: 'spot', spotCode: asString(delivery.spotCode, 'delivery.spotCode', 200) };
+    parsedDelivery = {
+      kind: 'spot',
+      spotCode: asString(delivery.spotCode, 'delivery.spotCode', 200),
+    };
   } else if (delivery.kind === 'photos') {
     parsedDelivery = {
       kind: 'photos',

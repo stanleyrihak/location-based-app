@@ -1,73 +1,93 @@
-# Shoot test server
+# Shoot server
 
-A small backend for testing the app until the real one is ready. It's plain Node with no packages: Node 24+ runs the TypeScript files directly, and has SQLite built in.
+The backend for the customer app and the seller app: accounts, cafés and menus, orders with payment, live updates and push notifications. Node with Hono and SQLite. Node 24+ runs the TypeScript files directly, so there's no build step.
 
 ## Run it
 
 ```bash
-cd server
-npm run dev        # restarts when you save a file
+npm run dev -w @shoot/server     # from the repo root; restarts when you save a file
+npm run reset -w @shoot/server   # deletes the database and photos (needed after a table changes)
+npm run check -w @shoot/server   # types and tests
 ```
 
-The terminal prints the address your phone can use, and every request. The app finds the server by itself when it runs on the same computer as `npx expo start`. To use another server (for example your friend's), put `EXPO_PUBLIC_API_URL=http://…` in `.env.local` in the app folder and restart Expo.
+The terminal prints the address your phone can use, the development SMS code, the seller sign-in, whether payments are real, and every request.
+
+### Settings
+
+Put them in `server/.env.local` (git ignores it) or on the command line.
 
 | Setting | Default | What it does |
 |---|---|---|
 | `PORT` | `4000` | The port. |
-| `DATA_DIR` | `./data` | The database file and uploaded photos. `npm run reset` deletes it. |
-| `SMS_CODE` | `123456` | The code every number gets. Set it to an empty value for random codes, printed in the terminal. |
-| `STAFF_KEY` | `dev-staff-key` | The password for the staff routes. |
-| `AUTO_ADVANCE` | `true` | Moves orders along by the clock, because there's no café app yet. |
-| `NODE_ENV` | | `production` turns off the `/dev` routes. |
+| `DATA_DIR` | `server/data` | The database file and uploaded photos. |
+| `SMS_CODE` | `123456` | The code every number gets. Empty gives random codes, printed in the terminal. |
+| `STRIPE_SECRET_KEY` | | A Stripe test key (`sk_test_…`). Without it, payments are fake and card `card-0002` declines. |
+| `NODE_ENV` | | `production` turns off the `/dev` routes and SVG uploads. |
 
-`npm run types:check` checks the types. The app's own `tsc` and lint skip this folder.
+### Accounts for testing
 
-## Test data
+- **Customer.** Any phone number, code `123456`.
+- **Seller.** `<café id>@shoot.test`, password `shoot-demo`, for example `saaripaahtimo@shoot.test`.
+- **More sellers.** `npm run create-seller -w @shoot/server -- --cafe saaripaahtimo --email anna@example.com --name Anna --password 'a long password'`
 
-The first time the app asks for cafés, the three test cafés are placed around that position (45 m, 80 m and 350 m away) and saved. To move them, delete the data (`npm run reset`) or call `POST /dev/anchor`. Spot sticker codes: `shoot-spot:saari-table-4`, `shoot-spot:saari-bench-fountain`, `shoot-spot:kampus-table-12`.
+### Test data
+
+The first time anyone asks for cafés, the three test cafés are placed around that position (45 m, 80 m and 350 m away). Spot sticker codes: `shoot-spot:saari-table-4`, `shoot-spot:saari-bench-fountain`, `shoot-spot:kampus-table-12`.
+
+`bash server/scripts/smoke.sh` plays an order through from both sides against a running server. Add `--with-expiry` to also wait for one to expire.
+
+## How the code is laid out
+
+- `src/app.ts` builds the API from `Deps` (database, payments, push, live connections, clock). `src/main.ts` passes the real ones; tests pass fakes and run without a network.
+- `src/domain/orders.ts` has every order rule. Routes only check who is asking and call it.
+- `src/routes/` has one file per area. `src/payments/`, `src/push/` and `src/realtime/` have the side effects.
+- `test/` runs with Node's built-in test runner.
 
 ## API
 
-JSON in, JSON out. Prices are in cents, times are ISO strings, positions are `{ "latitude", "longitude" }`. Image fields are full URLs.
+JSON in, JSON out. Prices are in cents, times are ISO strings, positions are `{ "latitude", "longitude" }`, and image fields are full URLs.
 
-Signed-in routes need `Authorization: Bearer <token>`. Staff routes need `X-Staff-Key: <key>`.
+Customer routes need `Authorization: Bearer <token>` from customer sign-in, and seller routes the token from seller sign-in. A customer token doesn't work on seller routes, or the other way round.
 
-An error has a status code and a body like this. The app uses `error`, people read `message`, and some errors add fields:
+An error has a status code and a body like this. The apps use `error`, people read `message`, and some errors add fields:
 
 ```json
 { "error": "out_of_range", "message": "Saaripaahtimo delivers within 100 m.", "distanceM": 140, "radiusM": 100 }
 ```
 
-### Sign-in
+### Customer sign-in
 
 | Request | Answer |
 |---|---|
-| `POST /auth/code` `{ phone }` | 204. Texts a code (here: prints it). `phone` is like `+358401234567`. |
+| `POST /auth/code` `{ phone }` | 204. Texts a code (here: always `123456`). `phone` like `+358401234567`. |
 | `POST /auth/verify` `{ phone, code }` | `{ token, user }`. Creates the account the first time. Errors: `wrong_code`, `code_expired` (also after 5 wrong tries). |
-| `POST /auth/sign-out` 🔒 | 204. The token stops working. |
-| `GET /me` 🔒 | `{ id, phone, createdAt }` |
-| `POST /me/phone` 🔒 `{ phone, code }` | The user with the new number. Send `/auth/code` to the new number first. Error: `phone_taken`. |
-| `DELETE /me` 🔒 | 204. Deletes the account. Its orders stay, without the user. |
+| `POST /auth/sign-out` | 204. Also stops push notifications to this person. |
+| `GET /me` | `{ id, phone, createdAt }` |
+| `POST /me/phone` `{ phone, code }` | The user with the new number. Send `/auth/code` to the new number first. Error: `phone_taken`. |
+| `DELETE /me` | 204. Deletes the account. Its orders stay, without the user. |
+| `POST /me/push-token` `{ token }` | 204. The phone's Expo push token. |
 
-🔒 = needs the token.
-
-### Cafés
+### Cafés (no sign-in needed)
 
 | Request | Answer |
 |---|---|
-| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, readyInMin, deliveryFeeCents, categories` |
+| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories` |
 | `GET /cafes/:id` | One café. |
-| `GET /cafes/:id/menu` | Menu items: `id, cafeId, name, description, priceCents, image?, section, soldOut` |
+| `GET /cafes/:id/menu` | Items: `id, cafeId, name, description, priceCents, image?, section, soldOut` |
 | `GET /menu-items?cafeIds=a,b` | Items of several cafés, for search. |
-| `GET /cafes/:id/spot?code=` | The spot `{ id, cafeId, label, code }`, or 404 `not_a_spot`. |
+| `GET /cafes/:id/spot?code=` | `{ id, cafeId, label, code }`, or 404 `not_a_spot`. |
 
 ### Photos
 
-`POST /uploads` 🔒 with the photo's bytes as the body and `Content-Type: image/jpeg` (or `image/png`). Answers 201 `{ url, path }`. Put `path` in the order.
+`POST /uploads` with the photo's bytes as the body and `Content-Type: image/jpeg` (or `image/png`). Answers 201 `{ url, path }`. Put `path` in the order. Photos are deleted when the order ends.
 
-### Orders
+### Orders: the customer
 
-`POST /orders` 🔒 checks everything, charges, and stores the order. It answers 201 with the order.
+Placing an order takes two calls, because the customer pays in between:
+
+1. `POST /orders` checks the order and reserves the money. It answers 201 `{ order, payment: { clientSecret } }`, with the order in status `pending-payment`.
+2. The app shows Stripe's payment sheet with `clientSecret`. With fake payments it's `null` and there's no sheet.
+3. `POST /orders/:id/confirm` checks that the money is held and sends the order to the café. The order becomes `received`, with `acceptBy` five minutes ahead.
 
 ```json
 {
@@ -80,33 +100,84 @@ An error has a status code and a body like this. The app uses `error`, people re
 }
 ```
 
-`delivery` can also be `{ "kind": "spot", "spotCode": "shoot-spot:saari-table-4" }`. The app sends only ids and quantities; the server takes names and prices from the menu.
+`delivery` can also be `{ "kind": "spot", "spotCode": "shoot-spot:saari-table-4" }`. The app sends ids and quantities only; names and prices come from the menu.
 
-The checks run in this order, and nothing is charged if one fails:
+`POST /orders` checks in this order, before reserving anything:
 
 | Error | Status | When |
 |---|---|---|
-| `cafe_closed` | 409 | The café switched itself off. |
-| `out_of_range` | 422 | `coordinates` are farther than the café's `radiusM`. Adds `distanceM`, `radiusM`. |
+| `cafe_closed` | 409 | The café is closed. |
+| `cafe_paused` | 409 | The seller paused orders. |
+| `out_of_range` | 422 | `coordinates` are farther than `radiusM`. Adds `distanceM`, `radiusM`. |
 | `sold_out` | 409 | An item is sold out or not on the menu. Adds `itemIds`. |
 | `not_a_spot` | 422 | The spot code isn't this café's. |
-| `payment_declined` | 402 | The card said no. Test card: `methodId` `card-0002`. |
 
-An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, paymentLabel, status, createdAt, readyAt, updatedAt`. `status` is `received`, `preparing`, `on-the-way` or `delivered`, and only moves forward.
-
-| Request | Answer |
-|---|---|
-| `GET /orders` 🔒 | Your orders, newest first. |
-| `GET /orders/:id` 🔒 | One of your orders. Someone else's gives 404. |
-
-### Staff (for the café dashboard and the courier)
+`POST /orders/:id/confirm` answers 402 `payment_declined` if the money isn't held (fake: card `card-0002`).
 
 | Request | Answer |
 |---|---|
-| `GET /staff/cafes/:id/orders?active=true` | The café's orders, oldest first. `active` leaves out delivered ones. |
-| `PATCH /staff/orders/:id` `{ status }` | The order. Only forward, else 409 `status_backwards`. Stops the clock for this order. |
-| `PATCH /staff/cafes/:id` `{ isOpen?, readyInMin?, openUntil? }` | The café. |
-| `PATCH /staff/menu-items/:id` `{ soldOut?, priceCents? }` | The item. |
+| `POST /orders/:id/cancel` | The order, `cancelled`. Only while `received`; the money is released. |
+| `GET /orders` | Your orders, newest first. Unpaid ones are left out. |
+| `GET /orders/:id` | One of your orders. Someone else's gives 404. |
+
+An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, paymentLabel, status, createdAt, acceptBy, acceptedAt, readyAt, declineReason, updatedAt`.
+
+### Order statuses
+
+```
+pending-payment ──confirm──► received ──accept──► preparing ──on-my-way──► on-the-way ──delivered──► delivered
+       │                        ├─ decline ──► declined
+       └─ 30 min unpaid ──►     ├─ 5 min, no answer ──► expired
+          abandoned             └─ customer cancels ──► cancelled
+```
+
+- Statuses only move forward. Anything else answers 409 `status_conflict`.
+- The money is taken at accept. Declined, expired, cancelled and abandoned orders release it.
+- `readyAt` is set at accept: accept time plus the café's `readyInMin`.
+- The server checks every 15 seconds for orders to expire or abandon. An accept after the 5 minutes answers 409 `expired`, even between two checks.
+
+### Orders: the seller
+
+| Request | Answer |
+|---|---|
+| `POST /seller/auth/sign-in` `{ email, password }` | `{ token, seller: { id, name, email, cafe } }`. Wrong email or password: 401 `wrong_credentials`. |
+| `POST /seller/auth/sign-out` | 204. Also stops push notifications to this seller. |
+| `GET /seller/me` | The seller with their café. |
+| `POST /seller/push-token` `{ token }` | 204. |
+| `GET /seller/orders` | The café's live orders, oldest first, then the last 20 finished ones. |
+| `POST /seller/orders/:id/accept` | `preparing`. Errors: 409 `expired`, 409 `status_conflict`, 402 `payment_failed` (the money couldn't be taken; the order stays `received`). |
+| `POST /seller/orders/:id/decline` `{ reason }` | `declined`. `reason`: `sold-out`, `too-busy`, `closing-soon`, `other`. |
+| `POST /seller/orders/:id/on-my-way` | `on-the-way`. |
+| `POST /seller/orders/:id/delivered` | `delivered`. |
+| `PATCH /seller/cafe` `{ isPaused? }` | The café. |
+| `PATCH /seller/menu-items/:id` `{ soldOut?, priceCents?, description? }` | The item. Another café's item gives 404. |
+
+Another café's order gives 404 `order_not_found`.
+
+### Live updates
+
+Open a WebSocket to `/ws?token=<token>` with a customer or seller token. The token is in the address because React Native can't reliably send headers with a WebSocket on iOS. A bad token closes the socket with code 4401.
+
+Each change to an order arrives as:
+
+```json
+{ "type": "order.updated", "order": { …the same as GET /orders/:id… } }
+```
+
+A customer gets their own orders, and a seller gets their café's paid orders. Nobody gets anything else.
+
+### Push notifications
+
+Through Expo's push service, to the tokens registered above:
+
+| When | Who | Title |
+|---|---|---|
+| Order paid | the café's sellers | New order #2044 (with sound) |
+| Accepted | customer | Saaripaahtimo accepted your order |
+| On the way | customer | Your order is on its way |
+| Delivered | customer | Delivered. Enjoy! |
+| Declined | customer | Saaripaahtimo couldn't take your order |
+| Expired | customer | Your order wasn't accepted |
 
 ### Development only
 
@@ -117,8 +188,7 @@ An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, 
 
 ## Not built yet
 
-- Real-time updates. The app asks every 30 s. Next step: a WebSocket or server-sent events, so the courier's position can stream.
-- Real SMS (an SMS service like Twilio) and real payments (Stripe).
-- Staff accounts per café. Now one shared key opens every café.
-- Photo privacy. Photo URLs are random and can't be guessed, but anyone with the URL can open one, and photos aren't deleted after delivery yet.
+- Positions during delivery (the seller walking over, the customer's live dot). This is build step 3.2.
+- Real SMS (an SMS service) and real money (Stripe live mode).
+- Photo privacy beyond random names: anyone with a photo's URL can open it until the order ends.
 - HTTPS. Phones allow plain HTTP to a computer on the same Wi-Fi during development only.

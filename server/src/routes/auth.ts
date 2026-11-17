@@ -102,7 +102,9 @@ export function authRoutes(deps: Deps) {
     const body = await readJson(c);
     const phone = asPhone(body.phone);
 
-    const taken = db.prepare('SELECT id FROM users WHERE phone = ? AND id != ?').get(phone, user.id);
+    const taken = db
+      .prepare('SELECT id FROM users WHERE phone = ? AND id != ?')
+      .get(phone, user.id);
     if (taken) {
       throw new HttpError(409, 'phone_taken', 'Another account already uses this number.');
     }

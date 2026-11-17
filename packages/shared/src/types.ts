@@ -66,13 +66,7 @@ export type OrderLine = {
  * early: declined by the café, expired (not accepted within 5 minutes), cancelled by the customer.
  */
 export type OrderStatus =
-  | 'received'
-  | 'preparing'
-  | 'on-the-way'
-  | 'delivered'
-  | 'declined'
-  | 'expired'
-  | 'cancelled';
+  'received' | 'preparing' | 'on-the-way' | 'delivered' | 'declined' | 'expired' | 'cancelled';
 
 /** Why a café declined an order. */
 export type DeclineReason = 'sold-out' | 'too-busy' | 'closing-soon' | 'other';

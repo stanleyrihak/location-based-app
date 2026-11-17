@@ -9,7 +9,7 @@ import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
 import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
-import { PaymentDeclinedError, SoldOutError } from '@/data/api';
+import { CafePausedError, PaymentDeclinedError, SoldOutError } from '@/data/api';
 import { type NearbyCafe, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { usePlaceOrder } from '@/data/use-place-order';
@@ -57,7 +57,13 @@ export default function PaySheet() {
         <SoldOutWhilePaying itemIds={placeOrder.error.itemIds} />
       ) : placeOrder.isError ? (
         <PaymentFailed
-          declined={placeOrder.error instanceof PaymentDeclinedError}
+          reason={
+            placeOrder.error instanceof PaymentDeclinedError
+              ? 'declined'
+              : placeOrder.error instanceof CafePausedError
+                ? 'paused'
+                : 'other'
+          }
           onTryAgain={() => placeOrder.reset()}
         />
       ) : (
@@ -106,17 +112,28 @@ export default function PaySheet() {
 }
 
 /** E7 Payment failed. Nothing was charged, and the cart and photo are still there. */
-function PaymentFailed({ declined, onTryAgain }: { declined: boolean; onTryAgain: () => void }) {
+const FAILURE_TEXT = {
+  declined:
+    'You haven’t been charged. Your cart and photo are saved. Try again, or choose another payment method.',
+  paused:
+    'The café isn’t taking orders right now. You haven’t been charged. Your cart is saved, so you can try again in a moment.',
+  other:
+    'Something went wrong while sending your order. You haven’t been charged. Your cart and photo are saved, so you can try again.',
+};
+
+function PaymentFailed({
+  reason,
+  onTryAgain,
+}: {
+  reason: keyof typeof FAILURE_TEXT;
+  onTryAgain: () => void;
+}) {
   return (
     <SheetMessage
       icon="x"
       tone="error"
-      title="Payment failed"
-      text={
-        declined
-          ? 'You haven’t been charged. Your cart and photo are saved. Try again, or choose another payment method.'
-          : 'Something went wrong while sending your order. You haven’t been charged. Your cart and photo are saved, so you can try again.'
-      }
+      title={reason === 'paused' ? 'Orders are paused' : 'Payment failed'}
+      text={FAILURE_TEXT[reason]}
     >
       {/* reset() clears the error, so the sheet shows the payment details again. */}
       <Button onPress={onTryAgain}>{'Try again'}</Button>

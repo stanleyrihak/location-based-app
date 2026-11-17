@@ -5,7 +5,10 @@
  */
 export interface Payments {
   /** Starts a payment. `clientSecret` is what the app's Stripe sheet needs; null when fake. */
-  reserve(amountCents: number, methodId: string): Promise<{ paymentId: string; clientSecret: string | null }>;
+  reserve(
+    amountCents: number,
+    methodId: string,
+  ): Promise<{ paymentId: string; clientSecret: string | null }>;
   /** True once the customer has paid and the money is held. */
   isReserved(paymentId: string): Promise<boolean>;
   capture(paymentId: string): Promise<void>;

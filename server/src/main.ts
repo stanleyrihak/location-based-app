@@ -11,6 +11,7 @@ import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
 import { SEED_SELLER_PASSWORD } from './db/seed.ts';
 import type { Deps } from './deps.ts';
+import { abandonUnpaid, expireOverdue } from './domain/orders.ts';
 import { createFakePayments } from './payments/fake.ts';
 import { createStripePayments } from './payments/stripe.ts';
 import { createExpoPush } from './push/expo.ts';
@@ -66,3 +67,13 @@ const server = serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0'
   }
 });
 app.injectWebSocket(server);
+
+// The timer: every 15 seconds, end paid orders the café didn't accept within 5 minutes
+// (the money is released), and drop orders that were started but never paid.
+// An accept that arrives late is refused even between two runs (acceptOrder checks the time).
+const TIMER_MS = 15_000;
+setInterval(() => {
+  Promise.all([expireOverdue(deps), abandonUnpaid(deps)]).catch((error: unknown) => {
+    console.error('The order timer failed', error);
+  });
+}, TIMER_MS);

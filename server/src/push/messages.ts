@@ -47,9 +47,19 @@ export function messageFor(order: OrderRow, event: OrderEvent): PushMessage | nu
         sound: false,
       };
     case 'on-the-way':
-      return { to: 'customer', title: 'Your order is on its way', body: `From ${cafe}.`, sound: false };
+      return {
+        to: 'customer',
+        title: 'Your order is on its way',
+        body: `From ${cafe}.`,
+        sound: false,
+      };
     case 'delivered':
-      return { to: 'customer', title: 'Delivered. Enjoy!', body: `Thanks for ordering from ${cafe}.`, sound: false };
+      return {
+        to: 'customer',
+        title: 'Delivered. Enjoy!',
+        body: `Thanks for ordering from ${cafe}.`,
+        sound: false,
+      };
     case 'declined':
       return {
         to: 'customer',

@@ -39,7 +39,9 @@ export function sellerCafeRoutes(deps: Deps) {
     // Check every field first, then write them all, so a bad field changes nothing.
     const soldOut = body.soldOut === undefined ? undefined : asBoolean(body.soldOut, 'soldOut');
     const price =
-      body.priceCents === undefined ? undefined : asInteger(body.priceCents, 'priceCents', 0, 100_000);
+      body.priceCents === undefined
+        ? undefined
+        : asInteger(body.priceCents, 'priceCents', 0, 100_000);
     const description =
       body.description === undefined
         ? undefined

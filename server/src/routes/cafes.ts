@@ -44,7 +44,11 @@ export function cafeRoutes(deps: Deps) {
   app.get('/cafes', (c) => {
     const latitude = Number(c.req.query('latitude'));
     const longitude = Number(c.req.query('longitude'));
-    if (c.req.query('latitude') === undefined || Number.isNaN(latitude) || Number.isNaN(longitude)) {
+    if (
+      c.req.query('latitude') === undefined ||
+      Number.isNaN(latitude) ||
+      Number.isNaN(longitude)
+    ) {
       throw new HttpError(400, 'invalid_field', 'Send ?latitude=…&longitude=…', {
         field: 'latitude',
       });
@@ -85,7 +89,9 @@ export function cafeRoutes(deps: Deps) {
   /** 2.6: which spot a scanned QR code belongs to. 404 means E5 "This code doesn't work here". */
   app.get('/cafes/:id/spot', (c) => {
     const spot = db
-      .prepare('SELECT id, cafe_id AS cafeId, label, code FROM spots WHERE cafe_id = ? AND code = ?')
+      .prepare(
+        'SELECT id, cafe_id AS cafeId, label, code FROM spots WHERE cafe_id = ? AND code = ?',
+      )
       .get(c.req.param('id'), c.req.query('code') ?? '');
     if (!spot) {
       throw new HttpError(404, 'not_a_spot', 'This code isn’t a spot of this café.');

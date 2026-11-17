@@ -34,9 +34,8 @@ export function sellerAuthRoutes(deps: Deps) {
     const email = asString(body.email, 'email', 200).trim().toLowerCase();
     const password = asString(body.password, 'password', 200);
 
-    const staff = db
-      .prepare('SELECT id, password_hash FROM staff WHERE email = ?')
-      .get(email) as { id: string; password_hash: string } | undefined;
+    const staff = db.prepare('SELECT id, password_hash FROM staff WHERE email = ?').get(email) as
+      { id: string; password_hash: string } | undefined;
     const ok = await verifyPassword(password, staff?.password_hash ?? DUMMY_HASH);
     if (!staff || !ok) {
       // The same answer for both cases, again so nobody can find out which emails exist.

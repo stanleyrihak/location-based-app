@@ -75,6 +75,14 @@ export class PaymentDeclinedError extends Error {
   }
 }
 
+/** Thrown when the café paused orders ("Pause orders") between choosing it and paying. */
+export class CafePausedError extends Error {
+  constructor() {
+    super('The café isn’t taking orders right now');
+    this.name = 'CafePausedError';
+  }
+}
+
 /** Thrown when something in the cart sold out after it was added (E6). */
 export class SoldOutError extends Error {
   itemIds: string[];
@@ -164,12 +172,25 @@ export async function placeOrder(input: PlaceOrderInput): Promise<Order> {
       : input.delivery;
 
   try {
-    return await request<Order>('/orders', { method: 'POST', json: { ...input, delivery } });
+    // Step 1: the server checks the order and reserves the money. Nothing is charged yet.
+    const { order, payment } = await request<{
+      order: Order;
+      payment: { clientSecret: string | null };
+    }>('/orders', { method: 'POST', json: { ...input, delivery } });
+
+    // Stripe's payment sheet goes here (build step 4), using payment.clientSecret. The test
+    // server's fake payments send null and need no sheet.
+    void payment;
+
+    // Step 2: tell the server the customer paid. It checks with the payment provider and
+    // hands the order to the café, which then has 5 minutes to accept.
+    return await request<Order>(`/orders/${order.id}/confirm`, { method: 'POST' });
   } catch (error) {
     if (error instanceof ApiError) {
       if (error.code === 'payment_declined') throw new PaymentDeclinedError();
       if (error.code === 'out_of_range') throw new OutOfRangeError();
       if (error.code === 'sold_out') throw new SoldOutError(error.details.itemIds as string[]);
+      if (error.code === 'cafe_paused') throw new CafePausedError();
     }
     throw error;
   }
