@@ -3,10 +3,11 @@ import { type BarcodeScanningResult, CameraView } from 'expo-camera';
 import { router, useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CameraHeader } from '@/components/camera/camera-header';
+import { QrFrame } from '@/components/camera/qr-frame';
 import { CameraNote, Viewfinder, ViewfinderHint } from '@/components/camera/viewfinder';
 import { CameraAccessDenied } from '@/components/camera-access-denied';
 import { getSpotByCode } from '@/data/api';
@@ -158,42 +159,6 @@ function Scanner() {
           onTakePhoto={() => router.replace('/checkout/photo')}
         />
       )}
-    </View>
-  );
-}
-
-/** The square to aim at, with the rest of the camera dimmed (`.qr-frame`). */
-function QrFrame({ checking }: { checking: boolean }) {
-  return (
-    <View
-      pointerEvents="none"
-      style={{
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-        // Slightly above the middle, like the design (top: 46%).
-        paddingBottom: '8%',
-      }}
-    >
-      <View
-        style={{
-          width: 230,
-          aspectRatio: 1,
-          borderRadius: Radius.card,
-          borderWidth: 4,
-          borderColor: CameraColors.ink,
-          alignItems: 'center',
-          justifyContent: 'center',
-          // A huge shadow with no blur dims everything outside the frame.
-          boxShadow: `0 0 0 1000px ${CameraColors.dim}`,
-        }}
-      >
-        {checking && <ActivityIndicator color={CameraColors.ink} size="large" />}
-      </View>
     </View>
   );
 }
