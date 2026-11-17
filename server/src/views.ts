@@ -15,6 +15,7 @@ export type CafeRow = {
   ready_in_min: number;
   delivery_fee_cents: number;
   categories: string;
+  phone: string;
 };
 
 export type MenuItemRow = {
@@ -50,6 +51,8 @@ export type OrderRow = {
   accepted_at: string | null;
   ready_at: string | null;
   decline_reason: string | null;
+  cafe_phone: string;
+  customer_phone: string;
   ended_at: string | null;
   updated_at: string;
 };
@@ -73,6 +76,7 @@ export function toCafe(row: CafeRow, origin: string) {
     readyInMin: row.ready_in_min,
     deliveryFeeCents: row.delivery_fee_cents,
     categories: JSON.parse(row.categories) as string[],
+    phone: row.phone,
   };
 }
 
@@ -98,21 +102,19 @@ type StoredLine = {
   section: string;
 };
 
+type StoredCoordinates = { latitude: number; longitude: number };
+
+// `coordinates` is the delivery spot: the customer's position when they paid.
 type StoredDelivery =
-  | { kind: 'spot'; spotLabel: string }
-  | {
-      kind: 'photos';
-      selfie: string;
-      spot: string;
-      coordinates: { latitude: number; longitude: number };
-    };
+  | { kind: 'spot'; spotLabel: string; coordinates: StoredCoordinates }
+  | { kind: 'photos'; selfie: string; spot: string; coordinates: StoredCoordinates };
 
 export function toOrder(row: OrderRow, origin: string) {
   const lines = (JSON.parse(row.lines) as StoredLine[]).map((line) => ({
     ...line,
     ...(line.image ? { image: absolute(origin, line.image) } : {}),
   }));
-  const stored = JSON.parse(row.delivery) as StoredDelivery;
+  const { coordinates: deliverTo, ...stored } = JSON.parse(row.delivery) as StoredDelivery;
   const delivery =
     stored.kind === 'photos'
       ? {
@@ -134,6 +136,9 @@ export function toOrder(row: OrderRow, origin: string) {
     deliveryFeeCents: row.delivery_fee_cents,
     totalCents: row.total_cents,
     delivery,
+    deliverTo,
+    cafePhone: row.cafe_phone,
+    customerPhone: row.customer_phone,
     paymentLabel: row.payment_label,
     status: row.status,
     createdAt: row.created_at,

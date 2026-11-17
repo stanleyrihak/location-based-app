@@ -192,3 +192,15 @@ test('confirming twice answers 409 and leaves one received order (what the app�
     [[order.id, 'received']],
   );
 });
+
+test('an order has the delivery spot, the café’s phone and the customer’s phone', async () => {
+  const { app, customer } = await setup();
+  const order = (await paidOrder(app, customer)) as Order & {
+    deliverTo: { latitude: number; longitude: number };
+    cafePhone: string;
+    customerPhone: string;
+  };
+  assert.deepEqual(order.deliverTo, HERE);
+  assert.equal(order.cafePhone, '+358 40 123 4501');
+  assert.equal(order.customerPhone, '+358401234567');
+});

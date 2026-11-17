@@ -13,6 +13,8 @@ type SeedCafe = {
   readyInMin: number;
   deliveryFeeCents: number;
   categories: string[];
+  /** Made up, for the Call button. */
+  phone: string;
 };
 
 type SeedItem = {
@@ -48,6 +50,7 @@ export const SEED_CAFES: SeedCafe[] = [
     readyInMin: 10,
     deliveryFeeCents: 50,
     categories: ['coffee', 'pastry'],
+    phone: '+358 40 123 4501',
   },
   {
     id: 'kampuskuppi',
@@ -60,6 +63,7 @@ export const SEED_CAFES: SeedCafe[] = [
     readyInMin: 15,
     deliveryFeeCents: 50,
     categories: ['coffee', 'lunch'],
+    phone: '+358 40 123 4502',
   },
   {
     id: 'torikahvila-ruska',
@@ -72,6 +76,7 @@ export const SEED_CAFES: SeedCafe[] = [
     readyInMin: 12,
     deliveryFeeCents: 50,
     categories: ['coffee', 'pastry', 'lunch'],
+    phone: '+358 40 123 4503',
   },
 ];
 

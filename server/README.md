@@ -71,7 +71,7 @@ An error has a status code and a body like this. The apps use `error`, people re
 
 | Request | Answer |
 |---|---|
-| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories` |
+| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories, phone` |
 | `GET /cafes/:id` | One café. |
 | `GET /cafes/:id/menu` | Items: `id, cafeId, name, description, priceCents, image?, section, soldOut` |
 | `GET /menu-items?cafeIds=a,b` | Items of several cafés, for search. |
@@ -120,7 +120,9 @@ Placing an order takes two calls, because the customer pays in between:
 | `GET /orders` | Your orders, newest first. Unpaid ones are left out. |
 | `GET /orders/:id` | One of your orders. Someone else's gives 404. |
 
-An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, paymentLabel, status, createdAt, acceptBy, acceptedAt, readyAt, declineReason, updatedAt`.
+An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, deliverTo, cafePhone, customerPhone, paymentLabel, status, createdAt, acceptBy, acceptedAt, readyAt, declineReason, updatedAt`.
+
+`deliverTo` is the delivery spot: the coordinates the customer paid from, for every kind of delivery. `cafePhone` and `customerPhone` are copied when the order is placed, for the Call buttons.
 
 ### Order statuses
 

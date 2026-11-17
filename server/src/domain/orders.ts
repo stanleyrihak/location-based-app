@@ -213,7 +213,7 @@ export async function createOrder(
     if (!spot) {
       throw new HttpError(422, 'not_a_spot', 'This code isn’t a spot of this café.');
     }
-    delivery = { kind: 'spot', spotLabel: spot.label };
+    delivery = { kind: 'spot', spotLabel: spot.label, coordinates: input.coordinates };
   } else {
     delivery = {
       kind: 'photos',
@@ -232,6 +232,9 @@ export async function createOrder(
     input.payment.methodId,
   );
 
+  const customer = db.prepare('SELECT phone FROM users WHERE id = ?').get(userId) as {
+    phone: string;
+  };
   const now = iso(deps.now());
   const { last } = db.prepare('SELECT MAX(number) AS last FROM orders').get() as {
     last: number | null;
@@ -240,8 +243,8 @@ export async function createOrder(
   db.prepare(
     `INSERT INTO orders (id, number, user_id, cafe_id, cafe_name, cafe_image, lines, note,
        subtotal_cents, delivery_fee_cents, total_cents, delivery, payment_id, payment_method_id,
-       payment_label, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending-payment', ?, ?)`,
+       payment_label, cafe_phone, customer_phone, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending-payment', ?, ?)`,
   ).run(
     id,
     last === null ? FIRST_ORDER_NUMBER : last + 1,
@@ -258,6 +261,8 @@ export async function createOrder(
     paymentId,
     input.payment.methodId,
     input.payment.label,
+    cafe.phone,
+    customer.phone,
     now,
     now,
   );
