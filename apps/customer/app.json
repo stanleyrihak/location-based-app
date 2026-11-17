@@ -56,7 +56,8 @@
       [
         "@stripe/stripe-react-native",
         {
-          "enableGooglePay": true
+          "enableGooglePay": true,
+          "disableSPM": true
         }
       ]
     ],
