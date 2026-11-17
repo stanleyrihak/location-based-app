@@ -79,6 +79,7 @@ export default function PaySheet() {
                         ? 'declined'
                         : 'other'
           }
+          detail={placeOrder.error instanceof Error ? placeOrder.error.message : undefined}
           onTryAgain={() => placeOrder.reset()}
         />
       ) : (
@@ -143,9 +144,12 @@ const FAILURE_TEXT = {
 
 function PaymentFailed({
   reason,
+  detail,
   onTryAgain,
 }: {
   reason: keyof typeof FAILURE_TEXT;
+  /** The error's own message, shown in development builds. */
+  detail?: string;
   onTryAgain: () => void;
 }) {
   return (
@@ -163,6 +167,12 @@ function PaymentFailed({
       }
       text={FAILURE_TEXT[reason]}
     >
+      {/* Development builds only: the real reason, to fix it. */}
+      {__DEV__ && detail && (
+        <ThemedText type="caption" color="ink2">
+          {detail}
+        </ThemedText>
+      )}
       {/* reset() clears the error, so the sheet shows the payment details again. */}
       <Button onPress={onTryAgain}>{'Try again'}</Button>
       <Button variant="secondary" onPress={() => router.dismissTo('/checkout/cart')}>

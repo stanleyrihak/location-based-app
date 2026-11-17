@@ -46,9 +46,16 @@ export async function payWithStripe(publishableKey: string | null, clientSecret:
     returnURL: `${String(Constants.expoConfig?.scheme)}://stripe-redirect`,
     defaultBillingDetails: { address: { country: 'FI' } },
   });
-  if (init.error) throw new StripeSheetError(init.error.message);
+  if (init.error) {
+    // In Metro's terminal too, with Stripe's code, to see why without guessing.
+    console.warn('Stripe initPaymentSheet failed', init.error.code, init.error.message);
+    throw new StripeSheetError(init.error.message);
+  }
 
   const { error } = await presentPaymentSheet();
   if (error?.code === 'Canceled') throw new PaymentCancelledError();
-  if (error) throw new StripeSheetError(error.message);
+  if (error) {
+    console.warn('Stripe presentPaymentSheet failed', error.code, error.message);
+    throw new StripeSheetError(error.message);
+  }
 }
