@@ -60,3 +60,10 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] Call opens the dialler with the café's number (iPhone) and the customer's number (Android).
 - [ ] Without "Allow all the time", the seller's order screen says to keep the app open.
 
+**Moved to a different seat (E10)**
+- [ ] With a live order placed with photos, walk about 40 m away (still near the café) and open the app again: "Moved to a different seat?" appears.
+- [ ] "Take a new spot photo": one tap, then the order screen. The seller's order shows the new photo; the selfie is the same.
+- [ ] "Scan the code at your seat" works too (for an order placed with a code, it's the only option).
+- [ ] Far outside the café's range, the new spot is refused with a message and a Call button.
+- [ ] "No, I'm still here" doesn't ask again until the app has been in the background.
+

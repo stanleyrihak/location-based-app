@@ -168,6 +168,12 @@ Each change to an order arrives as:
 
 A customer gets their own orders, and a seller gets their café's paid orders. Nobody gets anything else. Every 20 s each connection also gets `{ type: 'ping' }`; an app that hears nothing for 45 s reconnects.
 
+### Moved to a different seat (E10)
+
+`POST /orders/:id/spot` `{ coordinates, delivery }` → the updated order. `delivery` is `{ "kind": "spot", "spotCode": "…" }` or `{ "kind": "photo", "spot": "/uploads/….jpg" }` (a new spot photo; the selfie stays). Only while the order is live. `deliverTo` becomes the new coordinates, the café gets `order.updated`, and a replaced photo is deleted.
+
+Errors: 404 `order_not_found`, 409 `status_conflict` (the order ended), 422 `out_of_range` `{ distanceM, radiusM }`, 422 `not_a_spot`, 422 `needs_selfie` (a photo for an order placed with a spot code).
+
 ### Positions during the walk
 
 Only while an order is `on-the-way`. The server keeps the latest position per side in memory and never writes it to the database. "Delivered" forgets it.

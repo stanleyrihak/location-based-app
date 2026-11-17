@@ -13,6 +13,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
 import { SplashOverlay } from '@/components/splash-overlay';
+import { useMovedCheck } from '@/hooks/use-moved-check';
 import { CartProvider } from '@/providers/cart-provider';
 import { LiveOrdersProvider } from '@/providers/live-orders-provider';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
@@ -81,22 +82,44 @@ function RootNavigator() {
   } as const;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={hasOnboarded} redirectTo="/welcome">
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="cafe/[id]" />
-        <Stack.Screen name="checkout" />
-        {/* No swipe back: after paying, the only way on is "Done". */}
-        <Stack.Screen name="order-sent/[id]" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="order/[id]" />
-      </Stack.Protected>
+    <>
+      {hasOnboarded && <MovedCheck />}
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Protected guard={hasOnboarded} redirectTo="/welcome">
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="cafe/[id]" />
+          <Stack.Screen name="checkout" />
+          {/* No swipe back: after paying, the only way on is "Done". */}
+          <Stack.Screen name="order-sent/[id]" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="order/[id]" />
+          {/* E10: a native sheet over whatever is open, sized to its content. */}
+          <Stack.Screen
+            name="moved/[id]"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              sheetCornerRadius: 28,
+              contentStyle: { backgroundColor: theme.surface },
+            }}
+          />
+          <Stack.Screen name="moved/photo" />
+          <Stack.Screen name="moved/scan" />
+        </Stack.Protected>
 
-      <Stack.Protected guard={!hasOnboarded} redirectTo="/">
-        <Stack.Screen name="(onboarding)" />
-      </Stack.Protected>
+        <Stack.Protected guard={!hasOnboarded} redirectTo="/">
+          <Stack.Screen name="(onboarding)" />
+        </Stack.Protected>
 
-      <Stack.Screen name="terms" options={legalScreenOptions} />
-      <Stack.Screen name="privacy" options={legalScreenOptions} />
-    </Stack>
+        <Stack.Screen name="terms" options={legalScreenOptions} />
+        <Stack.Screen name="privacy" options={legalScreenOptions} />
+      </Stack>
+    </>
   );
+}
+
+/** E10: asks "Moved to a different seat?" when needed. Renders nothing. */
+function MovedCheck() {
+  useMovedCheck();
+  return null;
 }

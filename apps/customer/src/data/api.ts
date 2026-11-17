@@ -160,6 +160,14 @@ export class SpotNotValidError extends Error {
   }
 }
 
+/** The order changed while the screen was open (it ended, or the café moved it on). */
+export class OrderChangedError extends Error {
+  constructor() {
+    super('This order changed in the meantime.');
+    this.name = 'OrderChangedError';
+  }
+}
+
 /** The server's "no" answers, as errors the screens know. Anything else stays an ApiError. */
 function toAppError(error: unknown): unknown {
   if (!(error instanceof ApiError)) return error;
@@ -175,6 +183,8 @@ function toAppError(error: unknown): unknown {
       return new CafePausedError();
     case 'not_a_spot':
       return new SpotNotValidError();
+    case 'status_conflict':
+      return new OrderChangedError();
     default:
       return error;
   }
@@ -235,6 +245,31 @@ export async function confirmOrder(orderId: string): Promise<Order> {
 /** The user's orders, newest first. */
 export function getOrders() {
   return request<Order[]>('/orders');
+}
+
+export type NewSpot = {
+  /** Where the phone is now: the new delivery spot. The server checks it's still in range. */
+  coordinates: Coordinates;
+  delivery: { kind: 'spot'; spotCode: string } | { kind: 'photo'; spot: PhotoSource };
+};
+
+/**
+ * E10 "Moved to a different seat?": a new spot code, or a new spot photo (the selfie stays).
+ * Uploads the photo first. Throws OutOfRangeError, SpotNotValidError or OrderChangedError.
+ */
+export async function updateSpot(orderId: string, input: NewSpot): Promise<Order> {
+  try {
+    const delivery =
+      input.delivery.kind === 'photo'
+        ? { kind: 'photo', spot: await uploadPhoto(input.delivery.spot) }
+        : input.delivery;
+    return await request<Order>(`/orders/${orderId}/spot`, {
+      method: 'POST',
+      json: { coordinates: input.coordinates, delivery },
+    });
+  } catch (error) {
+    throw toAppError(error);
+  }
 }
 
 /** The latest positions during the walk (the seller's, and yours as the server has it). */

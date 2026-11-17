@@ -8,7 +8,7 @@ import { type Coordinates, distanceInMetres } from '../geo.ts';
 import { getCafeRow } from '../routes/cafes.ts';
 import type { MenuItemRow, OrderRow } from '../views.ts';
 import type { OrderEvent } from './events.ts';
-import { deletePhotos } from './photos.ts';
+import { deletePhoto, deletePhotos } from './photos.ts';
 
 // Every rule about an order's life lives here: what it takes to place one, who may move it to
 // which status, and what happens to the money and the photos on the way. The routes only
@@ -402,4 +402,89 @@ export async function abandonUnpaid(deps: Deps): Promise<number> {
     if (ended) abandoned++;
   }
   return abandoned;
+}
+
+export type NewSpotInput = {
+  coordinates: Coordinates;
+  delivery: { kind: 'spot'; spotCode: string } | { kind: 'photo'; spot: string };
+};
+
+/**
+ * E10, "Moved to a different seat?": a new delivery spot for a live order. A new spot code, or
+ * a new spot photo (the selfie stays, so only orders placed with photos can do this). The new
+ * position must still be in the café's range. The café sees the change at once.
+ */
+export async function updateSpot(
+  deps: Deps,
+  userId: string,
+  orderId: string,
+  input: NewSpotInput,
+): Promise<OrderRow> {
+  const { db } = deps;
+  const order = getUserOrder(deps, userId, orderId);
+  if (!['received', 'preparing', 'on-the-way'].includes(order.status)) {
+    throw new HttpError(409, 'status_conflict', 'This order can’t change any more.', {
+      status: order.status,
+    });
+  }
+
+  const cafe = getCafeRow(db, order.cafe_id);
+  const distanceM = Math.round(
+    distanceInMetres(input.coordinates, {
+      latitude: cafe.latitude as number,
+      longitude: cafe.longitude as number,
+    }),
+  );
+  if (distanceM > cafe.radius_m) {
+    throw new HttpError(422, 'out_of_range', `${cafe.name} delivers within ${cafe.radius_m} m.`, {
+      distanceM,
+      radiusM: cafe.radius_m,
+    });
+  }
+
+  const old = JSON.parse(order.delivery) as { kind: string; selfie?: string; spot?: string };
+  let delivery: {
+    kind: string;
+    spotLabel?: string;
+    selfie?: string;
+    spot?: string;
+    coordinates: Coordinates;
+  };
+  if (input.delivery.kind === 'spot') {
+    const spot = db
+      .prepare('SELECT label FROM spots WHERE cafe_id = ? AND code = ?')
+      .get(cafe.id, input.delivery.spotCode) as { label: string } | undefined;
+    if (!spot) {
+      throw new HttpError(422, 'not_a_spot', 'This code isn’t a spot of this café.');
+    }
+    delivery = { kind: 'spot', spotLabel: spot.label, coordinates: input.coordinates };
+  } else {
+    if (old.kind !== 'photos' || !old.selfie) {
+      throw new HttpError(422, 'needs_selfie', 'This order has no selfie: scan the code instead.');
+    }
+    delivery = {
+      kind: 'photos',
+      selfie: old.selfie,
+      spot: uploadPath(input.delivery.spot, 'delivery.spot'),
+      coordinates: input.coordinates,
+    };
+  }
+
+  const { changes } = db
+    .prepare('UPDATE orders SET delivery = ?, updated_at = ? WHERE id = ? AND status = ?')
+    .run(JSON.stringify(delivery), iso(deps.now()), order.id, order.status);
+  if (changes !== 1) {
+    throw new HttpError(409, 'status_conflict', 'The order changed in the meantime.');
+  }
+
+  // Photos aren't kept: the spot photo this replaces goes now. A spot code instead of photos
+  // drops both (the selfie only made sense with a spot photo).
+  if (old.kind === 'photos') {
+    if (delivery.kind === 'spot') await deletePhoto(deps, old.selfie);
+    if (old.spot !== delivery.spot) await deletePhoto(deps, old.spot);
+  }
+
+  const updated = getRow(deps, order.id) as OrderRow;
+  deps.hub.orderChanged(updated);
+  return updated;
 }

@@ -2,7 +2,14 @@ import { Hono } from 'hono';
 
 import { requireUser } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
-import { cancelOrder, confirmPayment, createOrder, type NewOrderInput } from '../domain/orders.ts';
+import {
+  cancelOrder,
+  confirmPayment,
+  createOrder,
+  type NewOrderInput,
+  type NewSpotInput,
+  updateSpot,
+} from '../domain/orders.ts';
 import { getTrack, recordPosition } from '../domain/positions.ts';
 import { HttpError } from '../errors.ts';
 import { originOf, readJson } from '../request.ts';
@@ -53,6 +60,27 @@ function parseNewOrder(body: Record<string, unknown>): NewOrderInput {
       label: asString(payment.label, 'payment.label', 50),
     },
   };
+}
+
+/** E10's body: where the customer is now, and a new spot code or spot photo. */
+function parseNewSpot(body: Record<string, unknown>): NewSpotInput {
+  const delivery = asObject(body.delivery, 'delivery');
+  const coordinates = asCoordinates(body.coordinates, 'coordinates');
+  if (delivery.kind === 'spot') {
+    return {
+      coordinates,
+      delivery: { kind: 'spot', spotCode: asString(delivery.spotCode, 'delivery.spotCode', 200) },
+    };
+  }
+  if (delivery.kind === 'photo') {
+    return {
+      coordinates,
+      delivery: { kind: 'photo', spot: asString(delivery.spot, 'delivery.spot') },
+    };
+  }
+  throw new HttpError(400, 'invalid_field', '"delivery.kind" must be "spot" or "photo".', {
+    field: 'delivery.kind',
+  });
 }
 
 /** The customer's side of an order: place it, pay, cancel, follow it. */
@@ -106,6 +134,14 @@ export function orderRoutes(deps: Deps) {
       throw new HttpError(404, 'order_not_found', 'There is no such order.');
     }
     return c.json(toOrder(row, originOf(c)));
+  });
+
+  /** E10: moved to a different seat. A new spot code or spot photo, still in range. */
+  app.post('/orders/:id/spot', async (c) => {
+    const user = requireUser(c, deps);
+    const input = parseNewSpot(await readJson(c));
+    const order = await updateSpot(deps, user.id, c.req.param('id'), input);
+    return c.json(toOrder(order, originOf(c)));
   });
 
   /** The customer's live dot during the walk, while their app is open. */
