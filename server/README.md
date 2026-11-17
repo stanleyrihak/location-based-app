@@ -71,7 +71,7 @@ An error has a status code and a body like this. The apps use `error`, people re
 
 | Request | Answer |
 |---|---|
-| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories` |
+| `GET /cafes?latitude=&longitude=` | Cafés: `id, name, image, coverImage, coordinates, radiusM, openUntil, isOpen, isPaused, readyInMin, deliveryFeeCents, categories, phone` |
 | `GET /cafes/:id` | One café. |
 | `GET /cafes/:id/menu` | Items: `id, cafeId, name, description, priceCents, image?, section, soldOut` |
 | `GET /menu-items?cafeIds=a,b` | Items of several cafés, for search. |
@@ -120,7 +120,9 @@ Placing an order takes two calls, because the customer pays in between:
 | `GET /orders` | Your orders, newest first. Unpaid ones are left out. |
 | `GET /orders/:id` | One of your orders. Someone else's gives 404. |
 
-An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, paymentLabel, status, createdAt, acceptBy, acceptedAt, readyAt, declineReason, updatedAt`.
+An order: `id, number, cafeId, cafeName, cafeImage, lines, note, subtotalCents, deliveryFeeCents, totalCents, delivery, deliverTo, cafePhone, customerPhone, paymentLabel, status, createdAt, acceptBy, acceptedAt, readyAt, declineReason, updatedAt`.
+
+`deliverTo` is the delivery spot: the coordinates the customer paid from, for every kind of delivery. `cafePhone` and `customerPhone` are copied when the order is placed, for the Call buttons.
 
 ### Order statuses
 
@@ -164,7 +166,19 @@ Each change to an order arrives as:
 { "type": "order.updated", "order": { …the same as GET /orders/:id… } }
 ```
 
-A customer gets their own orders, and a seller gets their café's paid orders. Nobody gets anything else.
+A customer gets their own orders, and a seller gets their café's paid orders. Nobody gets anything else. Every 20 s each connection also gets `{ type: 'ping' }`; an app that hears nothing for 45 s reconnects.
+
+### Positions during the walk
+
+Only while an order is `on-the-way`. The server keeps the latest position per side in memory and never writes it to the database. "Delivered" forgets it.
+
+| Request | Answer |
+|---|---|
+| `POST /seller/orders/:id/position` `{ latitude, longitude }` | 204. The customer gets `{ type: 'seller.position', orderId, position: { latitude, longitude, at } }`. |
+| `POST /orders/:id/position` `{ latitude, longitude }` | 204. The café's sellers get `{ type: 'customer.position', … }`. |
+| `GET /orders/:id/track`, `GET /seller/orders/:id/track` | `{ seller, customer }`: the latest positions, or null. Both null unless on the way. |
+
+Errors: 404 `order_not_found` for an order that isn't yours, 409 `status_conflict` when it isn't on the way, 400 for bad coordinates. Positions go in over HTTP, not the WebSocket, because the seller's phone sends them from a background task while the app's live connection is closed.
 
 ### Push notifications
 
@@ -190,7 +204,6 @@ Every push has `data: { orderId }`, so a tap opens that order. Pushes to sellers
 
 ## Not built yet
 
-- Positions during delivery (the seller walking over, the customer's live dot). This is build step 3.2.
 - Real SMS (an SMS service) and real money (Stripe live mode).
 - Photo privacy beyond random names: anyone with a photo's URL can open it until the order ends.
 - HTTPS. Phones allow plain HTTP to a computer on the same Wi-Fi during development only.

@@ -36,8 +36,8 @@ function seed(db: DatabaseSync) {
 
   const insertCafe = db.prepare(`
     INSERT INTO cafes (id, name, image, cover_image, north_m, east_m, radius_m, open_until,
-      ready_in_min, delivery_fee_cents, categories)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ready_in_min, delivery_fee_cents, categories, phone)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const insertItem = db.prepare(`
     INSERT INTO menu_items (id, cafe_id, position, name, description, price_cents, image,
@@ -60,6 +60,7 @@ function seed(db: DatabaseSync) {
       cafe.readyInMin,
       cafe.deliveryFeeCents,
       JSON.stringify(cafe.categories),
+      cafe.phone,
     );
   }
   SEED_MENU.forEach((item, position) => {

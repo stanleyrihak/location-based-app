@@ -1,3 +1,5 @@
+import type { PositionMessage } from '@shoot/shared';
+
 import { type OrderRow, toOrder } from '../views.ts';
 
 /** Who a connection belongs to: a customer, or a seller of one café. */
@@ -20,6 +22,8 @@ export interface Hub {
    * nothing for 45 s knows the connection is dead and reconnects.
    */
   ping(): void;
+  /** `seller.position` goes only to the order's customer, `customer.position` only to its café. */
+  positionChanged(order: OrderRow, message: PositionMessage): void;
 }
 
 /**
@@ -45,6 +49,23 @@ export function createHub(): Hub {
       for (const connection of connections) {
         try {
           connection.send('{"type":"ping"}');
+        } catch {
+          // A connection that just dropped; its close handler removes it.
+        }
+      }
+    },
+
+    positionChanged(order, message) {
+      const text = JSON.stringify(message);
+      for (const connection of connections) {
+        const { who } = connection;
+        const forIt =
+          message.type === 'seller.position'
+            ? 'userId' in who && who.userId === order.user_id
+            : 'cafeId' in who && who.cafeId === order.cafe_id;
+        if (!forIt) continue;
+        try {
+          connection.send(text);
         } catch {
           // A connection that just dropped; its close handler removes it.
         }

@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS cafes (
   is_paused           INTEGER NOT NULL DEFAULT 0,
   ready_in_min        INTEGER NOT NULL,
   delivery_fee_cents  INTEGER NOT NULL,
-  categories          TEXT NOT NULL  -- JSON list
+  categories          TEXT NOT NULL,  -- JSON list
+  -- For the customer's Call button.
+  phone               TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS menu_items (
@@ -102,7 +104,11 @@ CREATE TABLE IF NOT EXISTS orders (
   subtotal_cents      INTEGER NOT NULL,
   delivery_fee_cents  INTEGER NOT NULL,
   total_cents         INTEGER NOT NULL,
+  -- JSON. Always has the delivery spot's coordinates (the position when paying).
   delivery            TEXT NOT NULL,
+  -- Copied when the order is placed, for the Call buttons on both sides.
+  cafe_phone          TEXT NOT NULL DEFAULT '',
+  customer_phone      TEXT NOT NULL DEFAULT '',
   payment_id          TEXT NOT NULL,
   payment_method_id   TEXT NOT NULL,
   payment_label       TEXT NOT NULL,

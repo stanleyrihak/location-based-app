@@ -1,7 +1,8 @@
 import { type Cafe, type Coordinates, isLiveStatus, type Order } from '@shoot/shared';
+import { trackKey } from '@shoot/ui';
 import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
-import { getCafes, getMenu, getMenuItems, getOrders } from '@/data/api';
+import { getCafes, getMenu, getMenuItems, getOrders, getTrack } from '@/data/api';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { useLiveConnected } from '@/providers/live-orders-provider';
 import { distanceInMetres } from '@/utils/geo';
@@ -92,5 +93,20 @@ export function useOrders() {
     // The live connection brings every change. Only while it's down, and an order is still
     // going, ask again every 30 s. Once all are finished there's nothing to wait for (false).
     refetchInterval: (query) => (!live && query.state.data?.some(isLive) ? 30_000 : false),
+  });
+}
+
+/**
+ * The seller's latest position while the order is on its way. Fetched once when the screen
+ * opens (so the dot shows at once, mid-walk), then kept fresh by the live connection, which
+ * writes into the same cache entry. Only while that's down, ask again every 30 s.
+ */
+export function useTrack(orderId: string, onTheWay: boolean) {
+  const live = useLiveConnected();
+  return useQuery({
+    queryKey: trackKey(orderId),
+    queryFn: () => getTrack(orderId),
+    enabled: onTheWay,
+    refetchInterval: live ? false : 30_000,
   });
 }

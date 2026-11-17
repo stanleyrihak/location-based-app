@@ -65,3 +65,8 @@ export function groupSellerQueue(orders: Order[]): SellerQueue {
     recent: orders.filter((order) => isEndedStatus(order.status)).sort((a, b) => oldestFirst(b, a)),
   };
 }
+
+/** The order the seller is walking over right now (one per walk), or null. */
+export function deliveringOrderId(orders: Order[] | undefined): string | null {
+  return orders?.find((order) => order.status === 'on-the-way')?.id ?? null;
+}

@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { requireUser } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
 import { cancelOrder, confirmPayment, createOrder, type NewOrderInput } from '../domain/orders.ts';
+import { getTrack, recordPosition } from '../domain/positions.ts';
 import { HttpError } from '../errors.ts';
 import { originOf, readJson } from '../request.ts';
 import { asArray, asCoordinates, asInteger, asObject, asString } from '../validate.ts';
@@ -105,6 +106,20 @@ export function orderRoutes(deps: Deps) {
       throw new HttpError(404, 'order_not_found', 'There is no such order.');
     }
     return c.json(toOrder(row, originOf(c)));
+  });
+
+  /** The customer's live dot during the walk, while their app is open. */
+  app.post('/orders/:id/position', async (c) => {
+    const user = requireUser(c, deps);
+    const coordinates = asCoordinates(await readJson(c), 'body');
+    recordPosition(deps, { userId: user.id }, c.req.param('id'), coordinates);
+    return c.body(null, 204);
+  });
+
+  /** The latest positions, for a screen that opens in the middle of the walk. */
+  app.get('/orders/:id/track', (c) => {
+    const user = requireUser(c, deps);
+    return c.json(getTrack(deps, { userId: user.id }, c.req.param('id')));
   });
 
   return app;

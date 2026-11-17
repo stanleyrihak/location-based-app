@@ -45,3 +45,5 @@ Docs: https://docs.expo.dev/eas/index.md
 - Run it with `npx expo start --dev-client` on the development build (EAS profile `development`, an APK). Expo Go works for everything except push notifications.
 - `app.config.ts` adds `android.googleServicesFile`: the EAS secret `GOOGLE_SERVICES_JSON` on the build server, `./google-services.json` locally (not in git; the repo is public).
 - New orders ring twice over: the live connection while the app is open (`src/providers/live-orders-provider.tsx`) and a push otherwise. `src/notifications/new-order-alert.ts` drops the push when the live connection already rang for that order.
+- Maps: `DeliveryMap` from `@shoot/ui` (expo-maps; Google Maps here). The key comes from `GOOGLE_MAPS_API_KEY` in `app.config.ts`: `.env.local` locally, an EAS environment variable on the build server.
+- The seller's position during a walk: `src/location/`. A background task (expo-task-manager) with an Android foreground service sends it over HTTP; `SharePositionProvider` starts and stops it from the queue (an order `on-the-way` means sharing).

@@ -1,4 +1,11 @@
-import { type Cafe, createApiClient, type DeclineReason, type Order } from '@shoot/shared';
+import {
+  type Cafe,
+  type Coordinates,
+  createApiClient,
+  type DeclineReason,
+  type Order,
+  type Track,
+} from '@shoot/shared';
 import Constants from 'expo-constants';
 
 import { endSession, getToken } from '@/data/session';
@@ -66,4 +73,14 @@ export function registerPushToken(token: string) {
 /** The WebSocket address for live order updates, or null when signed out. */
 export function liveUrl(token: string | null) {
   return token ? `${API_URL.replace(/^http/, 'ws')}/ws?token=${encodeURIComponent(token)}` : null;
+}
+
+/** The seller's position during the walk. Sent by the background task (location/). */
+export function sendPosition(id: string, coordinates: Coordinates) {
+  return request<void>(`/seller/orders/${id}/position`, { method: 'POST', json: coordinates });
+}
+
+/** The latest positions of an order on its way (the customer's live dot). */
+export function getTrack(id: string) {
+  return request<Track>(`/seller/orders/${id}/track`);
 }

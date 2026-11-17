@@ -136,3 +136,31 @@ test('4401 (bad token) reports it and does not retry', () => {
   assert.equal(t.unauthorized(), 1);
   t.done();
 });
+
+test('passes on position messages, not as orders', () => {
+  const positions: unknown[] = [];
+  mock.timers.enable({ apis: ['setTimeout'] });
+  const sockets: LiveSocket[] = [];
+  const live = createLiveConnection({
+    open: () => {
+      const socket: LiveSocket = { onopen: null, onmessage: null, onclose: null, close() {} };
+      sockets.push(socket);
+      return socket;
+    },
+    onOpen: () => {},
+    onOrder: () => assert.fail('not an order'),
+    onConnectedChange: () => {},
+    onPosition: (message) => positions.push(message),
+  });
+  live.start();
+  sockets[0].onopen?.();
+  const message = {
+    type: 'seller.position',
+    orderId: 'a',
+    position: { latitude: 60.45, longitude: 22.27, at: '2026-11-17T09:00:00Z' },
+  };
+  sockets[0].onmessage?.({ data: JSON.stringify(message) });
+  assert.deepEqual(positions, [message]);
+  live.stop();
+  mock.timers.reset();
+});

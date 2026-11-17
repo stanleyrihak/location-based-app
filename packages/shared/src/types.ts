@@ -87,7 +87,12 @@ export type Order = {
   /** How the courier finds you: a scanned spot, or the two photos plus where you were. */
   delivery:
     | { kind: 'spot'; spotLabel: string }
-    | { kind: 'photos'; selfie: string; spot: string; coordinates?: Coordinates };
+    | { kind: 'photos'; selfie: string; spot: string };
+  /** Where to bring it: the customer's position when they paid. Moves only if they update it (E10). */
+  deliverTo: Coordinates;
+  /** For the Call buttons: the café's number for the customer, the customer's for the café. */
+  cafePhone: string;
+  customerPhone: string;
   paymentLabel: string;
   status: OrderStatus;
   /** ISO date strings: they survive JSON, unlike Date objects, when a real backend sends them. */
@@ -100,4 +105,17 @@ export type Order = {
   declineReason: DeclineReason | null;
   /** When anything about the order last changed. Live updates use it to skip stale messages. */
   updatedAt: string;
+};
+
+/** Where a phone was, and when (an ISO date string). Sent during the delivery walk only. */
+export type Position = Coordinates & { at: string };
+
+/** The latest positions of an order on its way. Null until that side has sent one. */
+export type Track = { seller: Position | null; customer: Position | null };
+
+/** A position over the live connection: the seller's goes to the customer, and back. */
+export type PositionMessage = {
+  type: 'seller.position' | 'customer.position';
+  orderId: string;
+  position: Position;
 };

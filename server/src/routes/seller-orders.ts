@@ -4,8 +4,9 @@ import { Hono } from 'hono';
 import { requireSeller } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
 import { acceptOrder, declineOrder, markDelivered, startDelivery } from '../domain/orders.ts';
+import { getTrack, recordPosition } from '../domain/positions.ts';
 import { originOf, readJson } from '../request.ts';
-import { asOneOf } from '../validate.ts';
+import { asCoordinates, asOneOf } from '../validate.ts';
 import { type OrderRow, toOrder } from '../views.ts';
 
 const DECLINE_REASONS: readonly DeclineReason[] = ['sold-out', 'too-busy', 'closing-soon', 'other'];
@@ -59,6 +60,19 @@ export function sellerOrderRoutes(deps: Deps) {
   app.post('/seller/orders/:id/delivered', async (c) => {
     const { cafeId } = requireSeller(c, deps);
     return c.json(toOrder(await markDelivered(deps, cafeId, c.req.param('id')), originOf(c)));
+  });
+
+  /** The seller's position during the walk; the app's background task sends it. */
+  app.post('/seller/orders/:id/position', async (c) => {
+    const { cafeId } = requireSeller(c, deps);
+    const coordinates = asCoordinates(await readJson(c), 'body');
+    recordPosition(deps, { cafeId }, c.req.param('id'), coordinates);
+    return c.body(null, 204);
+  });
+
+  app.get('/seller/orders/:id/track', (c) => {
+    const { cafeId } = requireSeller(c, deps);
+    return c.json(getTrack(deps, { cafeId }, c.req.param('id')));
   });
 
   return app;

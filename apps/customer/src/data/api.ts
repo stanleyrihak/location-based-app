@@ -1,4 +1,4 @@
-import type { Cafe, Coordinates, MenuItem, Order, Spot } from '@shoot/shared';
+import type { Cafe, Coordinates, MenuItem, Order, Spot, Track } from '@shoot/shared';
 import { fetch as expoFetch } from 'expo/fetch';
 import { File } from 'expo-file-system';
 import { Image } from 'react-native';
@@ -235,6 +235,16 @@ export async function confirmOrder(orderId: string): Promise<Order> {
 /** The user's orders, newest first. */
 export function getOrders() {
   return request<Order[]>('/orders');
+}
+
+/** The latest positions during the walk (the seller's, and yours as the server has it). */
+export function getTrack(orderId: string) {
+  return request<Track>(`/orders/${orderId}/track`);
+}
+
+/** Your position during the walk, for the seller's map. Only while the order is on its way. */
+export function sendMyPosition(orderId: string, coordinates: Coordinates) {
+  return request<void>(`/orders/${orderId}/position`, { method: 'POST', json: coordinates });
 }
 
 // ── Development only ─────────────────────────────────────────────────────
