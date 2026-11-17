@@ -1,7 +1,7 @@
 import { type BarcodeScanningResult, CameraView } from 'expo-camera';
 import { router, useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -57,6 +57,18 @@ function Scanner() {
    */
   const busy = useRef(false);
 
+  /**
+   * E4: the camera says nothing about a code it can't read, it just keeps looking. So the
+   * only sign is time: after 10 s with no code, the hint changes to help.
+   */
+  const [struggling, setStruggling] = useState(false);
+  useEffect(() => {
+    if (state !== 'scanning' || !isFocused) return;
+    const timer = setTimeout(() => setStruggling(true), 10_000);
+    // Cleanup: a code found (or the screen left) before 10 s cancels the timer.
+    return () => clearTimeout(timer);
+  }, [state, isFocused]);
+
   async function handleCode(code: string) {
     if (busy.current || !cart.cafeId) return;
     busy.current = true;
@@ -74,6 +86,7 @@ function Scanner() {
 
   function scanAgain() {
     busy.current = false;
+    setStruggling(false);
     setState('scanning');
   }
 
@@ -101,7 +114,9 @@ function Scanner() {
           text={
             state === 'checking'
               ? 'Checking the code…'
-              : 'Point the camera at the code at your spot'
+              : struggling
+                ? 'Can’t read it? Move closer and hold steady'
+                : 'Point the camera at the code at your spot'
           }
         />
       </Viewfinder>

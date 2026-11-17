@@ -19,7 +19,9 @@ type CartState = {
 type CartAction =
   | { type: 'add'; item: MenuItem }
   | { type: 'remove'; itemId: string }
+  | { type: 'removeItems'; itemIds: string[] }
   | { type: 'setNote'; note: string }
+  | { type: 'replace'; cafeId: string; lines: CartLine[] }
   | { type: 'clear' };
 
 const EMPTY: CartState = { cafeId: null, lines: [], note: '' };
@@ -54,8 +56,18 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       // The last item gone means an empty cart, so it stops belonging to a café.
       return lines.length === 0 ? EMPTY : { ...state, lines };
     }
+    case 'removeItems': {
+      // Whole lines at once, whatever the quantity (E6: sold out). The note stays.
+      const lines = state.lines.filter((line) => !action.itemIds.includes(line.item.id));
+      return lines.length === 0 ? EMPTY : { ...state, lines };
+    }
     case 'setNote':
       return { ...state, note: action.note };
+    case 'replace':
+      // "Order again": the old order becomes the whole cart, in one step.
+      return action.lines.length === 0
+        ? EMPTY
+        : { ...EMPTY, cafeId: action.cafeId, lines: action.lines };
     case 'clear':
       return EMPTY;
   }
@@ -67,7 +79,9 @@ type CartContextValue = CartState & {
   quantityOf: (itemId: string) => number;
   add: (item: MenuItem) => void;
   remove: (itemId: string) => void;
+  removeItems: (itemIds: string[]) => void;
   setNote: (note: string) => void;
+  replace: (cafeId: string, lines: CartLine[]) => void;
   clear: () => void;
 };
 
@@ -101,7 +115,9 @@ export function CartProvider({ children }: PropsWithChildren) {
         quantityOf: (itemId) => state.lines.find((line) => line.item.id === itemId)?.quantity ?? 0,
         add: (item) => dispatch({ type: 'add', item }),
         remove: (itemId) => dispatch({ type: 'remove', itemId }),
+        removeItems: (itemIds) => dispatch({ type: 'removeItems', itemIds }),
         setNote: (note) => dispatch({ type: 'setNote', note }),
+        replace: (cafeId, lines) => dispatch({ type: 'replace', cafeId, lines }),
         clear: () => dispatch({ type: 'clear' }),
       }}
     >

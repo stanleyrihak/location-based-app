@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createOrder } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
 import type { NewOrder } from '@/data/types';
-import { useUserLocation } from '@/hooks/use-user-location';
+import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { pay } from '@/payments/pay';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
@@ -20,19 +20,26 @@ export function usePlaceOrder() {
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
   const { spot, photos, paymentMethod } = useCheckout();
-  const location = useUserLocation();
+  const checkRange = useCheckRange();
 
   return useMutation({
     mutationFn: async () => {
       if (!cafe || cart.lines.length === 0) {
         throw new Error('The order is missing its café or items.');
       }
+
+      // E1: you may have walked away since choosing the café. Check before charging anything.
+      const { inRange, here } = await checkRange(cafe);
+      if (!inRange) {
+        throw new OutOfRangeError();
+      }
+
       let delivery: NewOrder['delivery'];
       if (spot) {
         delivery = { kind: 'spot', spotLabel: spot.label };
       } else if (photos) {
         // Where you were when paying, so the courier can head there.
-        delivery = { kind: 'photos', ...photos, coordinates: location.data };
+        delivery = { kind: 'photos', ...photos, coordinates: here };
       } else {
         throw new Error('The order is missing its spot.');
       }
@@ -40,6 +47,7 @@ export function usePlaceOrder() {
       const order: NewOrder = {
         cafeId: cafe.id,
         cafeName: cafe.name,
+        cafeImage: cafe.image,
         lines: cart.lines.map(({ item, quantity }) => ({
           itemId: item.id,
           name: item.name,

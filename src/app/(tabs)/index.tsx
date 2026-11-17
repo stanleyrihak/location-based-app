@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { CafeCard } from '@/components/cafe-card';
 import { Chip } from '@/components/chip';
+import { LocationIllustration } from '@/components/location-illustration';
+import { OrderAgain } from '@/components/order-again';
 import { SearchField } from '@/components/search-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -48,6 +50,10 @@ export default function HomeScreen() {
   const visible = searchCafes(filterCafes(cafes, filter, new Date()), query, menuItems.data ?? []);
   const inRange = visible.filter((cafe) => cafe.inRange);
   const outOfRange = visible.filter((cafe) => !cafe.inRange);
+  // 3.1: judged on all cafés, not the filtered ones. A filter that hides the close cafés
+  // doesn't mean nobody can deliver.
+  const noneInRange = cafes.every((cafe) => !cafe.inRange);
+  const searching = query.trim() !== '';
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -69,14 +75,22 @@ export default function HomeScreen() {
           />
         </View>
 
+        {/* Hidden while searching: then the list should only show what matches. */}
+        {!searching && <OrderAgain cafes={cafes} />}
+
+        {!searching && noneInRange && cafes.length > 0 && <NoCafeInRange />}
+
         <FilterChips selected={filter} onSelect={setFilter} />
 
         <View style={{ gap: 24, marginTop: 16 }}>
           <CafeGroup title="In range · can deliver to you" cafes={inRange} />
-          <CafeGroup title="Out of range · browse only" cafes={outOfRange} />
+          <CafeGroup
+            title={noneInRange ? 'Nearby · browse only' : 'Out of range · browse only'}
+            cafes={outOfRange}
+          />
           {visible.length === 0 && (
             <ThemedText type="body" color="ink2" style={{ textAlign: 'center' }}>
-              {query.trim() === ''
+              {!searching
                 ? 'No cafés match this filter.'
                 : `No cafés or products match “${query.trim()}”.`}
             </ThemedText>
@@ -137,6 +151,28 @@ function FilterChips({
         <Chip key={id} label={label} selected={id === selected} onPress={() => onSelect(id)} />
       ))}
     </ScrollView>
+  );
+}
+
+/** 3.1 No café in range: the cafés are still listed below, to browse. */
+function NoCafeInRange() {
+  return (
+    <View style={{ alignItems: 'center', gap: 12, marginTop: 24 }}>
+      <LocationIllustration accessibilityLabel="You are outside every café’s delivery area" />
+      <ThemedText
+        type="title"
+        weight="bold"
+        accessibilityRole="header"
+        style={{ textAlign: 'center', marginTop: 8 }}
+      >
+        {'No café can deliver here yet'}
+      </ThemedText>
+      <ThemedText color="ink2" style={{ textAlign: 'center' }}>
+        {
+          'Cafés deliver only within a short walk. Move closer to one of the cafés below to start ordering.'
+        }
+      </ThemedText>
+    </View>
   );
 }
 

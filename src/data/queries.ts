@@ -1,7 +1,7 @@
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
-import { getCafes, getMenu, getMenuItems } from '@/data/api';
-import type { Cafe, Coordinates } from '@/data/types';
+import { getCafes, getMenu, getMenuItems, getOrders } from '@/data/api';
+import type { Cafe, Coordinates, Order } from '@/data/types';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { distanceInMetres } from '@/utils/geo';
 
@@ -28,6 +28,9 @@ export function useNearbyCafes() {
     queryKey: ['cafes', near],
     // skipToken: don't run until the location is known.
     queryFn: near ? () => getCafes(near) : skipToken,
+    // A new position is a new key, so without this the cafés would vanish (and screens
+    // show a spinner) until the new list arrives. This keeps the old list on screen meanwhile.
+    placeholderData: keepPreviousData,
   });
 
   // Native errors ("kCLErrorDomain error 0") mean nothing to users, so we say
@@ -71,5 +74,21 @@ export function useMenuItems(cafeIds: string[] | undefined) {
   return useQuery({
     queryKey: ['menu-items', cafeIds],
     queryFn: cafeIds ? () => getMenuItems(cafeIds) : skipToken,
+  });
+}
+
+/** Not delivered yet: shown as a live card, and worth refreshing. */
+export function isLive(order: Order) {
+  return order.status !== 'delivered';
+}
+
+/** The user's orders, newest first. */
+export function useOrders() {
+  return useQuery({
+    queryKey: ['orders'],
+    queryFn: getOrders,
+    // While an order is on its way, ask again every 30 s so its status moves on.
+    // Once all are delivered there's nothing to wait for, so it stops (false).
+    refetchInterval: (query) => (query.state.data?.some(isLive) ? 30_000 : false),
   });
 }

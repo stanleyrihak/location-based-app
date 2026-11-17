@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -20,6 +21,11 @@ type Props = {
   variant?: Variant;
   size?: 'default' | 'small';
   disabled?: boolean;
+  /**
+   * Something is happening (paying, sending). Unlike `disabled`, the button keeps its
+   * colours and shows a spinner: it's busy, not unavailable. Taps are ignored meanwhile.
+   */
+  loading?: boolean;
   icon?: IconName;
   trailing?: string;
   /** For camera screens with the brown background (`.cam` in the design). */
@@ -85,6 +91,7 @@ export function Button({
   variant = 'primary',
   size = 'default',
   disabled = false,
+  loading = false,
   icon,
   trailing,
   camera = false,
@@ -104,9 +111,9 @@ export function Button({
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, busy: loading }}
       style={({ pressed }) => [
         styles.pressable,
         isText ? styles.textBox : styles[size],
@@ -118,7 +125,12 @@ export function Button({
         style,
       ]}
     >
-      {icon && <Icon name={icon} size="base" color={content} />}
+      {/* The spinner takes the icon's place, in the label's colour. */}
+      {loading ? (
+        <ActivityIndicator color={theme[content]} />
+      ) : (
+        icon && <Icon name={icon} size="base" color={content} />
+      )}
       <Text
         style={[
           Typography.button,

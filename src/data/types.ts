@@ -65,9 +65,12 @@ export type OrderStatus = 'received' | 'preparing' | 'on-the-way' | 'delivered';
 
 export type Order = {
   id: string;
+  /** Short and human, for the café and the user: "Order #2041". */
+  number: number;
   cafeId: string;
-  /** Copied, so past orders still show the name if the café changes or closes. */
+  /** Copied, so past orders still show the name and photo if the café changes or closes. */
   cafeName: string;
+  cafeImage: number | string;
   lines: OrderLine[];
   note: string;
   subtotalCents: number;
@@ -85,6 +88,6 @@ export type Order = {
 };
 
 /** What the app sends to place an order. The backend adds id, status and the times. */
-export type NewOrder = Omit<Order, 'id' | 'status' | 'createdAt' | 'readyAt'> & {
+export type NewOrder = Omit<Order, 'id' | 'number' | 'status' | 'createdAt' | 'readyAt'> & {
   readyInMin: number;
 };
