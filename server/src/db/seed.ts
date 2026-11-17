@@ -28,6 +28,9 @@ type SeedItem = {
 
 type SeedSpot = { id: string; cafeId: string; label: string; code: string };
 
+/** Development only: every seeded seller account ("<café id>@shoot.test") uses this. */
+export const SEED_SELLER_PASSWORD = 'shoot-demo';
+
 const AMERICANO = '/static/images/menu/americano.jpg';
 const CAPPUCCINO = '/static/images/menu/cappuccino.jpg';
 const CROISSANT = '/static/images/menu/croissant.jpg';

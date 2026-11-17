@@ -24,3 +24,21 @@ export function requireUser(c: Context, deps: Deps): User {
   }
   return { ...row };
 }
+
+export type Seller = { staffId: string; cafeId: string; name: string; email: string };
+
+/** The signed-in seller. A customer's token gives 401 here, and a seller's token on /me. */
+export function requireSeller(c: Context, deps: Deps): Seller {
+  const row = deps.db
+    .prepare(
+      `SELECT staff.id AS staffId, staff.cafe_id AS cafeId, staff.name, staff.email
+       FROM sessions JOIN staff ON staff.id = sessions.staff_id
+       WHERE sessions.token = ?`,
+    )
+    .get(bearerToken(c)) as Seller | undefined;
+
+  if (!row) {
+    throw new HttpError(401, 'unauthorized', 'Sign in as the café first.');
+  }
+  return { ...row };
+}

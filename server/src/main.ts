@@ -9,6 +9,7 @@ import { logger } from 'hono/logger';
 import { createApp } from './app.ts';
 import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
+import { SEED_SELLER_PASSWORD } from './db/seed.ts';
 import type { Deps } from './deps.ts';
 import { createFakePayments } from './payments/fake.ts';
 import { createStripePayments } from './payments/stripe.ts';
@@ -58,4 +59,7 @@ serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
   }
   console.log(`  SMS code: ${config.fixedSmsCode || 'random, printed when sent'}`);
   console.log(`  payments: ${config.stripeSecretKey ? 'Stripe' : 'fake (card 0002 declines)'}`);
+  if (config.devRoutes) {
+    console.log(`  seller sign-in: <café id>@shoot.test / ${SEED_SELLER_PASSWORD}`);
+  }
 });

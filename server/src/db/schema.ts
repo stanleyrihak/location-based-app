@@ -10,11 +10,24 @@ CREATE TABLE IF NOT EXISTS users (
   created_at  TEXT NOT NULL
 );
 
--- A signed-in phone. The token is the password for every request after sign-in.
+-- A café's seller. Accounts are created by a script, not by signing up in the app.
+CREATE TABLE IF NOT EXISTS staff (
+  id             TEXT PRIMARY KEY,
+  cafe_id        TEXT NOT NULL REFERENCES cafes(id),
+  email          TEXT NOT NULL UNIQUE,
+  name           TEXT NOT NULL,
+  password_hash  TEXT NOT NULL,
+  created_at     TEXT NOT NULL
+);
+
+-- A signed-in phone: a customer (user_id) or a seller (staff_id), never both.
+-- The token is the password for every request after sign-in.
 CREATE TABLE IF NOT EXISTS sessions (
   token       TEXT PRIMARY KEY,
-  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at  TEXT NOT NULL
+  user_id     TEXT REFERENCES users(id) ON DELETE CASCADE,
+  staff_id    TEXT REFERENCES staff(id) ON DELETE CASCADE,
+  created_at  TEXT NOT NULL,
+  CHECK ((user_id IS NULL) != (staff_id IS NULL))
 );
 
 -- The last SMS code sent to each number.

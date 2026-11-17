@@ -2,8 +2,15 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
+import { randomUUID } from 'node:crypto';
+
+import { hashPasswordSync } from '../auth/passwords.ts';
 import { SCHEMA } from './schema.ts';
-import { SEED_CAFES, SEED_MENU, SEED_SPOTS } from './seed.ts';
+import { SEED_CAFES, SEED_MENU, SEED_SPOTS, SEED_SELLER_PASSWORD } from './seed.ts';
+
+// Hashing on purpose takes a moment, and tests open a fresh database each time. The seeded
+// development accounts share one hash, made once per run. Real accounts get their own salt.
+let seedPasswordHash: string | undefined;
 
 /**
  * Opens (or creates) the database and fills an empty one with the test cafés.
@@ -70,6 +77,22 @@ function seed(db: DatabaseSync) {
   });
   for (const spot of SEED_SPOTS) {
     insertSpot.run(spot.id, spot.cafeId, spot.label, spot.code);
+  }
+
+  // One seller per café: "<café id>@shoot.test", password SEED_SELLER_PASSWORD.
+  seedPasswordHash ??= hashPasswordSync(SEED_SELLER_PASSWORD);
+  const insertStaff = db.prepare(
+    'INSERT INTO staff (id, cafe_id, email, name, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+  );
+  for (const cafe of SEED_CAFES) {
+    insertStaff.run(
+      randomUUID(),
+      cafe.id,
+      `${cafe.id}@shoot.test`,
+      `${cafe.name} seller`,
+      seedPasswordHash,
+      new Date().toISOString(),
+    );
   }
   db.exec('COMMIT');
 }

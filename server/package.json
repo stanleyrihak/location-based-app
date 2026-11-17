@@ -13,7 +13,8 @@
     "reset": "rm -rf data",
     "types:check": "tsc --noEmit -p .",
     "check": "npm run types:check && npm test",
-    "test": "node --test \"test/**/*.test.ts\""
+    "test": "node --test \"test/**/*.test.ts\"",
+    "create-seller": "node --env-file-if-exists=.env.local scripts/create-seller.ts"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
