@@ -5,7 +5,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
-import { NavigationTheme } from '@shoot/ui';
+import { NavigationTheme, useTheme } from '@shoot/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack, ThemeProvider } from 'expo-router';
@@ -63,12 +63,25 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { signedIn } = useSession();
+  const theme = useTheme();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* Signed in: the café's tabs. Signed out: only sign-in. Expo Router switches by itself. */}
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="order/[id]" />
+        {/* A native sheet over the order, sized to its content, like the customer's pay sheet. */}
+        <Stack.Screen
+          name="decline/[id]"
+          options={{
+            presentation: 'formSheet',
+            sheetAllowedDetents: 'fitToContents',
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 28,
+            contentStyle: { backgroundColor: theme.bg },
+          }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="sign-in" />

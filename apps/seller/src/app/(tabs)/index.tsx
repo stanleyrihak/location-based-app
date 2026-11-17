@@ -1,5 +1,5 @@
-import { groupSellerQueue, type Order } from '@shoot/shared';
-import { ThemedText, ThemedView } from '@shoot/ui';
+import { groupSellerQueue, type Order, secondsToAccept } from '@shoot/shared';
+import { Button, ThemedText, ThemedView } from '@shoot/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, View } from 'react-native';
@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNow } from '@/components/countdown';
 import { OrderTile } from '@/components/order-tile';
 import { useQueue } from '@/data/queries';
+import { actionErrorMessage, useOrderActions } from '@/data/use-order-actions';
 
 const GUTTER = 24;
 
@@ -98,8 +99,52 @@ function Section({
         {`${title} · ${orders.length}`}
       </ThemedText>
       {orders.map((order) => (
-        <OrderTile key={order.id} order={order} now={now} onPress={() => onOpen(order)} />
+        <OrderTile
+          key={order.id}
+          order={order}
+          now={now}
+          onPress={() => onOpen(order)}
+          actions={
+            order.status === 'received' && (secondsToAccept(order, now) ?? 0) > 0 ? (
+              <NewOrderActions order={order} />
+            ) : undefined
+          }
+        />
       ))}
+    </View>
+  );
+}
+
+/** Accept and Decline right on the tile, so a busy seller doesn't need to open the order. */
+function NewOrderActions({ order }: { order: Order }) {
+  const { accept } = useOrderActions(order.id);
+
+  return (
+    <View style={{ gap: 8 }}>
+      {accept.isError && (
+        <ThemedText type="subhead" color="error" accessibilityRole="alert">
+          {actionErrorMessage(accept.error)}
+        </ThemedText>
+      )}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Button
+          variant="secondary"
+          size="small"
+          disabled={accept.isPending}
+          onPress={() => router.push({ pathname: '/decline/[id]', params: { id: order.id } })}
+          style={{ flex: 1 }}
+        >
+          {'Decline'}
+        </Button>
+        <Button
+          size="small"
+          loading={accept.isPending}
+          onPress={() => accept.mutate()}
+          style={{ flex: 1 }}
+        >
+          {'Accept'}
+        </Button>
+      </View>
     </View>
   );
 }
