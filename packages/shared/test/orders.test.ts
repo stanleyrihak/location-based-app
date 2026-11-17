@@ -21,3 +21,38 @@ test('only received, preparing and on-the-way are live', () => {
 test('the café has five minutes to accept', () => {
   assert.equal(ACCEPT_WINDOW_MS, 300_000);
 });
+
+test('countdown from acceptBy', async () => {
+  const { formatCountdown, secondsToAccept } = await import('../src/orders.ts');
+  const now = Date.parse('2026-11-17T09:00:00Z');
+  const in65s = new Date(now + 65_000).toISOString();
+  assert.equal(secondsToAccept({ acceptBy: in65s }, now), 65);
+  assert.equal(formatCountdown(65), '1:05');
+  assert.equal(secondsToAccept({ acceptBy: new Date(now - 1000).toISOString() }, now), 0);
+  assert.equal(secondsToAccept({ acceptBy: null }, now), null);
+});
+
+test('queue groups and orders', async () => {
+  const { groupSellerQueue } = await import('../src/orders.ts');
+  const make = (id: string, status: string, createdAt: string) =>
+    ({ id, status, createdAt, updatedAt: createdAt }) as never;
+  const queue = groupSellerQueue([
+    make('late', 'received', '2026-11-17T09:05:00Z'),
+    make('early', 'received', '2026-11-17T09:00:00Z'),
+    make('making', 'preparing', '2026-11-17T08:50:00Z'),
+    make('gone', 'declined', '2026-11-17T08:40:00Z'),
+  ]);
+  assert.deepEqual(
+    queue.newOrders.map((o) => o.id),
+    ['early', 'late'],
+  );
+  assert.deepEqual(
+    queue.preparing.map((o) => o.id),
+    ['making'],
+  );
+  assert.deepEqual(
+    queue.recent.map((o) => o.id),
+    ['gone'],
+  );
+  assert.equal(queue.onTheWay.length, 0);
+});
