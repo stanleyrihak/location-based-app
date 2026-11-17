@@ -12,6 +12,7 @@ import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { LiveOrdersProvider } from '@/providers/live-orders-provider';
 import { SessionProvider, useSession } from '@/providers/session-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -51,7 +52,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={NavigationTheme}>
         <SessionProvider>
-          <RootNavigator />
+          <LiveOrdersProvider>
+            <RootNavigator />
+          </LiveOrdersProvider>
         </SessionProvider>
       </ThemeProvider>
     </QueryClientProvider>
