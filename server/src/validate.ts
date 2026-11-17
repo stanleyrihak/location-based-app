@@ -58,3 +58,18 @@ export function asPhone(value: unknown, field = 'phone'): string {
   }
   return phone;
 }
+
+export function asBoolean(value: unknown, field: string): boolean {
+  if (typeof value !== 'boolean') {
+    invalid(field, 'true or false');
+  }
+  return value;
+}
+
+/** One of a fixed list of strings, like a decline reason. */
+export function asOneOf<T extends string>(value: unknown, field: string, options: readonly T[]): T {
+  if (typeof value !== 'string' || !options.includes(value as T)) {
+    invalid(field, `one of ${options.join(', ')}`);
+  }
+  return value as T;
+}

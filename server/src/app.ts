@@ -7,7 +7,10 @@ import { authRoutes } from './routes/auth.ts';
 import { cafeRoutes } from './routes/cafes.ts';
 import { devRoutes } from './routes/dev.ts';
 import { fileRoutes } from './routes/files.ts';
+import { orderRoutes } from './routes/orders.ts';
 import { sellerAuthRoutes } from './routes/seller-auth.ts';
+import { sellerCafeRoutes } from './routes/seller-cafe.ts';
+import { sellerOrderRoutes } from './routes/seller-orders.ts';
 
 /**
  * The whole HTTP API, built from what's passed in. Nothing here opens a database or a port:
@@ -22,7 +25,10 @@ export function createApp(deps: Deps) {
   app.route('/', authRoutes(deps));
   app.route('/', cafeRoutes(deps));
   app.route('/', fileRoutes(deps));
+  app.route('/', orderRoutes(deps));
   app.route('/', sellerAuthRoutes(deps));
+  app.route('/', sellerOrderRoutes(deps));
+  app.route('/', sellerCafeRoutes(deps));
   if (deps.config.devRoutes) {
     app.route('/', devRoutes(deps));
   }
