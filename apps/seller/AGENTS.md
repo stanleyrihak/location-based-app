@@ -39,3 +39,9 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## This app
+
+- Run it with `npx expo start --dev-client` on the development build (EAS profile `development`, an APK). Expo Go works for everything except push notifications.
+- `app.config.ts` adds `android.googleServicesFile`: the EAS secret `GOOGLE_SERVICES_JSON` on the build server, `./google-services.json` locally (not in git; the repo is public).
+- New orders ring twice over: the live connection while the app is open (`src/providers/live-orders-provider.tsx`) and a push otherwise. `src/notifications/new-order-alert.ts` drops the push when the live connection already rang for that order.

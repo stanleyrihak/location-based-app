@@ -179,6 +179,8 @@ Through Expo's push service, to the tokens registered above:
 | Declined | customer | Saaripaahtimo couldn't take your order |
 | Expired | customer | Your order wasn't accepted |
 
+Every push has `data: { orderId }`, so a tap opens that order. Pushes to sellers use the Android channel `orders` (loud, on the lock screen), which the seller app creates.
+
 ### Development only
 
 | Request | What it does |
