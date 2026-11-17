@@ -2,7 +2,7 @@
   "name": "@shoot/server",
   "version": "0.1.0",
   "private": true,
-  "description": "The Shoot backend: accounts, cafés, orders, payments, live updates and push.",
+  "description": "The Shoot backend: accounts, caf\u00e9s, orders, payments, live updates and push.",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -14,7 +14,8 @@
     "types:check": "tsc --noEmit -p .",
     "check": "npm run types:check && npm test",
     "test": "node --test \"test/**/*.test.ts\"",
-    "create-seller": "node --env-file-if-exists=.env.local scripts/create-seller.ts"
+    "create-seller": "node --env-file-if-exists=.env.local scripts/create-seller.ts",
+    "tunnel": "ngrok http 4000 --url https://chance-clean-petted.ngrok-free.dev"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
