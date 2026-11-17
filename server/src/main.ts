@@ -1,24 +1,41 @@
-import { createServer } from 'node:http';
+import { mkdirSync } from 'node:fs';
 import { networkInterfaces } from 'node:os';
+import path from 'node:path';
 
-import { config } from './config.ts';
-import { handle } from './http.ts';
-import { startAutoAdvance } from './status.ts';
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
+import { logger } from 'hono/logger';
 
-// Importing a routes file registers its routes.
-import './routes/auth.ts';
-import './routes/cafes.ts';
-import './routes/files.ts';
-import './routes/orders.ts';
-import './routes/staff.ts';
+import { createApp } from './app.ts';
+import { loadConfig } from './config.ts';
+import { openDb } from './db/open.ts';
+import type { Deps } from './deps.ts';
+import { createFakePayments } from './payments/fake.ts';
+import { createFakePush } from './push/fake.ts';
+import { createHub } from './realtime/hub.ts';
 
-if (config.devRoutes) {
-  await import('./routes/dev.ts');
-}
+const config = loadConfig(process.env);
+const uploadsDir = path.join(config.dataDir, 'uploads');
+mkdirSync(uploadsDir, { recursive: true });
 
-startAutoAdvance();
+const deps: Deps = {
+  db: openDb(path.join(config.dataDir, 'shoot.db')),
+  payments: createFakePayments(),
+  push: createFakePush(),
+  hub: createHub(),
+  now: Date.now,
+  uploadsDir,
+  publicDir: config.publicDir,
+  config,
+};
 
-/** The Mac's addresses on the Wi-Fi, which a phone on the same network can reach. */
+// The logger prints every request ("GET /cafes 200 3ms"); the app itself stays quiet,
+// so tests don't print it.
+const root = new Hono();
+root.use(logger());
+root.route('/', createApp(deps));
+
+/** The computer's addresses on the Wi-Fi, which a phone on the same network can reach. */
 function lanAddresses() {
   return Object.values(networkInterfaces())
     .flat()
@@ -27,11 +44,10 @@ function lanAddresses() {
 }
 
 // 0.0.0.0: listen on every network, not only this computer, so your phone can connect.
-createServer(handle).listen(config.port, '0.0.0.0', () => {
+serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
   console.log(`Shoot server on http://localhost:${config.port}`);
   for (const address of lanAddresses()) {
     console.log(`  from your phone: http://${address}:${config.port}`);
   }
   console.log(`  SMS code: ${config.fixedSmsCode || 'random, printed when sent'}`);
-  console.log(`  auto-advance orders: ${config.autoAdvance ? 'on' : 'off'}`);
 });

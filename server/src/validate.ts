@@ -1,5 +1,5 @@
 import type { Coordinates } from './geo.ts';
-import { HttpError } from './http.ts';
+import { HttpError } from './errors.ts';
 
 // Small checks for request fields. Anything a client sends can be wrong or made up, so every
 // field is checked before use. (A real project would likely use a library such as Zod.)

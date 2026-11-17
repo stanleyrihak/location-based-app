@@ -1,4 +1,4 @@
-// The test data, the same as the app's old mocks (src/data/mock). Images are paths under
+// The test data: three cafés with their menus and spot stickers. Images are paths under
 // public/, so the server can send them as URLs.
 
 type SeedCafe = {
