@@ -11,6 +11,7 @@ import { loadConfig } from './config.ts';
 import { openDb } from './db/open.ts';
 import type { Deps } from './deps.ts';
 import { createFakePayments } from './payments/fake.ts';
+import { createStripePayments } from './payments/stripe.ts';
 import { createFakePush } from './push/fake.ts';
 import { createHub } from './realtime/hub.ts';
 
@@ -18,9 +19,15 @@ const config = loadConfig(process.env);
 const uploadsDir = path.join(config.dataDir, 'uploads');
 mkdirSync(uploadsDir, { recursive: true });
 
+// Stripe when there's a key (STRIPE_SECRET_KEY=sk_test_… in server/.env.local), otherwise
+// pretend payments, so the app works before anyone has a Stripe account.
+const payments = config.stripeSecretKey
+  ? createStripePayments(config.stripeSecretKey)
+  : createFakePayments();
+
 const deps: Deps = {
   db: openDb(path.join(config.dataDir, 'shoot.db')),
-  payments: createFakePayments(),
+  payments,
   push: createFakePush(),
   hub: createHub(),
   now: Date.now,
@@ -50,4 +57,5 @@ serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0' }, () => {
     console.log(`  from your phone: http://${address}:${config.port}`);
   }
   console.log(`  SMS code: ${config.fixedSmsCode || 'random, printed when sent'}`);
+  console.log(`  payments: ${config.stripeSecretKey ? 'Stripe' : 'fake (card 0002 declines)'}`);
 });
