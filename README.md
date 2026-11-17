@@ -90,3 +90,9 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] 4000 0000 0000 0002 is declined inside Stripe's sheet; nothing is charged.
 - [ ] Accept on the seller app: the payment in Stripe's dashboard turns from "Uncaptured" to "Succeeded". Decline: it's cancelled.
 
+**When the café says no (customer app)**
+- [ ] Decline with "Too busy": the order screen says the café is too busy, "You weren’t charged", and "Order again" fills the cart.
+- [ ] Let 5 minutes pass: "didn’t answer in time".
+- [ ] While waiting, "Cancel order" asks first, then shows "You cancelled this order". Cancelling just as the café accepts says it was already accepted.
+- [ ] Finished orders in the Orders tab open the order screen.
+

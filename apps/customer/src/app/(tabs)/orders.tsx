@@ -110,7 +110,14 @@ export default function OrdersScreen() {
               {'Earlier'}
             </ThemedText>
             {earlier.map((order) => (
-              <PastOrderRow key={order.id} order={order} />
+              <Pressable
+                key={order.id}
+                onPress={() => router.push({ pathname: '/order/[id]', params: { id: order.id } })}
+                accessibilityRole="button"
+                accessibilityHint="Opens the order"
+              >
+                <PastOrderRow order={order} />
+              </Pressable>
             ))}
           </View>
         )}

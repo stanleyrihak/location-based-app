@@ -263,6 +263,15 @@ export async function confirmOrder(orderId: string): Promise<Order> {
   }
 }
 
+/** Cancel while the café hasn't answered. The reserved money is released. */
+export async function cancelOrder(orderId: string): Promise<Order> {
+  try {
+    return await request<Order>(`/orders/${orderId}/cancel`, { method: 'POST' });
+  } catch (error) {
+    throw toAppError(error);
+  }
+}
+
 /** The user's orders, newest first. */
 export function getOrders() {
   return request<Order[]>('/orders');

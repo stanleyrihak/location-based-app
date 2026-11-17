@@ -1,4 +1,4 @@
-import type { Order, OrderStatus } from '@shoot/shared';
+import type { DeclineReason, Order, OrderStatus } from '@shoot/shared';
 
 import { formatClockTime, formatItemCount } from '@/utils/format';
 
@@ -48,4 +48,18 @@ export function minutesLeft(order: Order, now: number) {
 /** "5 Nov" */
 export function shortDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+/** Why the café said no, in the customer's words. */
+export function declineText(reason: DeclineReason | null, cafeName: string) {
+  switch (reason) {
+    case 'sold-out':
+      return `${cafeName} ran out of something in your order.`;
+    case 'too-busy':
+      return `${cafeName} is too busy right now.`;
+    case 'closing-soon':
+      return `${cafeName} is closing soon.`;
+    default:
+      return `${cafeName} couldn’t take your order.`;
+  }
 }
