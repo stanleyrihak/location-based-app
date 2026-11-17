@@ -12,4 +12,5 @@ export * from './components/themed-view';
 export * from './components/wordmark';
 export * from './constants/theme';
 export * from './hooks/use-keyboard-visible';
+export * from './hooks/use-live-orders';
 export * from './hooks/use-theme';

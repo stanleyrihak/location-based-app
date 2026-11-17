@@ -1,7 +1,9 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    // @shoot/shared imports its own files with a .ts extension, which the server (Node) needs.
+    "allowImportingTsExtensions": true
   },
   "include": ["src"]
 }

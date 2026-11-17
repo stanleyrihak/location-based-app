@@ -9,10 +9,14 @@
     "check": "tsc --noEmit -p ."
   },
   "peerDependencies": {
+    "@tanstack/react-query": "*",
     "expo-router": "*",
     "react": "*",
     "react-native": "*",
     "react-native-safe-area-context": "*",
     "react-native-svg": "*"
+  },
+  "dependencies": {
+    "@shoot/shared": "*"
   }
 }

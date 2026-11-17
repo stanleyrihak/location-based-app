@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 
 import { SplashOverlay } from '@/components/splash-overlay';
 import { CartProvider } from '@/providers/cart-provider';
+import { LiveOrdersProvider } from '@/providers/live-orders-provider';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -55,9 +56,11 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={NavigationTheme}>
         <OnboardingProvider>
-          <CartProvider>
-            <RootNavigator />
-          </CartProvider>
+          <LiveOrdersProvider>
+            <CartProvider>
+              <RootNavigator />
+            </CartProvider>
+          </LiveOrdersProvider>
         </OnboardingProvider>
         {showSplash && <SplashOverlay onDone={() => setShowSplash(false)} />}
       </ThemeProvider>
