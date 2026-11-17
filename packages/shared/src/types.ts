@@ -22,6 +22,11 @@ export type Cafe = {
   categories: CafeCategory[];
   /** The wide photo at the top of the menu (2.1). */
   coverImage: string;
+  isOpen: boolean;
+  /** "Pause orders": visible, but not taking orders right now. */
+  isPaused: boolean;
+  /** For the Call button: "+358 40 123 4501". */
+  phone: string;
 };
 
 /** Tabs on the café menu. Not the same as CafeCategory: the menu has Tea, the Home filter doesn't. */

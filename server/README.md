@@ -108,6 +108,7 @@ Placing an order takes two calls, because the customer pays in between:
 |---|---|---|
 | `cafe_closed` | 409 | The café is closed. |
 | `cafe_paused` | 409 | The seller paused orders. |
+| `price_changed` | 409 | `expectedTotalCents` (optional in `POST /orders`) isn't the total at today's prices. Has `totalCents`. |
 | `out_of_range` | 422 | `coordinates` are farther than `radiusM`. Adds `distanceM`, `radiusM`. |
 | `sold_out` | 409 | An item is sold out or not on the menu. Adds `itemIds`. |
 | `not_a_spot` | 422 | The spot code isn't this café's. |
@@ -151,7 +152,8 @@ pending-payment ──confirm──► received ──accept──► preparing 
 | `POST /seller/orders/:id/decline` `{ reason }` | `declined`. `reason`: `sold-out`, `too-busy`, `closing-soon`, `other`. |
 | `POST /seller/orders/:id/on-my-way` | `on-the-way`. |
 | `POST /seller/orders/:id/delivered` | `delivered`. |
-| `PATCH /seller/cafe` `{ isPaused? }` | The café. |
+| `PATCH /seller/cafe` `{ isPaused?, coordinates? }` | The café. `coordinates` is "Sell from here": the new selling point. 409 `cafe_busy` while an order is received, preparing or on the way. |
+| `GET /seller/menu` | Every item of the café, in menu order, sold-out ones too. |
 | `PATCH /seller/menu-items/:id` `{ soldOut?, priceCents?, description? }` | The item. Another café's item gives 404. |
 
 Another café's order gives 404 `order_not_found`.

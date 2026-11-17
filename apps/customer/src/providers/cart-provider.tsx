@@ -21,6 +21,7 @@ type CartAction =
   | { type: 'removeItems'; itemIds: string[] }
   | { type: 'setNote'; note: string }
   | { type: 'replace'; cafeId: string; lines: CartLine[] }
+  | { type: 'refreshItems'; menu: MenuItem[] }
   | { type: 'clear' };
 
 const EMPTY: CartState = { cafeId: null, lines: [], note: '' };
@@ -60,6 +61,15 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const lines = state.lines.filter((line) => !action.itemIds.includes(line.item.id));
       return lines.length === 0 ? EMPTY : { ...state, lines };
     }
+    case 'refreshItems':
+      // The café may have changed a price or a description: the cart takes the menu's copy.
+      return {
+        ...state,
+        lines: state.lines.map((line) => ({
+          ...line,
+          item: action.menu.find((item) => item.id === line.item.id) ?? line.item,
+        })),
+      };
     case 'setNote':
       return { ...state, note: action.note };
     case 'replace':
@@ -81,6 +91,8 @@ type CartContextValue = CartState & {
   removeItems: (itemIds: string[]) => void;
   setNote: (note: string) => void;
   replace: (cafeId: string, lines: CartLine[]) => void;
+  /** Today's prices from a freshly loaded menu. */
+  refreshItems: (menu: MenuItem[]) => void;
   clear: () => void;
 };
 
@@ -117,6 +129,7 @@ export function CartProvider({ children }: PropsWithChildren) {
         removeItems: (itemIds) => dispatch({ type: 'removeItems', itemIds }),
         setNote: (note) => dispatch({ type: 'setNote', note }),
         replace: (cafeId, lines) => dispatch({ type: 'replace', cafeId, lines }),
+        refreshItems: (menu) => dispatch({ type: 'refreshItems', menu }),
         clear: () => dispatch({ type: 'clear' }),
       }}
     >

@@ -25,7 +25,14 @@ type Props = {
   showMyLocation: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel: string;
+  /** A tap on the map (not on a marker), for placing a pin. */
+  onPress?: (coordinates: Coordinates) => void;
 };
+
+/** expo-maps' coordinates have optional fields; a tap always has both. */
+function asCoordinates(point: { latitude?: number; longitude?: number }): Coordinates {
+  return { latitude: point.latitude ?? 0, longitude: point.longitude ?? 0 };
+}
 
 /** Metres. Small enough to read as a dot at street zoom, big enough to see. */
 const DOT_RADIUS_M = 6;
@@ -38,7 +45,14 @@ const DOT_RADIUS_M = 6;
  * or leaves (the seller's dot at "On my way"). In between it stays where the person moved it:
  * a map that jumps back every time the seller takes a step can't be read.
  */
-export function DeliveryMap({ places, dots, showMyLocation, style, accessibilityLabel }: Props) {
+export function DeliveryMap({
+  places,
+  dots,
+  showMyLocation,
+  style,
+  accessibilityLabel,
+  onPress,
+}: Props) {
   const theme = useTheme();
   const points = [...places, ...dots];
   // Who's on the map. When it changes, the camera is fitted again (and the native map starts
@@ -94,6 +108,7 @@ export function DeliveryMap({ places, dots, showMyLocation, style, accessibility
             tintColor: place.kind === 'cafe' ? theme.primary : theme.ink,
           }))}
           circles={circles}
+          onMapClick={onPress && ((event) => onPress(asCoordinates(event.coordinates)))}
           properties={{ isMyLocationEnabled: myLocation }}
           uiSettings={{ myLocationButtonEnabled: false }}
         />
@@ -108,6 +123,7 @@ export function DeliveryMap({ places, dots, showMyLocation, style, accessibility
             title: place.title,
           }))}
           circles={circles}
+          onMapClick={onPress && ((event) => onPress(asCoordinates(event.coordinates)))}
           properties={{ isMyLocationEnabled: myLocation }}
           uiSettings={{ myLocationButtonEnabled: false, mapToolbarEnabled: false }}
         />

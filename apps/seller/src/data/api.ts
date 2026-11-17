@@ -3,6 +3,7 @@ import {
   type Coordinates,
   createApiClient,
   type DeclineReason,
+  type MenuItem,
   type Order,
   type Track,
 } from '@shoot/shared';
@@ -83,4 +84,21 @@ export function sendPosition(id: string, coordinates: Coordinates) {
 /** The latest positions of an order on its way (the customer's live dot). */
 export function getTrack(id: string) {
   return request<Track>(`/seller/orders/${id}/track`);
+}
+
+/** The Menu tab: every item, sold-out ones too. */
+export function getMenu() {
+  return request<MenuItem[]>('/seller/menu');
+}
+
+export type MenuItemChanges = { soldOut?: boolean; priceCents?: number; description?: string };
+
+/** Sold out or back, a new price, a new description. Answers with the item as saved. */
+export function updateMenuItem(id: string, changes: MenuItemChanges) {
+  return request<MenuItem>(`/seller/menu-items/${id}`, { method: 'PATCH', json: changes });
+}
+
+/** "Pause orders" and "Sell from here". Answers with the café as saved. */
+export function updateCafe(changes: { isPaused?: boolean; coordinates?: Coordinates }) {
+  return request<Cafe>('/seller/cafe', { method: 'PATCH', json: changes });
 }

@@ -6,7 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
-import { CafePausedError, PaymentDeclinedError, SoldOutError, SpotNotValidError } from '@/data/api';
+import {
+  CafePausedError,
+  PaymentDeclinedError,
+  PriceChangedError,
+  SoldOutError,
+  SpotNotValidError,
+} from '@/data/api';
 import { type NearbyCafe, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { usePlaceOrder } from '@/data/use-place-order';
@@ -60,7 +66,9 @@ export default function PaySheet() {
                 ? 'paused'
                 : placeOrder.error instanceof SpotNotValidError
                   ? 'spot'
-                  : 'other'
+                  : placeOrder.error instanceof PriceChangedError
+                    ? 'prices'
+                    : 'other'
           }
           onTryAgain={() => placeOrder.reset()}
         />
@@ -115,6 +123,8 @@ const FAILURE_TEXT = {
     'You haven’t been charged. Your cart and photo are saved. Try again, or choose another payment method.',
   paused:
     'The café isn’t taking orders right now. You haven’t been charged. Your cart is saved, so you can try again in a moment.',
+  prices:
+    'The café changed a price since you added it. You haven’t been charged. Your cart has today’s prices now: check the total and pay again.',
   spot: 'The code at your spot isn’t valid any more. You haven’t been charged. Go back to your cart and choose your spot again.',
   other:
     'Something went wrong while sending your order. You haven’t been charged. Your cart and photo are saved, so you can try again.',
@@ -134,9 +144,11 @@ function PaymentFailed({
       title={
         reason === 'paused'
           ? 'Orders are paused'
-          : reason === 'spot'
-            ? 'Choose your spot again'
-            : 'Payment failed'
+          : reason === 'prices'
+            ? 'Prices changed'
+            : reason === 'spot'
+              ? 'Choose your spot again'
+              : 'Payment failed'
       }
       text={FAILURE_TEXT[reason]}
     >

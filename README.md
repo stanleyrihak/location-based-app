@@ -67,3 +67,9 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] Far outside the café's range, the new spot is refused with a message and a Call button.
 - [ ] "No, I'm still here" doesn't ask again until the app has been in the background.
 
+**Menu and stand (seller app)**
+- [ ] Menu: switch an item off; the customer app shows it sold out, and an order with it is refused.
+- [ ] Menu: tap an item, change the price to "3,90" and the description; the customer app shows both after a refresh.
+- [ ] Stand: "Pause orders" on; the customer app can't order from the café. Off again; it can.
+- [ ] Stand: "Sell from here" with no open orders moves the café on the customer's map and its delivery range. With an open order, the button stays off and says why.
+

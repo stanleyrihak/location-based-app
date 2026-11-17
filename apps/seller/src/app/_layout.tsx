@@ -103,6 +103,18 @@ function RootNavigator() {
             contentStyle: { backgroundColor: theme.bg },
           }}
         />
+        {/* Edit a menu item: a sheet over the Menu tab. */}
+        <Stack.Screen
+          name="menu-item/[id]"
+          options={{
+            presentation: 'formSheet',
+            sheetAllowedDetents: 'fitToContents',
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 28,
+            contentStyle: { backgroundColor: theme.bg },
+          }}
+        />
+        <Stack.Screen name="stand-location" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="sign-in" />

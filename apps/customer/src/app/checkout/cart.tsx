@@ -26,6 +26,8 @@ export default function CartScreen() {
   const [checking, setChecking] = useState(false);
   // E6: what was taken out because it sold out, so the cart can say so.
   const [soldOut, setSoldOut] = useState<MenuItem[]>([]);
+  // The café changed a price since the items were added; shown once above the total.
+  const [repriced, setRepriced] = useState(false);
 
   async function goToCheckout() {
     const cafeId = cart.cafeId;
@@ -39,6 +41,11 @@ export default function CartScreen() {
         queryFn: () => getMenu(cafeId),
         staleTime: 0,
       });
+      // A price may have changed too: the cart shows today's, before anyone pays.
+      const repriced = cart.lines.some((line) =>
+        menu.some((item) => item.id === line.item.id && item.priceCents !== line.item.priceCents),
+      );
+      cart.refreshItems(menu);
       const gone = cart.lines.filter(
         (line) => !menu.some((item) => item.id === line.item.id && !item.soldOut),
       );
@@ -46,6 +53,11 @@ export default function CartScreen() {
         // Stay on the cart, so the user sees what changed and the new total before going on.
         cart.removeItems(gone.map((line) => line.item.id));
         setSoldOut((previous) => [...previous, ...gone.map((line) => line.item)]);
+        return;
+      }
+      // Stay on the cart, so the new total is seen before paying.
+      if (repriced) {
+        setRepriced(true);
         return;
       }
     } catch {
@@ -119,6 +131,14 @@ export default function CartScreen() {
                 : `${soldOut.length} items just sold out`
             }
             text={`We removed ${soldOut.length === 1 ? 'it' : 'them'} and updated your total. You weren’t charged for ${soldOut.length === 1 ? 'it' : 'them'}.`}
+          />
+        )}
+
+        {repriced && (
+          <Banner
+            tone="warn"
+            title="Prices changed"
+            text={`${cafe?.name ?? 'The café'} changed a price since you added it. Your total is updated; check it before you pay.`}
           />
         )}
 

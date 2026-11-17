@@ -22,7 +22,6 @@ const NEW_ORDER = {
   payment: { methodId: 'wallet', label: 'Apple Pay' },
 };
 
-
 async function placePaidOrder(app: ReturnType<typeof createTestApp>['app'], token: string) {
   const created = await send(app, 'POST', '/orders', NEW_ORDER, token);
   const { order } = (await created.json()) as { order: { id: string } };

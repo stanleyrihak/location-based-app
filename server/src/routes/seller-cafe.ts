@@ -4,24 +4,58 @@ import { requireSeller } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
 import { HttpError } from '../errors.ts';
 import { originOf, readJson } from '../request.ts';
-import { asBoolean, asInteger, asString } from '../validate.ts';
+import { asBoolean, asCoordinates, asInteger, asString } from '../validate.ts';
 import { type CafeRow, type MenuItemRow, toCafe, toMenuItem } from '../views.ts';
 
-/** The seller's own café and menu: pause orders, sold out, prices. */
+/** The seller's own café and menu: pause orders, sell from here, sold out, prices. */
 export function sellerCafeRoutes(deps: Deps) {
   const { db } = deps;
   const app = new Hono();
 
-  /** "Pause orders": the café stays visible, but new orders get 409 cafe_paused. */
+  /**
+   * The Stand tab. `isPaused` ("Pause orders"): the café stays visible, but new orders get 409
+   * cafe_paused. `coordinates` ("Sell from here"): the selling point, which the delivery range
+   * is measured from. It can't move while an order is unfinished: the customer chose the café
+   * by its distance, and the seller is walking from it.
+   */
   app.patch('/seller/cafe', async (c) => {
     const { cafeId } = requireSeller(c, deps);
     const body = await readJson(c);
-    if (body.isPaused !== undefined) {
-      const isPaused = asBoolean(body.isPaused, 'isPaused');
+    // Check every field first, then write them all, so a bad field changes nothing.
+    const isPaused = body.isPaused === undefined ? undefined : asBoolean(body.isPaused, 'isPaused');
+    const coordinates =
+      body.coordinates === undefined ? undefined : asCoordinates(body.coordinates, 'coordinates');
+
+    if (coordinates) {
+      const busy = db
+        .prepare(
+          `SELECT 1 FROM orders
+           WHERE cafe_id = ? AND status IN ('received', 'preparing', 'on-the-way') LIMIT 1`,
+        )
+        .get(cafeId);
+      if (busy) {
+        throw new HttpError(409, 'cafe_busy', 'Finish your open orders before moving the stand.');
+      }
+      db.prepare('UPDATE cafes SET latitude = ?, longitude = ? WHERE id = ?').run(
+        coordinates.latitude,
+        coordinates.longitude,
+        cafeId,
+      );
+    }
+    if (isPaused !== undefined) {
       db.prepare('UPDATE cafes SET is_paused = ? WHERE id = ?').run(isPaused ? 1 : 0, cafeId);
     }
     const cafe = db.prepare('SELECT * FROM cafes WHERE id = ?').get(cafeId) as CafeRow;
     return c.json(toCafe(cafe, originOf(c)));
+  });
+
+  /** The Menu tab: every item of the café in menu order, sold-out ones too. */
+  app.get('/seller/menu', (c) => {
+    const { cafeId } = requireSeller(c, deps);
+    const rows = db
+      .prepare('SELECT * FROM menu_items WHERE cafe_id = ? ORDER BY position')
+      .all(cafeId) as MenuItemRow[];
+    return c.json(rows.map((row) => toMenuItem(row, originOf(c))));
   });
 
   /** Sold out or back in stock, a new price, a new description. Own café's items only. */
