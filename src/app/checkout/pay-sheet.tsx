@@ -9,11 +9,11 @@ import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
 import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
+import { PaymentDeclinedError, SoldOutError } from '@/data/api';
 import { type NearbyCafe, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { usePlaceOrder } from '@/data/use-place-order';
 import { useTheme } from '@/hooks/use-theme';
-import { PaymentDeclinedError } from '@/payments/pay';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 import { formatDistance } from '@/utils/format';
@@ -53,6 +53,8 @@ export default function PaySheet() {
 
       {placeOrder.error instanceof OutOfRangeError && cafe ? (
         <MovedOutOfRange cafe={cafe} onBackInRange={() => placeOrder.reset()} />
+      ) : placeOrder.error instanceof SoldOutError ? (
+        <SoldOutWhilePaying itemIds={placeOrder.error.itemIds} />
       ) : placeOrder.isError ? (
         <PaymentFailed
           declined={placeOrder.error instanceof PaymentDeclinedError}
@@ -165,7 +167,38 @@ function MovedOutOfRange({ cafe, onBackInRange }: { cafe: NearbyCafe; onBackInRa
   );
 }
 
-/** The layout E1 and E7 share: an icon in a ring, a title, a short text and the buttons. */
+/**
+ * E6 at the last moment: the cart was checked on 2.2, but something sold out while the user
+ * was taking photos. The server refused the order before charging anything.
+ */
+function SoldOutWhilePaying({ itemIds }: { itemIds: string[] }) {
+  const cart = useCart();
+  const names = cart.lines
+    .filter((line) => itemIds.includes(line.item.id))
+    .map((line) => line.item.name)
+    .join(', ');
+
+  return (
+    <SheetMessage
+      icon="alert"
+      tone="warning"
+      title="Something just sold out"
+      text={`${names || 'An item'} sold out while you were ordering. You haven’t been charged. Remove it from your cart, then try again.`}
+    >
+      <Button
+        onPress={() => {
+          cart.removeItems(itemIds);
+          // If nothing is left, the cart screen shows its empty state with a way back.
+          router.dismissTo('/checkout/cart');
+        }}
+      >
+        {'Remove it and go to cart'}
+      </Button>
+    </SheetMessage>
+  );
+}
+
+/** The layout E1, E6 and E7 share: an icon in a ring, a title, a short text and the buttons. */
 function SheetMessage({
   icon,
   tone,

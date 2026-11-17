@@ -5,6 +5,9 @@ import { View } from 'react-native';
 import { Button } from '@/components/button';
 import { CodeField } from '@/components/code-field';
 import { FormScreen } from '@/components/form-screen';
+import { ThemedText } from '@/components/themed-text';
+import { sendSmsCode, verifySmsCode } from '@/data/api';
+import { setToken } from '@/data/session';
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 42;
@@ -16,8 +19,11 @@ function formatCountdown(seconds: number) {
 }
 
 export default function SmsCodeScreen() {
-  const { phone } = useLocalSearchParams<{ phone?: string }>();
+  // `phone` is for the server ("+358401234567"), `display` for people ("+358 40 123 4567").
+  const { phone, display } = useLocalSearchParams<{ phone?: string; display?: string }>();
   const [code, setCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
 
   const isVerifying = useRef(false);
@@ -37,20 +43,41 @@ export default function SmsCodeScreen() {
     }, []),
   );
 
-  function resendCode() {
-    // TODO: ask the backend to send a new code.
+  async function resendCode() {
+    if (!phone) return;
     setCode('');
+    setError(null);
     setSecondsLeft(RESEND_SECONDS);
+    try {
+      await sendSmsCode(phone);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'We couldn’t send a new code.');
+    }
   }
 
-  function verify() {
-    if (isVerifying.current) {
+  async function verify() {
+    // The ref, not state: CodeField calls verify by itself when the last digit is typed,
+    // and a fast tap on Verify could call it a second time before a re-render.
+    if (isVerifying.current || !phone) {
       return;
     }
     isVerifying.current = true;
+    setVerifying(true);
+    setError(null);
 
-    // TODO: check the code with the backend before moving on.
-    router.push('/location-permission');
+    try {
+      const { token } = await verifySmsCode(phone, code);
+      // Saved before moving on: from now on every request says who you are.
+      setToken(token);
+      router.push('/location-permission');
+    } catch (caught) {
+      // Wrong or expired code: clear the boxes so the user can type it again.
+      setError(caught instanceof Error ? caught.message : 'We couldn’t check the code.');
+      setCode('');
+      isVerifying.current = false;
+    } finally {
+      setVerifying(false);
+    }
   }
 
   const canResend = secondsLeft <= 0;
@@ -58,15 +85,30 @@ export default function SmsCodeScreen() {
   return (
     <FormScreen
       title="Enter the code"
-      lede={phone ? `Sent to ${phone}` : undefined}
+      lede={display ? `Sent to ${display}` : undefined}
       footer={
-        <Button onPress={verify} disabled={code.length < CODE_LENGTH}>
+        <Button onPress={verify} disabled={code.length < CODE_LENGTH} loading={verifying}>
           {'Verify'}
         </Button>
       }
     >
       <View style={{ marginTop: 32 }}>
         <CodeField value={code} onChange={setCode} onComplete={verify} length={CODE_LENGTH} />
+        {error && (
+          <ThemedText
+            type="subhead"
+            color="error"
+            accessibilityRole="alert"
+            style={{ marginTop: 12 }}
+          >
+            {error}
+          </ThemedText>
+        )}
+        {__DEV__ && (
+          <ThemedText type="subhead" color="ink2" style={{ marginTop: 12 }}>
+            {'Test server: the code is 123456 (dev only).'}
+          </ThemedText>
+        )}
       </View>
 
       <Button

@@ -1,5 +1,8 @@
-import { createContext, type PropsWithChildren, use, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { createContext, type PropsWithChildren, use, useEffect, useState } from 'react';
 import 'expo-sqlite/localStorage/install';
+
+import { endSession, getToken, onSessionEnd } from '@/data/session';
 
 const STORAGE_KEY = 'hasOnboarded';
 
@@ -19,8 +22,23 @@ export function useOnboarding() {
 }
 
 export function OnboardingProvider({ children }: PropsWithChildren) {
+  const queryClient = useQueryClient();
+  // Done means both: finished the welcome steps, and signed in (a token is saved).
+  // Someone from before the server existed has the flag but no token, so they sign in again.
   const [hasOnboarded, setHasOnboarded] = useState(
-    () => localStorage.getItem(STORAGE_KEY) === 'true',
+    () => localStorage.getItem(STORAGE_KEY) === 'true' && getToken() !== null,
+  );
+
+  useEffect(
+    // When the session ends (sign-out, or the server answers 401), go back to the welcome
+    // screen and forget the cached data: the next person must not see these orders.
+    () =>
+      onSessionEnd(() => {
+        localStorage.removeItem(STORAGE_KEY);
+        setHasOnboarded(false);
+        queryClient.clear();
+      }),
+    [queryClient],
   );
 
   return (
@@ -30,10 +48,8 @@ export function OnboardingProvider({ children }: PropsWithChildren) {
           localStorage.setItem(STORAGE_KEY, 'true');
           setHasOnboarded(true);
         },
-        resetOnboarding: () => {
-          localStorage.removeItem(STORAGE_KEY);
-          setHasOnboarded(false);
-        },
+        // Ends the session too, so "Reset onboarding" really starts again from sign-in.
+        resetOnboarding: endSession,
         hasOnboarded,
       }}
     >

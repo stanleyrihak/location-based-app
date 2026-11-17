@@ -8,8 +8,8 @@ export type CafeCategory = 'coffee' | 'pastry' | 'lunch';
 export type Cafe = {
   id: string;
   name: string;
-  /** A local image (require) now, an image URL from the backend later. */
-  image: number | string;
+  /** An image URL from the server. */
+  image: string;
   coordinates: Coordinates;
   /** How far the café delivers, in metres. */
   radiusM: number;
@@ -21,7 +21,7 @@ export type Cafe = {
   deliveryFeeCents: number;
   categories: CafeCategory[];
   /** The wide photo at the top of the menu (2.1). */
-  coverImage: number | string;
+  coverImage: string;
 };
 
 /** Tabs on the café menu. Not the same as CafeCategory: the menu has Tea, the Home filter doesn't. */
@@ -35,7 +35,7 @@ export type MenuItem = {
   /** In cents, like every price in the app. */
   priceCents: number;
   /** Optional: items without a photo show a placeholder icon for their section. */
-  image?: number | string;
+  image?: string;
   section: MenuSection;
   soldOut: boolean;
 };
@@ -56,7 +56,7 @@ export type OrderLine = {
   name: string;
   priceCents: number;
   quantity: number;
-  image?: number | string;
+  image?: string;
   section: MenuSection;
 };
 
@@ -70,7 +70,7 @@ export type Order = {
   cafeId: string;
   /** Copied, so past orders still show the name and photo if the café changes or closes. */
   cafeName: string;
-  cafeImage: number | string;
+  cafeImage: string;
   lines: OrderLine[];
   note: string;
   subtotalCents: number;
@@ -79,15 +79,10 @@ export type Order = {
   /** How the courier finds you: a scanned spot, or the two photos plus where you were. */
   delivery:
     | { kind: 'spot'; spotLabel: string }
-    | { kind: 'photos'; selfie: number | string; spot: number | string; coordinates?: Coordinates };
+    | { kind: 'photos'; selfie: string; spot: string; coordinates?: Coordinates };
   paymentLabel: string;
   status: OrderStatus;
   /** ISO date strings: they survive JSON, unlike Date objects, when a real backend sends them. */
   createdAt: string;
   readyAt: string;
-};
-
-/** What the app sends to place an order. The backend adds id, status and the times. */
-export type NewOrder = Omit<Order, 'id' | 'number' | 'status' | 'createdAt' | 'readyAt'> & {
-  readyInMin: number;
 };

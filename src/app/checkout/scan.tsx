@@ -13,12 +13,20 @@ import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { CameraColors, Radius } from '@/constants/theme';
 import { getSpotByCode } from '@/data/api';
-import { MOCK_SPOTS } from '@/data/mock/spots';
 import { useNearbyCafe } from '@/data/queries';
 import { useCameraAccess } from '@/hooks/use-camera-access';
 import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
+
+/**
+ * For "Simulate a scan (dev only)": one sticker code per test café, from server/src/seed.ts.
+ * A café without one shows E5, which is useful to test too.
+ */
+const DEV_SPOT_CODES: Record<string, string> = {
+  saaripaahtimo: 'shoot-spot:saari-table-4',
+  kampuskuppi: 'shoot-spot:kampus-table-12',
+};
 
 /** scanning → checking (asking the "server") → done, or invalid (the E5 sheet). */
 type ScanState = 'scanning' | 'checking' | 'invalid';
@@ -139,8 +147,7 @@ function Scanner() {
             size="small"
             camera
             onPress={() => {
-              const code = MOCK_SPOTS.find((spot) => spot.cafeId === cart.cafeId)?.code;
-              handleCode(code ?? 'not-a-spot');
+              handleCode(DEV_SPOT_CODES[cart.cafeId ?? ''] ?? 'not-a-spot');
             }}
           >
             {'Simulate a scan (dev only)'}

@@ -160,8 +160,9 @@ export default function CartScreen() {
         </View>
 
         {/*
-          The mock menu never sells out by itself. In development builds this marks the first
-          item as sold out on the "server", so "Go to checkout" shows E6. Users never see it.
+          The test server's menu never sells out by itself. In development builds this marks the
+          first item as sold out on the server (POST /dev/sell-out), so "Go to checkout" shows E6.
+          It stays sold out until you reset the server's data. Users never see this button.
         */}
         {__DEV__ && (
           <Button

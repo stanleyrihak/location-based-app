@@ -1,15 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { createOrder } from '@/data/api';
+import { placeOrder, type PlaceOrderInput } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
-import type { NewOrder } from '@/data/types';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
-import { pay } from '@/payments/pay';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 
 /**
- * Pays, then places the order, as one React Query mutation.
+ * Places the order (the server charges and stores it in one step), as a React Query mutation.
  *
  * useQuery is for reading (it runs by itself and caches). useMutation is for changing
  * something on the server: it runs only when you call `mutate`, and tracks
@@ -28,46 +26,30 @@ export function usePlaceOrder() {
         throw new Error('The order is missing its café or items.');
       }
 
-      // E1: you may have walked away since choosing the café. Check before charging anything.
+      // E1: you may have walked away since choosing the café. The server checks this too,
+      // but checking here first saves uploading the photos for nothing.
       const { inRange, here } = await checkRange(cafe);
       if (!inRange) {
         throw new OutOfRangeError();
       }
 
-      let delivery: NewOrder['delivery'];
+      let delivery: PlaceOrderInput['delivery'];
       if (spot) {
-        delivery = { kind: 'spot', spotLabel: spot.label };
+        delivery = { kind: 'spot', spotCode: spot.code };
       } else if (photos) {
-        // Where you were when paying, so the courier can head there.
-        delivery = { kind: 'photos', ...photos, coordinates: here };
+        delivery = { kind: 'photos', selfie: photos.selfie, spot: photos.spot };
       } else {
         throw new Error('The order is missing its spot.');
       }
 
-      const order: NewOrder = {
+      return placeOrder({
         cafeId: cafe.id,
-        cafeName: cafe.name,
-        cafeImage: cafe.image,
-        lines: cart.lines.map(({ item, quantity }) => ({
-          itemId: item.id,
-          name: item.name,
-          priceCents: item.priceCents,
-          quantity,
-          image: item.image,
-          section: item.section,
-        })),
+        lines: cart.lines.map(({ item, quantity }) => ({ itemId: item.id, quantity })),
         note: cart.note.trim(),
-        subtotalCents: cart.subtotalCents,
-        deliveryFeeCents: cafe.deliveryFeeCents,
-        totalCents: cart.subtotalCents + cafe.deliveryFeeCents,
+        coordinates: here,
         delivery,
-        paymentLabel: paymentMethod.shortLabel,
-        readyInMin: cafe.readyInMin,
-      };
-
-      // Pay first: if the bank says no, no order is created and nothing is charged.
-      await pay(order.totalCents, paymentMethod);
-      return createOrder(order);
+        payment: { methodId: paymentMethod.id, label: paymentMethod.shortLabel },
+      });
     },
     // The Orders tab's list is now out of date. Marking it stale makes it reload next time.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),

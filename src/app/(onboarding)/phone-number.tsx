@@ -7,6 +7,7 @@ import { COUNTRIES, type CountryCode, CountryCodeSelect } from '@/components/cou
 import { FormScreen } from '@/components/form-screen';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
+import { sendSmsCode } from '@/data/api';
 
 const MIN_DIGITS = 7;
 
@@ -26,6 +27,8 @@ function formatPhone(digits: string, groups: readonly number[]) {
 export default function PhoneNumberScreen() {
   const [countryCode, setCountryCode] = useState<CountryCode>('FI');
   const [digits, setDigits] = useState('');
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const country = COUNTRIES.find((item) => item.code === countryCode) ?? COUNTRIES[0];
   const maxDigits = country.groups.reduce((sum, size) => sum + size, 0);
@@ -33,17 +36,30 @@ export default function PhoneNumberScreen() {
 
   function handleChangeText(text: string) {
     setDigits(text.replace(/\D/g, '').slice(0, maxDigits));
+    setError(null);
   }
 
-  function sendCode() {
-    if (!isValid) {
+  async function sendCode() {
+    if (!isValid || sending) {
       return;
     }
+    // The server wants one form: country code and digits, no spaces ("+358401234567").
+    const phone = `${country.dial}${digits}`;
 
-    router.push({
-      pathname: '/sms-code',
-      params: { phone: `${country.dial} ${formatPhone(digits, country.groups)}` },
-    });
+    setSending(true);
+    setError(null);
+    try {
+      await sendSmsCode(phone);
+      router.push({
+        pathname: '/sms-code',
+        // `display` for the screen ("Sent to +358 40 123 4567"), `phone` for the server.
+        params: { phone, display: `${country.dial} ${formatPhone(digits, country.groups)}` },
+      });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'We couldn’t send the code.');
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -51,7 +67,7 @@ export default function PhoneNumberScreen() {
       title="What’s your phone number?"
       lede="We’ll text you a code to sign in. We never call you."
       footer={
-        <Button onPress={sendCode} disabled={!isValid}>
+        <Button onPress={sendCode} disabled={!isValid} loading={sending}>
           {'Send code'}
         </Button>
       }
@@ -76,6 +92,11 @@ export default function PhoneNumberScreen() {
             style={{ flex: 1, fontVariant: ['tabular-nums'] }}
           />
         </View>
+        {error && (
+          <ThemedText type="subhead" color="error" accessibilityRole="alert">
+            {error}
+          </ThemedText>
+        )}
       </View>
     </FormScreen>
   );

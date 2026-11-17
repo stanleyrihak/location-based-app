@@ -1,63 +1,53 @@
-// Adds the global localStorage, backed by SQLite. Imported here too so this file doesn't
-// depend on the onboarding provider having loaded first.
-import 'expo-sqlite/localStorage/install';
+import { fetch as expoFetch } from 'expo/fetch';
+import { File } from 'expo-file-system';
+import { Image } from 'react-native';
 
-import { MOCK_CAFES } from '@/data/mock/cafes';
-import { MOCK_MENU } from '@/data/mock/menu';
-import { MOCK_SPOTS } from '@/data/mock/spots';
-import type { Cafe, Coordinates, MenuItem, NewOrder, Order, OrderStatus, Spot } from '@/data/types';
-import { moveBy } from '@/utils/geo';
+import { ApiError, API_URL, authHeaders, request } from '@/data/http';
+import type { Cafe, Coordinates, MenuItem, Order, Spot } from '@/data/types';
+import { OutOfRangeError } from '@/data/use-check-range';
 
-/** Pretend network time, so screens show their loading state like they will with a real backend. */
-const FAKE_DELAY_MS = 400;
+/**
+ * Every call to the server, in one file. Screens and hooks call these functions and never
+ * see URLs or HTTP: when the real backend arrives, only this file (and http.ts) change.
+ * The endpoints are described in server/API.md.
+ */
 
-function wait(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+// ── Sign-in ──────────────────────────────────────────────────────────────
+
+export type User = { id: string; phone: string; createdAt: string };
+
+/** 1.2 "Send code". The phone number in the international form: "+358401234567". */
+export function sendSmsCode(phone: string) {
+  return request<void>('/auth/code', { method: 'POST', json: { phone } });
 }
 
-// The mock cafés are placed around the first location the app asks with,
-// and then stay there. So if you walk away, the distance really changes.
-let mockAnchor: Coordinates | null = null;
-
-/** Cafés near `near`. The backend will decide what "near" means. The mock returns all of them. */
-export async function getCafes(near: Coordinates): Promise<Cafe[]> {
-  await wait(FAKE_DELAY_MS);
-
-  mockAnchor ??= near;
-  const anchor = mockAnchor;
-
-  return MOCK_CAFES.map(({ offset, ...cafe }) => ({
-    ...cafe,
-    coordinates: moveBy(anchor, offset.northM, offset.eastM),
-  }));
+/** 1.3 "Verify". Returns the token to keep, and the user. */
+export function verifySmsCode(phone: string, code: string) {
+  return request<{ token: string; user: User }>('/auth/verify', {
+    method: 'POST',
+    json: { phone, code },
+  });
 }
 
-// Items sold out while the app runs. Real cafés sell out during the day; the mock menu never
-// changes by itself, so the "Sell out an item (dev only)" button in the cart adds ids here (E6).
-const soldOutIds = new Set<string>();
-
-/** Development only: marks an item as sold out, to try E6 Item sold out. */
-export function sellOutForTesting(itemId: string) {
-  soldOutIds.add(itemId);
+export function getMe() {
+  return request<User>('/me');
 }
 
-function withStock(items: MenuItem[]): MenuItem[] {
-  return items.map((item) => (soldOutIds.has(item.id) ? { ...item, soldOut: true } : item));
+// ── Cafés and menus ──────────────────────────────────────────────────────
+
+/** Cafés near `near`. The app works out each café's distance and whether it's in range. */
+export function getCafes(near: Coordinates) {
+  return request<Cafe[]>(`/cafes?latitude=${near.latitude}&longitude=${near.longitude}`);
 }
 
 /** One café's menu, in the order the café lists it. */
-export async function getMenu(cafeId: string): Promise<MenuItem[]> {
-  await wait(FAKE_DELAY_MS);
-  return withStock(MOCK_MENU.filter((item) => item.cafeId === cafeId));
+export function getMenu(cafeId: string) {
+  return request<MenuItem[]>(`/cafes/${encodeURIComponent(cafeId)}/menu`);
 }
 
-/**
- * Every product of the given cafés, for search on Home. A real backend would search on
- * the server; with three small mock menus, searching on the phone is simpler.
- */
-export async function getMenuItems(cafeIds: string[]): Promise<MenuItem[]> {
-  await wait(FAKE_DELAY_MS);
-  return withStock(MOCK_MENU.filter((item) => cafeIds.includes(item.cafeId)));
+/** Every product of the given cafés, for search on Home. */
+export function getMenuItems(cafeIds: string[]) {
+  return request<MenuItem[]>(`/menu-items?cafeIds=${cafeIds.map(encodeURIComponent).join(',')}`);
 }
 
 /**
@@ -65,72 +55,134 @@ export async function getMenuItems(cafeIds: string[]): Promise<MenuItem[]> {
  * (another café's sticker, a random QR code, or a sticker that's no longer active).
  */
 export async function getSpotByCode(cafeId: string, code: string): Promise<Spot | null> {
-  await wait(FAKE_DELAY_MS);
-  return MOCK_SPOTS.find((spot) => spot.code === code && spot.cafeId === cafeId) ?? null;
-}
-
-// The mock backend's orders, newest first. A real backend keeps them in its database; the
-// mock keeps them in the phone's storage, so they survive closing the app. Only this file
-// knows that: screens just call createOrder and getOrders, like they will with a server.
-const ORDERS_KEY = 'mock-orders';
-let mockOrders: Order[] = loadOrders();
-
-function loadOrders(): Order[] {
   try {
-    const saved = localStorage.getItem(ORDERS_KEY);
-    return saved ? (JSON.parse(saved) as Order[]) : [];
-  } catch {
-    // Unreadable data (for example from an older version of Order): start empty.
-    return [];
+    return await request<Spot>(
+      `/cafes/${encodeURIComponent(cafeId)}/spot?code=${encodeURIComponent(code)}`,
+    );
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'not_a_spot') return null;
+    throw error;
   }
 }
 
-function saveOrders() {
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(mockOrders));
+// ── Orders ───────────────────────────────────────────────────────────────
+
+/** Thrown when the bank says no (402). The user hasn't been charged. */
+export class PaymentDeclinedError extends Error {
+  constructor() {
+    super('Payment declined');
+    this.name = 'PaymentDeclinedError';
+  }
 }
 
-/** Places an order (after it's paid) and returns it as the backend stored it. */
-export async function createOrder(input: NewOrder): Promise<Order> {
-  await wait(FAKE_DELAY_MS);
+/** Thrown when something in the cart sold out after it was added (E6). */
+export class SoldOutError extends Error {
+  itemIds: string[];
 
-  const { readyInMin, ...rest } = input;
-  const now = new Date();
-  const order: Order = {
-    ...rest,
-    id: `order-${now.getTime()}`,
-    number: 2041 + mockOrders.length,
-    status: 'received',
-    createdAt: now.toISOString(),
-    readyAt: new Date(now.getTime() + readyInMin * 60_000).toISOString(),
-  };
-  mockOrders = [order, ...mockOrders];
-  saveOrders();
-  return order;
+  constructor(itemIds: string[]) {
+    super('Some items sold out');
+    this.name = 'SoldOutError';
+    this.itemIds = itemIds;
+  }
 }
 
-/** The user's orders, newest first, each with its status as of now. */
-export async function getOrders(): Promise<Order[]> {
-  await wait(FAKE_DELAY_MS);
-  const now = Date.now();
-  return mockOrders.map((order) => ({
-    ...order,
-    // A bundled image is saved as a number, an id that can change when the app is rebuilt.
-    // So the café photo is looked up again instead of trusting the saved one.
-    cafeImage: MOCK_CAFES.find((cafe) => cafe.id === order.cafeId)?.image ?? order.cafeImage,
-    status: mockStatus(order, now),
-  }));
+/** A photo as the app holds it: a file from the camera, or a bundled image (dev samples). */
+type PhotoSource = string | number;
+
+export type PlaceOrderInput = {
+  cafeId: string;
+  /** Only ids and quantities: the server looks up names and prices itself. */
+  lines: { itemId: string; quantity: number }[];
+  note: string;
+  /** Where the phone is now. The server checks the range with it. */
+  coordinates: Coordinates;
+  delivery:
+    { kind: 'spot'; spotCode: string } | { kind: 'photos'; selfie: PhotoSource; spot: PhotoSource };
+  payment: { methodId: string; label: string };
+};
+
+/**
+ * Uploads one photo and returns its address on the server.
+ *
+ * The body is the photo's bytes, sent as they are. A camera photo is a file on the phone
+ * (file://), read with expo-file-system. A bundled sample photo is first fetched from the
+ * bundle. The upload uses expo/fetch, which sends binary bodies reliably.
+ */
+async function uploadPhoto(source: PhotoSource): Promise<string> {
+  const uri = typeof source === 'number' ? Image.resolveAssetSource(source)?.uri : source;
+  if (!uri) {
+    throw new ApiError(0, 'upload_failed', 'The photo couldn’t be read.');
+  }
+  const bytes = uri.startsWith('file:')
+    ? await new File(uri).arrayBuffer()
+    : await (await fetch(uri)).arrayBuffer();
+  const file = uri.replace(/\?.*$/, '');
+  const type = file.endsWith('.svg')
+    ? 'image/svg+xml'
+    : file.endsWith('.png')
+      ? 'image/png'
+      : 'image/jpeg';
+
+  let response;
+  try {
+    response = await expoFetch(`${API_URL}/uploads`, {
+      method: 'POST',
+      headers: { 'Content-Type': type, ...authHeaders() },
+      body: new Uint8Array(bytes),
+    });
+  } catch {
+    throw new ApiError(0, 'network', 'We can’t reach the server. Check your connection.');
+  }
+  const body = (await response.json().catch(() => ({}))) as { path?: string; message?: string };
+  if (!response.ok || !body.path) {
+    throw new ApiError(
+      response.status,
+      'upload_failed',
+      body.message ?? 'The photo didn’t upload.',
+    );
+  }
+  return body.path;
 }
 
 /**
- * Nobody makes the coffee in the mock, so the status follows the clock instead:
- * received for the first minute, then preparing until ready, then 3 minutes on the way.
- * A real backend would store the status the café and courier set.
+ * 2.8 "Confirm payment": uploads the photos, then asks the server to charge and place the
+ * order in one step. The server's "no" answers become errors the screens know.
  */
-function mockStatus(order: Order, now: number): OrderStatus {
-  const created = Date.parse(order.createdAt);
-  const ready = Date.parse(order.readyAt);
-  if (now < created + 60_000) return 'received';
-  if (now < ready) return 'preparing';
-  if (now < ready + 3 * 60_000) return 'on-the-way';
-  return 'delivered';
+export async function placeOrder(input: PlaceOrderInput): Promise<Order> {
+  const delivery =
+    input.delivery.kind === 'photos'
+      ? {
+          kind: 'photos' as const,
+          // Both at once: each upload waits for the network, so in parallel is about twice as fast.
+          ...Object.fromEntries(
+            await Promise.all([
+              uploadPhoto(input.delivery.selfie).then((path) => ['selfie', path]),
+              uploadPhoto(input.delivery.spot).then((path) => ['spot', path]),
+            ]),
+          ),
+        }
+      : input.delivery;
+
+  try {
+    return await request<Order>('/orders', { method: 'POST', json: { ...input, delivery } });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      if (error.code === 'payment_declined') throw new PaymentDeclinedError();
+      if (error.code === 'out_of_range') throw new OutOfRangeError();
+      if (error.code === 'sold_out') throw new SoldOutError(error.details.itemIds as string[]);
+    }
+    throw error;
+  }
+}
+
+/** The user's orders, newest first. */
+export function getOrders() {
+  return request<Order[]>('/orders');
+}
+
+// ── Development only ─────────────────────────────────────────────────────
+
+/** Marks an item as sold out on the server, to try E6. The route only exists in development. */
+export function sellOutForTesting(itemId: string) {
+  return request<void>('/dev/sell-out', { method: 'POST', json: { itemId } });
 }
