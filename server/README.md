@@ -151,7 +151,8 @@ pending-payment ──confirm──► received ──accept──► preparing 
 | `POST /seller/orders/:id/decline` `{ reason }` | `declined`. `reason`: `sold-out`, `too-busy`, `closing-soon`, `other`. |
 | `POST /seller/orders/:id/on-my-way` | `on-the-way`. |
 | `POST /seller/orders/:id/delivered` | `delivered`. |
-| `PATCH /seller/cafe` `{ isPaused? }` | The café. |
+| `PATCH /seller/cafe` `{ isPaused?, coordinates? }` | The café. `coordinates` is "Sell from here": the new selling point. 409 `cafe_busy` while an order is received, preparing or on the way. |
+| `GET /seller/menu` | Every item of the café, in menu order, sold-out ones too. |
 | `PATCH /seller/menu-items/:id` `{ soldOut?, priceCents?, description? }` | The item. Another café's item gives 404. |
 
 Another café's order gives 404 `order_not_found`.
