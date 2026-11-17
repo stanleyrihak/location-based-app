@@ -97,6 +97,9 @@ export function usePlaceOrder() {
       if (clientSecret) {
         const config = await queryClient.fetchQuery({ queryKey: CONFIG_KEY, queryFn: getConfig });
         await payWithStripe(config.stripePublishableKey, clientSecret);
+        // Paid: the money is held. If confirming fails now (a network blip), "Try again" only
+        // confirms. Stripe won't open its sheet again for a payment that's already done.
+        started.current = { orderId, clientSecret: null };
       }
       return confirm(orderId);
     },

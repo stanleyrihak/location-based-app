@@ -125,3 +125,19 @@ test('an order with an out-of-date expected total is 409 price_changed', async (
   );
   assert.equal(fresh.status, 201);
 });
+
+test('deleting the account removes the number from the café’s copy of its orders', async () => {
+  const { app, customer, seller } = await setup();
+  const created = await send(app, 'POST', '/orders', NEW_ORDER, customer);
+  const { order } = (await created.json()) as { order: { id: string } };
+  await send(app, 'POST', `/orders/${order.id}/confirm`, undefined, customer);
+  await send(app, 'POST', `/seller/orders/${order.id}/decline`, { reason: 'too-busy' }, seller);
+
+  const deleted = await send(app, 'DELETE', '/me', undefined, customer);
+  assert.equal(deleted.status, 204);
+  const queue = (await (await send(app, 'GET', '/seller/orders', undefined, seller)).json()) as {
+    id: string;
+    customerPhone: string;
+  }[];
+  assert.equal(queue.find((o) => o.id === order.id)?.customerPhone, '');
+});
