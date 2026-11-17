@@ -29,7 +29,6 @@ module.exports = defineConfig([
     },
   },
   {
-    // server/ is a Node project with its own settings, not part of the app.
-    ignores: ['dist/*', 'server/*'],
+    ignores: ['dist/*'],
   },
 ]);
