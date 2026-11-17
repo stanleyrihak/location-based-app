@@ -55,6 +55,16 @@ function parseNewOrder(body: Record<string, unknown>): NewOrderInput {
     note: asString(body.note ?? '', 'note', 300),
     coordinates: asCoordinates(body.coordinates, 'coordinates'),
     delivery: parsedDelivery,
+    ...(body.expectedTotalCents === undefined
+      ? {}
+      : {
+          expectedTotalCents: asInteger(
+            body.expectedTotalCents,
+            'expectedTotalCents',
+            0,
+            10_000_000,
+          ),
+        }),
     payment: {
       methodId: asString(payment.methodId, 'payment.methodId', 50),
       label: asString(payment.label, 'payment.label', 50),

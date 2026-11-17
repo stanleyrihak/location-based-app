@@ -108,6 +108,7 @@ Placing an order takes two calls, because the customer pays in between:
 |---|---|---|
 | `cafe_closed` | 409 | The café is closed. |
 | `cafe_paused` | 409 | The seller paused orders. |
+| `price_changed` | 409 | `expectedTotalCents` (optional in `POST /orders`) isn't the total at today's prices. Has `totalCents`. |
 | `out_of_range` | 422 | `coordinates` are farther than `radiusM`. Adds `distanceM`, `radiusM`. |
 | `sold_out` | 409 | An item is sold out or not on the menu. Adds `itemIds`. |
 | `not_a_spot` | 422 | The spot code isn't this café's. |

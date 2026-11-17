@@ -9,9 +9,10 @@ function replaceItem(items: MenuItem[] | undefined, item: MenuItem) {
 }
 
 /**
- * Changes one menu item. The list changes at once (the switch moves under the finger), then
- * shows what the server saved. If saving fails, the old item comes back. Every change is a
- * fresh request, so with two quick taps the last answer wins.
+ * Changes one menu item. The list changes at once (the switch moves under the finger).
+ * Changes to one item go to the server one after another (`scope`), in the order tapped, so
+ * the server ends up with the last tap. Only when none are left does the list take the
+ * server's answer (a refetch): an earlier answer arriving mid-way must not flip the switch back.
  */
 export function useUpdateMenuItem(id: string) {
   const queryClient = useQueryClient();

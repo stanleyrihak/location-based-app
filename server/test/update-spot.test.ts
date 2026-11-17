@@ -130,7 +130,9 @@ test('out of range is 422 and changes nothing', async () => {
   const body = (await response.json()) as { error: string; radiusM: number };
   assert.equal(body.error, 'out_of_range');
   assert.equal(body.radiusM, 100);
-  const after = (await (await send(app, 'GET', `/orders/${orderId}`, undefined, customer)).json()) as Order;
+  const after = (await (
+    await send(app, 'GET', `/orders/${orderId}`, undefined, customer)
+  ).json()) as Order;
   assert.deepEqual(after.deliverTo, HERE);
 });
 

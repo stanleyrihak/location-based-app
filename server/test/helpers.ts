@@ -90,7 +90,11 @@ export async function signInSeller(
 export const HERE = { latitude: 60.45, longitude: 22.27 };
 
 /** A live-connection message, as the tests read it. */
-export type Message = { type: string; order: { id: string; status: string }; [key: string]: unknown };
+export type Message = {
+  type: string;
+  order: { id: string; status: string };
+  [key: string]: unknown;
+};
 
 /** The test app on a real port, so a real WebSocket can connect. */
 export async function startLive() {

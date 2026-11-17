@@ -1,7 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 
-import { confirmOrder, PaymentDeclinedError, type PlaceOrderInput, startOrder } from '@/data/api';
+import {
+  confirmOrder,
+  getMenu,
+  PaymentDeclinedError,
+  type PlaceOrderInput,
+  PriceChangedError,
+  startOrder,
+} from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { useCart } from '@/providers/cart-provider';
@@ -35,7 +42,10 @@ export function usePlaceOrder() {
       return order;
     } catch (error) {
       // The card was refused: the next try may use another card, which needs a new payment.
-      if (error instanceof PaymentDeclinedError) startedOrderId.current = null;
+      // Out of range (the stand moved while paying): the server ended that order.
+      if (error instanceof PaymentDeclinedError || error instanceof OutOfRangeError) {
+        startedOrderId.current = null;
+      }
       throw error;
     }
   }
@@ -73,6 +83,7 @@ export function usePlaceOrder() {
         coordinates: here,
         delivery,
         payment: { methodId: paymentMethod.id, label: paymentMethod.shortLabel },
+        expectedTotalCents: cart.subtotalCents + cafe.deliveryFeeCents,
       });
       // Stripe's payment sheet goes here (build step 4), with the clientSecret from startOrder.
       startedOrderId.current = orderId;
@@ -80,5 +91,22 @@ export function usePlaceOrder() {
     },
     // The Orders tab's list is now out of date. Marking it stale makes it reload next time.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
+    onError: async (error) => {
+      // The server knows better than this phone's cached café list: the stand may have moved
+      // ("Sell from here"). Reload it, so the out-of-range sheet measures from the new spot.
+      if (error instanceof OutOfRangeError) {
+        await queryClient.invalidateQueries({ queryKey: ['cafes'] });
+      }
+      // A price changed: the cart takes today's menu, so the total on screen is right.
+      if (error instanceof PriceChangedError && cart.cafeId) {
+        const cafeId = cart.cafeId;
+        const menu = await queryClient.fetchQuery({
+          queryKey: ['menu', cafeId],
+          queryFn: () => getMenu(cafeId),
+          staleTime: 0,
+        });
+        cart.refreshItems(menu);
+      }
+    },
   });
 }

@@ -25,6 +25,11 @@ export type NewOrderInput = {
   coordinates: Coordinates;
   delivery: { kind: 'spot'; spotCode: string } | { kind: 'photos'; selfie: string; spot: string };
   payment: { methodId: string; label: string };
+  /**
+   * The total the customer saw. If the café changed a price since, the order is refused
+   * (409 price_changed) instead of charging a different amount. Optional for older apps.
+   */
+  expectedTotalCents?: number;
 };
 
 /** Tells the live connections and push about a change. Exactly once per status change. */
@@ -227,6 +232,9 @@ export async function createOrder(
 
   const subtotalCents = lines.reduce((sum, line) => sum + line.priceCents * line.quantity, 0);
   const totalCents = subtotalCents + cafe.delivery_fee_cents;
+  if (input.expectedTotalCents !== undefined && input.expectedTotalCents !== totalCents) {
+    throw new HttpError(409, 'price_changed', `Prices at ${cafe.name} changed.`, { totalCents });
+  }
 
   // Every check passed: now reserve. This charges nothing yet.
   const { paymentId, clientSecret } = await deps.payments.reserve(
@@ -282,6 +290,26 @@ export async function confirmPayment(deps: Deps, userId: string, orderId: string
   const order = getUserOrder(deps, userId, orderId);
   if (order.status === 'pending-payment' && !(await deps.payments.isReserved(order.payment_id))) {
     throw new HttpError(402, 'payment_declined', 'The bank declined this payment.');
+  }
+  // The stand may have moved ("Sell from here") between starting the order and paying. The
+  // café can't reach a customer outside its range: let the money go and end the order.
+  if (order.status === 'pending-payment') {
+    const cafe = getCafeRow(deps.db, order.cafe_id);
+    const { coordinates } = JSON.parse(order.delivery) as { coordinates: Coordinates };
+    const distanceM = Math.round(
+      distanceInMetres(coordinates, {
+        latitude: cafe.latitude as number,
+        longitude: cafe.longitude as number,
+      }),
+    );
+    if (distanceM > cafe.radius_m) {
+      await release(deps, order);
+      await move(deps, order, 'abandoned', 'abandoned');
+      throw new HttpError(422, 'out_of_range', `${cafe.name} delivers within ${cafe.radius_m} m.`, {
+        distanceM,
+        radiusM: cafe.radius_m,
+      });
+    }
   }
   return move(deps, order, 'received', 'received', {
     accept_by: iso(deps.now() + ACCEPT_WINDOW_MS),

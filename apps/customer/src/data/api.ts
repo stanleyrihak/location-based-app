@@ -107,6 +107,8 @@ export type PlaceOrderInput = {
   delivery:
     { kind: 'spot'; spotCode: string } | { kind: 'photos'; selfie: PhotoSource; spot: PhotoSource };
   payment: { methodId: string; label: string };
+  /** The total on screen. The server refuses the order if a price changed since. */
+  expectedTotalCents: number;
 };
 
 /**
@@ -160,6 +162,14 @@ export class SpotNotValidError extends Error {
   }
 }
 
+/** The café changed a price since the cart was filled: nothing was charged. */
+export class PriceChangedError extends Error {
+  constructor() {
+    super('Prices changed');
+    this.name = 'PriceChangedError';
+  }
+}
+
 /** The order changed while the screen was open (it ended, or the café moved it on). */
 export class OrderChangedError extends Error {
   constructor() {
@@ -185,6 +195,8 @@ function toAppError(error: unknown): unknown {
       return new SpotNotValidError();
     case 'status_conflict':
       return new OrderChangedError();
+    case 'price_changed':
+      return new PriceChangedError();
     default:
       return error;
   }
