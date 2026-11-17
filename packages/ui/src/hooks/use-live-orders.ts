@@ -44,12 +44,9 @@ type Options = {
  *
  * `connected` lets screens poll only while the live connection is down.
  */
-export function useLiveOrders({
-  url,
-  queryKey,
-  onUpdate,
-  onUnauthorized,
-}: Options): { connected: boolean } {
+export function useLiveOrders({ url, queryKey, onUpdate, onUnauthorized }: Options): {
+  connected: boolean;
+} {
   const queryClient = useQueryClient();
   const [connected, setConnected] = useState(false);
   // The newest options for the socket's event handlers, without reconnecting when they change.
