@@ -1,4 +1,4 @@
-import type { Coordinates } from '@/data/types';
+import type { Coordinates } from '@shoot/shared';
 
 const EARTH_RADIUS_M = 6_371_000;
 

@@ -1,6 +1,6 @@
+import type { Spot } from '@shoot/shared';
 import { createContext, type PropsWithChildren, use, useState } from 'react';
 
-import type { Spot } from '@/data/types';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/payments/payment-methods';
 
 /**

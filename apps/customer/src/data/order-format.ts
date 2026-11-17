@@ -1,4 +1,5 @@
-import type { Order, OrderStatus } from '@/data/types';
+import type { Order, OrderStatus } from '@shoot/shared';
+
 import { formatClockTime, formatItemCount } from '@/utils/format';
 
 /** The four steps of an order, in order. Step numbers and the progress bar come from here. */

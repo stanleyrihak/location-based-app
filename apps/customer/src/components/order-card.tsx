@@ -1,3 +1,4 @@
+import type { Order } from '@shoot/shared';
 import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
@@ -5,7 +6,6 @@ import { View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Shadow } from '@/constants/theme';
 import { ORDER_STEPS, orderItemCount, shortDate, STATUS_LABEL, stepOf } from '@/data/order-format';
-import type { Order } from '@/data/types';
 import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 

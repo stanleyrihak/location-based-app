@@ -1,6 +1,5 @@
+import type { MenuItem } from '@shoot/shared';
 import { createContext, type PropsWithChildren, use, useReducer } from 'react';
-
-import type { MenuItem } from '@/data/types';
 
 /**
  * A line keeps its own copy of the item. The cart screen then doesn't need the menu

@@ -1,9 +1,9 @@
+import type { MenuItem } from '@shoot/shared';
 import { Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { ProductThumb } from '@/components/product-thumb';
 import { ThemedText } from '@/components/themed-text';
-import type { MenuItem } from '@/data/types';
 import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 

@@ -1,7 +1,7 @@
+import type { Cafe, Coordinates, Order } from '@shoot/shared';
 import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
 import { getCafes, getMenu, getMenuItems, getOrders } from '@/data/api';
-import type { Cafe, Coordinates, Order } from '@/data/types';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { distanceInMetres } from '@/utils/geo';
 

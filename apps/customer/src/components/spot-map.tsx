@@ -1,8 +1,8 @@
+import type { Coordinates } from '@shoot/shared';
 import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { Radius } from '@/constants/theme';
-import type { Coordinates } from '@/data/types';
 import { useTheme } from '@/hooks/use-theme';
 import { offsetInMetres } from '@/utils/geo';
 

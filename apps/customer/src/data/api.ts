@@ -1,9 +1,9 @@
+import type { Cafe, Coordinates, MenuItem, Order, Spot } from '@shoot/shared';
 import { fetch as expoFetch } from 'expo/fetch';
 import { File } from 'expo-file-system';
 import { Image } from 'react-native';
 
 import { ApiError, API_URL, authHeaders, request } from '@/data/http';
-import type { Cafe, Coordinates, MenuItem, Order, Spot } from '@/data/types';
 import { OutOfRangeError } from '@/data/use-check-range';
 
 /**

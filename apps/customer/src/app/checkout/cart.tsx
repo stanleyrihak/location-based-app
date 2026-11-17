@@ -1,3 +1,4 @@
+import type { MenuItem } from '@shoot/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -16,7 +17,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { getMenu, sellOutForTesting } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
-import type { MenuItem } from '@/data/types';
 import { useTheme } from '@/hooks/use-theme';
 import { type CartLine, useCart } from '@/providers/cart-provider';
 import { formatDistance, formatPrice } from '@/utils/format';

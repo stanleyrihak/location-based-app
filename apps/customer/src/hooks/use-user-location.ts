@@ -1,7 +1,6 @@
+import type { Coordinates } from '@shoot/shared';
 import { useQuery } from '@tanstack/react-query';
 import * as Location from 'expo-location';
-
-import type { Coordinates } from '@/data/types';
 
 /** Shared with useCheckRange, which asks for a fresh position through the same cache entry. */
 export const USER_LOCATION_KEY = ['user-location'];

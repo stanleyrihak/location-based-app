@@ -1,4 +1,4 @@
-import type { Cafe, CafeCategory, MenuItem } from '@/data/types';
+import type { Cafe, CafeCategory, MenuItem } from '@shoot/shared';
 
 export type CafeFilterId = 'all' | CafeCategory | 'open';
 

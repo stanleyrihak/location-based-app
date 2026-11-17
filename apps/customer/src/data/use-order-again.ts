@@ -1,9 +1,9 @@
+import type { Order } from '@shoot/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
 
 import { getMenu } from '@/data/api';
-import type { Order } from '@/data/types';
 import { type CartLine, useCart } from '@/providers/cart-provider';
 
 /**

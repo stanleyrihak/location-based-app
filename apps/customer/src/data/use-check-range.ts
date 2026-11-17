@@ -1,6 +1,6 @@
+import type { Cafe, Coordinates } from '@shoot/shared';
 import { useQueryClient } from '@tanstack/react-query';
 
-import type { Cafe, Coordinates } from '@/data/types';
 import { getUserLocation, USER_LOCATION_KEY } from '@/hooks/use-user-location';
 import { distanceInMetres } from '@/utils/geo';
 

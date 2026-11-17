@@ -1,3 +1,4 @@
+import type { MenuItem, MenuSection } from '@shoot/shared';
 import { Image } from 'expo-image';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -13,7 +14,6 @@ import { SectionTabs } from '@/components/section-tabs';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { type NearbyCafe, useMenu, useNearbyCafe } from '@/data/queries';
-import type { MenuItem, MenuSection } from '@/data/types';
 import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { formatClockTime, formatDistance, formatItemCount, formatPrice } from '@/utils/format';
