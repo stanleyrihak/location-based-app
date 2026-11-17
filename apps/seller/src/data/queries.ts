@@ -1,7 +1,7 @@
 import { trackKey } from '@shoot/ui';
 import { useQuery } from '@tanstack/react-query';
 
-import { getQueue, getTrack } from '@/data/api';
+import { getMenu, getQueue, getTrack } from '@/data/api';
 import { QUEUE_KEY, useLiveConnected } from '@/providers/live-orders-provider';
 
 /**
@@ -29,4 +29,11 @@ export function useTrack(orderId: string, onTheWay: boolean) {
     enabled: onTheWay,
     refetchInterval: live ? false : 30_000,
   });
+}
+
+export const MENU_KEY = ['seller-menu'] as const;
+
+/** The café's menu, for the Menu tab and the item sheet. */
+export function useMenu() {
+  return useQuery({ queryKey: MENU_KEY, queryFn: getMenu });
 }

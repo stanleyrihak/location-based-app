@@ -2,7 +2,7 @@ import { TabButton, useTheme } from '@shoot/ui';
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Orders and Stand. The same tab bar as the customer app (TabButton from @shoot/ui). */
+/** Orders, Menu and Stand. The same tab bar as the customer app (TabButton from @shoot/ui). */
 export default function TabLayout() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -22,6 +22,9 @@ export default function TabLayout() {
       >
         <TabTrigger name="orders" href="/" asChild>
           <TabButton icon="receipt" label="Orders" />
+        </TabTrigger>
+        <TabTrigger name="menu" href="/menu" asChild>
+          <TabButton icon="cup" label="Menu" />
         </TabTrigger>
         <TabTrigger name="stand" href="/stand" asChild>
           <TabButton icon="store" label="Stand" />
