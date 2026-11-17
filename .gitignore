@@ -41,6 +41,6 @@ yarn-error.*
 
 example
 
-# generated native folders
-/ios
-/android
+# generated native folders, in every app (apps/customer/ios, apps/seller/android, ...)
+ios/
+android/
