@@ -21,7 +21,10 @@ export function createStripePayments(secretKey: string): Payments {
         amount: amountCents,
         currency: 'eur',
         capture_method: 'manual',
-        // Lets Stripe offer what fits the phone: cards, and Google Pay on Android.
+        // Which methods the sheet offers is set in Stripe's dashboard (Settings → Payment
+        // methods); the API no longer takes a list here. For Shoot: cards only (Google Pay on
+        // Android is a card too). Pay-later and app-redirect methods (Klarna, Satispay) behave
+        // differently with a reservation the café takes later.
         automatic_payment_methods: { enabled: true },
       });
       return { paymentId: intent.id, clientSecret: intent.client_secret };

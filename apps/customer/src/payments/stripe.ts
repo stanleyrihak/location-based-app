@@ -45,6 +45,12 @@ export async function payWithStripe(publishableKey: string | null, clientSecret:
     merchantDisplayName: 'Shoot',
     returnURL: `${String(Constants.expoConfig?.scheme)}://stripe-redirect`,
     defaultBillingDetails: { address: { country: 'FI' } },
+    // Android only (iPhone has no Google Pay). Test keys need Google's test environment.
+    googlePay: {
+      merchantCountryCode: 'FI',
+      currencyCode: 'EUR',
+      testEnv: publishableKey.startsWith('pk_test_'),
+    },
   });
   if (init.error) {
     // In Metro's terminal too, with Stripe's code, to see why without guessing.
