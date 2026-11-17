@@ -1,16 +1,14 @@
+import { Button, ThemedText, ThemedView } from '@shoot/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { CafeCard } from '@/components/cafe-card';
 import { Chip } from '@/components/chip';
 import { LocationIllustration } from '@/components/location-illustration';
 import { OrderAgain } from '@/components/order-again';
 import { SearchField } from '@/components/search-field';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { CAFE_FILTERS, type CafeFilterId, filterCafes, searchCafes } from '@/data/cafe-filters';
 import { type NearbyCafe, useMenuItems, useNearbyCafes } from '@/data/queries';
 import { useOnboarding } from '@/providers/onboarding-provider';

@@ -2,10 +2,10 @@ import type { TabTriggerSlotProps } from 'expo-router/ui';
 import type { ComponentRef, Ref } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { Icon, type IconName } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Radius } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
+import { Icon, type IconName } from './icon';
+import { ThemedText } from './themed-text';
 
 type Props = TabTriggerSlotProps & {
   icon: IconName;

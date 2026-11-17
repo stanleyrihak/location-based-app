@@ -1,14 +1,12 @@
+import { Button, CameraColors, Radius, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { Redirect, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { CameraHeader } from '@/components/camera/camera-header';
 import { CameraNote, Viewfinder } from '@/components/camera/viewfinder';
-import { CameraColors, Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { useCheckout } from '@/providers/checkout-provider';
 
 /** 2.5 Happy with this photo? Your spot big, the selfie in the corner. */

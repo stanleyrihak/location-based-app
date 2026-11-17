@@ -1,10 +1,10 @@
 import { type StyleProp, View, type ViewStyle } from 'react-native';
 
-import { Button } from '@/components/button';
-import { Icon } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Button } from './button';
+import { Icon } from './icon';
+import { ThemedText } from './themed-text';
+import { Radius } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
 
 type Tone = 'info' | 'warn' | 'success';
 

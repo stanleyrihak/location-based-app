@@ -1,8 +1,5 @@
+import { ThemedText, Radius, useTheme } from '@shoot/ui';
 import { Pressable } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   label: string;

@@ -8,9 +8,9 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { Icon, type IconName } from '@/components/icon';
-import { CameraColors, FontWeight, Radius, Typography, type ThemeColor } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Icon, type IconName } from './icon';
+import { CameraColors, FontWeight, Radius, Typography, type ThemeColor } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
 
 /** `ink` is the dark brown button of the payment sheet (`.btn-ink`). */
 type Variant = 'primary' | 'secondary' | 'text' | 'ink';

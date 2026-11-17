@@ -1,9 +1,6 @@
+import { ThemedText, Radius, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 /**
  * The example from the design (`.example`): a photo of the spot, with the selfie as a

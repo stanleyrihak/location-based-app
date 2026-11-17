@@ -1,11 +1,9 @@
+import { Button, FormScreen, ThemedText } from '@shoot/ui';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
-import { Button } from '@/components/button';
 import { CodeField } from '@/components/code-field';
-import { FormScreen } from '@/components/form-screen';
-import { ThemedText } from '@/components/themed-text';
 import { sendSmsCode, verifySmsCode } from '@/data/api';
 import { setToken } from '@/data/session';
 

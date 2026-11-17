@@ -1,10 +1,8 @@
 import type { MenuItem } from '@shoot/shared';
+import { Icon, ThemedText, useTheme } from '@shoot/ui';
 import { Pressable, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
 import { ProductThumb } from '@/components/product-thumb';
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 
 type Props = {

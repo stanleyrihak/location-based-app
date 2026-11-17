@@ -1,10 +1,6 @@
 import { type MenuAction, MenuView } from '@expo/ui/community/menu';
+import { Icon, ThemedText, Radius, useTheme } from '@shoot/ui';
 import { StyleSheet, View } from 'react-native';
-
-import { Icon } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export const COUNTRIES = [
   { code: 'FI', name: 'Finland', dial: '+358', groups: [2, 3, 5], placeholder: '40 123 4567' },

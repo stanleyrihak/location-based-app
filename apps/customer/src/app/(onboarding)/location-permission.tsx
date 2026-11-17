@@ -1,13 +1,11 @@
+import { Button, ThemedText, ThemedView } from '@shoot/ui';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { AppState, Linking, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { LocationDenied } from '@/components/location-denied';
 import { LocationIllustration } from '@/components/location-illustration';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { useOnboarding } from '@/providers/onboarding-provider';
 
 /**

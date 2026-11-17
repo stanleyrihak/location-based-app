@@ -1,9 +1,6 @@
+import { Icon, CameraColors, FontWeight, Typography, useTheme } from '@shoot/ui';
 import { Fragment } from 'react';
 import { Text, View } from 'react-native';
-
-import { Icon } from '@/components/icon';
-import { CameraColors, FontWeight, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 const STEPS = ['Cart', 'Spot', 'Payment'] as const;
 

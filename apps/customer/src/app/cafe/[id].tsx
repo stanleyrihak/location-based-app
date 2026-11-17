@@ -1,4 +1,5 @@
 import type { MenuItem, MenuSection } from '@shoot/shared';
+import { Banner, Button, ThemedText, ThemedView, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -6,15 +7,10 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner } from '@/components/banner';
-import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
 import { MenuRow } from '@/components/menu-row';
 import { SectionTabs } from '@/components/section-tabs';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { type NearbyCafe, useMenu, useNearbyCafe } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { formatClockTime, formatDistance, formatItemCount, formatPrice } from '@/utils/format';
 

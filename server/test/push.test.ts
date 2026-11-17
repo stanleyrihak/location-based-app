@@ -47,6 +47,8 @@ test('a new paid order notifies the café’s sellers', async () => {
   assert.equal(push.sent[0].token, SELLER_PHONE);
   assert.match(push.sent[0].title, /^New order #\d+$/);
   assert.equal(push.sent[0].body, '2 items · accept within 5 minutes');
+  // The app uses it to open the order, and to skip a push it already rang for.
+  assert.deepEqual(push.sent[0].data, { orderId: id });
 });
 
 test('accept notifies the customer', async () => {

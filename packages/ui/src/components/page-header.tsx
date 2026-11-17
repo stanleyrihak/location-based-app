@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from './themed-text';
 
 type Props = {
   title: string;

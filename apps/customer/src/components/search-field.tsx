@@ -1,8 +1,5 @@
+import { Icon, TextField, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
-
-import { Icon } from '@/components/icon';
-import { TextField } from '@/components/text-field';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   value: string;

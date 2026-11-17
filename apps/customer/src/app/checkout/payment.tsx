@@ -1,19 +1,14 @@
+import { Button, Icon, ThemedText, ThemedView, Radius, Shadow, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { Redirect, router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { CheckoutHeader } from '@/components/checkout-header';
 import { CheckoutSteps } from '@/components/checkout-steps';
-import { Icon } from '@/components/icon';
 import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Radius, Shadow } from '@/constants/theme';
 import { useNearbyCafe } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 import { PAYMENT_METHODS, type PaymentMethod } from '@/payments/payment-methods';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';

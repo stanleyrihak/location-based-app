@@ -1,9 +1,5 @@
+import { Icon, ThemedText, Radius, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
-
-import { Icon } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   /** The bold start: "Your photo is your proof of location." */

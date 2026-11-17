@@ -77,3 +77,6 @@ setInterval(() => {
     console.error('The order timer failed', error);
   });
 }, TIMER_MS);
+
+// Every 20 seconds, a ping on every live connection: the apps reconnect if it stops coming.
+setInterval(() => deps.hub.ping(), 20_000);

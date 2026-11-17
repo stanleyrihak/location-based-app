@@ -1,12 +1,9 @@
+import { Button, FormScreen, TextField, ThemedText } from '@shoot/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Button } from '@/components/button';
 import { COUNTRIES, type CountryCode, CountryCodeSelect } from '@/components/country-code-select';
-import { FormScreen } from '@/components/form-screen';
-import { TextField } from '@/components/text-field';
-import { ThemedText } from '@/components/themed-text';
 import { sendSmsCode } from '@/data/api';
 
 const MIN_DIGITS = 7;

@@ -3,9 +3,9 @@ import { type ReactNode } from 'react';
 import { KeyboardAvoidingView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PageHeader } from '@/components/page-header';
-import { ThemedView } from '@/components/themed-view';
-import { useKeyboardVisible } from '@/hooks/use-keyboard-visible';
+import { PageHeader } from './page-header';
+import { ThemedView } from './themed-view';
+import { useKeyboardVisible } from '../hooks/use-keyboard-visible';
 
 type Props = {
   title: string;

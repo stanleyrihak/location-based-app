@@ -98,4 +98,6 @@ export type Order = {
   /** When it should reach you. Null until the café accepts: the time starts then. */
   readyAt: string | null;
   declineReason: DeclineReason | null;
+  /** When anything about the order last changed. Live updates use it to skip stale messages. */
+  updatedAt: string;
 };

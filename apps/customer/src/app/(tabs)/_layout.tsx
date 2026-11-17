@@ -1,8 +1,6 @@
+import { TabButton, useTheme } from '@shoot/ui';
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { TabButton } from '@/components/tab-button';
-import { useTheme } from '@/hooks/use-theme';
 
 export default function TabLayout() {
   const theme = useTheme();

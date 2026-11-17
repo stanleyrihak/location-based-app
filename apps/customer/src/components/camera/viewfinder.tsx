@@ -1,8 +1,6 @@
+import { ThemedText, CameraColors, Radius } from '@shoot/ui';
 import type { PropsWithChildren } from 'react';
 import { View } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { CameraColors, Radius } from '@/constants/theme';
 
 /** The rounded frame that holds the camera or a photo on the camera screens (`.viewfinder`). */
 export function Viewfinder({ children }: PropsWithChildren) {

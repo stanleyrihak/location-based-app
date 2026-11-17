@@ -1,10 +1,7 @@
 import type { MenuSection } from '@shoot/shared';
+import { Icon, type IconName, Radius, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { View } from 'react-native';
-
-import { Icon, type IconName } from '@/components/icon';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 /** What a product without a photo shows instead, by menu section. */
 const PLACEHOLDER_ICON: Record<MenuSection, IconName> = {

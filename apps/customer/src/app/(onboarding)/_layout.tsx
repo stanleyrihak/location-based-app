@@ -1,6 +1,5 @@
+import { useTheme } from '@shoot/ui';
 import { Stack } from 'expo-router';
-
-import { useTheme } from '@/hooks/use-theme';
 
 export default function OnboardingLayout() {
   const theme = useTheme();

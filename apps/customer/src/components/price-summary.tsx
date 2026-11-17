@@ -1,7 +1,6 @@
+import { ThemedText, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 
 type Props = {

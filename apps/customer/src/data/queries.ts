@@ -3,6 +3,7 @@ import { keepPreviousData, skipToken, useQuery } from '@tanstack/react-query';
 
 import { getCafes, getMenu, getMenuItems, getOrders } from '@/data/api';
 import { useUserLocation } from '@/hooks/use-user-location';
+import { useLiveConnected } from '@/providers/live-orders-provider';
 import { distanceInMetres } from '@/utils/geo';
 
 export type NearbyCafe = Cafe & {
@@ -84,11 +85,12 @@ export function isLive(order: Order) {
 
 /** The user's orders, newest first. */
 export function useOrders() {
+  const live = useLiveConnected();
   return useQuery({
     queryKey: ['orders'],
     queryFn: getOrders,
-    // While an order is on its way, ask again every 30 s so its status moves on.
-    // Once all are delivered there's nothing to wait for, so it stops (false).
-    refetchInterval: (query) => (query.state.data?.some(isLive) ? 30_000 : false),
+    // The live connection brings every change. Only while it's down, and an order is still
+    // going, ask again every 30 s. Once all are finished there's nothing to wait for (false).
+    refetchInterval: (query) => (!live && query.state.data?.some(isLive) ? 30_000 : false),
   });
 }

@@ -1,10 +1,9 @@
+import { Button, ThemedText } from '@shoot/ui';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { ExamplePhoto } from '@/components/example-photo';
-import { ThemedText } from '@/components/themed-text';
 
 /**
  * 2.4c A good photo: a form sheet over the camera (set up in checkout/_layout.tsx).

@@ -15,6 +15,11 @@ export interface Hub {
   orderChanged(order: OrderRow): void;
   /** Adds a connection. Returns the function that removes it again. */
   attach(socket: { send(text: string): void }, who: Listener, origin: string): () => void;
+  /**
+   * Sends `{ type: 'ping' }` to every connection. main.ts calls it every 20 s: a phone that hears
+   * nothing for 45 s knows the connection is dead and reconnects.
+   */
+  ping(): void;
 }
 
 /**
@@ -34,6 +39,16 @@ export function createHub(): Hub {
       return () => {
         connections.delete(connection);
       };
+    },
+
+    ping() {
+      for (const connection of connections) {
+        try {
+          connection.send('{"type":"ping"}');
+        } catch {
+          // A connection that just dropped; its close handler removes it.
+        }
+      }
     },
 
     orderChanged(order) {

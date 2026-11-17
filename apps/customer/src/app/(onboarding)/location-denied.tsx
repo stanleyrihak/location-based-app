@@ -1,6 +1,5 @@
-import { Button } from '@/components/button';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { Button, ThemedText, ThemedView } from '@shoot/ui';
+
 import { useOnboarding } from '@/providers/onboarding-provider';
 
 export default function LocationDeniedScreen() {

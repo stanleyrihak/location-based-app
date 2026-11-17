@@ -1,12 +1,10 @@
+import { Button, ThemedText, ThemedView } from '@shoot/ui';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { LiveOrderCard, PastOrderRow } from '@/components/order-card';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { minutesLeft, readyTime, STATUS_LABEL } from '@/data/order-format';
 import { isLive, useOrders } from '@/data/queries';
 

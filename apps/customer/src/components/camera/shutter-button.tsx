@@ -1,6 +1,5 @@
+import { CameraColors } from '@shoot/ui';
 import { Pressable, View } from 'react-native';
-
-import { CameraColors } from '@/constants/theme';
 
 type Props = {
   onPress: () => void;

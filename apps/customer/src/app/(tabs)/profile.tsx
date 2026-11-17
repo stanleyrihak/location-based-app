@@ -1,10 +1,7 @@
+import { Button, ThemedText, CameraColors, useTheme } from '@shoot/ui';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { ThemedText } from '@/components/themed-text';
-import { CameraColors } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { useOnboarding } from '@/providers/onboarding-provider';
 
 export default function Profile() {

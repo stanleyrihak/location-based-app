@@ -1,7 +1,5 @@
+import { ThemedText, useTheme } from '@shoot/ui';
 import { Pressable, ScrollView, View } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props<T extends string> = {
   tabs: { id: T; label: string }[];

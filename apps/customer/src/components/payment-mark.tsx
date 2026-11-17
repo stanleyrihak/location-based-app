@@ -1,8 +1,6 @@
+import { Icon, Radius, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 
-import { Icon } from '@/components/icon';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import type { PaymentMethod } from '@/payments/payment-methods';
 
 /** The small badge before a method: dark for the wallet, sand for cards (`.pay-mark`). */
