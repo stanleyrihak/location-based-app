@@ -16,6 +16,7 @@ import { createFakePayments } from './payments/fake.ts';
 import { createStripePayments } from './payments/stripe.ts';
 import { createExpoPush } from './push/expo.ts';
 import { createHub } from './realtime/hub.ts';
+import { createTracker } from './realtime/tracker.ts';
 
 const config = loadConfig(process.env);
 const uploadsDir = path.join(config.dataDir, 'uploads');
@@ -33,6 +34,7 @@ const deps: Deps = {
   payments,
   push: createExpoPush(db),
   hub: createHub(),
+  tracker: createTracker(),
   now: Date.now,
   uploadsDir,
   publicDir: config.publicDir,

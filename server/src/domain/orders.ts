@@ -45,7 +45,7 @@ function getRow(deps: Deps, id: string) {
  * The customer's own order, or 404. Someone else's order also gives 404, not 403: the answer
  * shouldn't even confirm that it exists.
  */
-function getUserOrder(deps: Deps, userId: string, orderId: string): OrderRow {
+export function getUserOrder(deps: Deps, userId: string, orderId: string): OrderRow {
   const row = getRow(deps, orderId);
   if (!row || row.user_id !== userId) {
     throw new HttpError(404, 'order_not_found', 'There is no such order.');
@@ -54,7 +54,7 @@ function getUserOrder(deps: Deps, userId: string, orderId: string): OrderRow {
 }
 
 /** An order of this café, or 404. */
-function getCafeOrder(deps: Deps, cafeId: string, orderId: string): OrderRow {
+export function getCafeOrder(deps: Deps, cafeId: string, orderId: string): OrderRow {
   const row = getRow(deps, orderId);
   if (!row || row.cafe_id !== cafeId || row.status === 'pending-payment') {
     throw new HttpError(404, 'order_not_found', 'There is no such order.');
@@ -113,6 +113,8 @@ async function move(
   }
 
   const updated = getRow(deps, order.id) as OrderRow;
+  // Positions exist only during the walk.
+  if (to !== 'on-the-way') deps.tracker.forget(order.id);
   if (ENDED.has(to)) {
     await deletePhotos(deps, updated.delivery);
   }

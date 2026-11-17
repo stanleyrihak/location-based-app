@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict';
-import type { AddressInfo } from 'node:net';
 import { test } from 'node:test';
 
-import { serve } from '@hono/node-server';
-
 import { createHub } from '../src/realtime/hub.ts';
-import { createTestApp, send, signInCustomer, signInSeller } from './helpers.ts';
+import {
+  connect,
+  HERE,
+  createTestApp,
+  send,
+  signInCustomer,
+  signInSeller,
+  startLive as start,
+  wait,
+} from './helpers.ts';
 
-const HERE = { latitude: 60.45, longitude: 22.27 };
 const NEW_ORDER = {
   cafeId: 'saaripaahtimo',
   lines: [{ itemId: 'saari-cappuccino', quantity: 1 }],
@@ -17,36 +22,6 @@ const NEW_ORDER = {
   payment: { methodId: 'wallet', label: 'Apple Pay' },
 };
 
-type Message = { type: string; order: { id: string; status: string } };
-
-/** The test app on a real port, so a real WebSocket can connect. */
-async function start() {
-  const t = createTestApp();
-  const server = serve({ fetch: t.app.fetch, port: 0, hostname: '127.0.0.1' });
-  t.app.injectWebSocket(server);
-  await new Promise<void>((resolve) => server.once('listening', () => resolve()));
-  const { port } = server.address() as AddressInfo;
-  await send(t.app, 'GET', `/cafes?latitude=${HERE.latitude}&longitude=${HERE.longitude}`);
-  return {
-    ...t,
-    url: `ws://127.0.0.1:${port}/ws`,
-    close: () => new Promise<void>((resolve) => server.close(() => resolve())),
-  };
-}
-
-/** Opens a socket and collects every message it gets. */
-async function connect(url: string, token: string) {
-  const socket = new WebSocket(`${url}?token=${encodeURIComponent(token)}`);
-  const messages: Message[] = [];
-  socket.addEventListener('message', (event) => messages.push(JSON.parse(String(event.data))));
-  await new Promise((resolve, reject) => {
-    socket.addEventListener('open', resolve, { once: true });
-    socket.addEventListener('error', reject, { once: true });
-  });
-  return { socket, messages };
-}
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function placePaidOrder(app: ReturnType<typeof createTestApp>['app'], token: string) {
   const created = await send(app, 'POST', '/orders', NEW_ORDER, token);

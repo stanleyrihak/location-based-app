@@ -4,6 +4,7 @@ import type { Config } from './config.ts';
 import type { Payments } from './payments/types.ts';
 import type { Push } from './push/types.ts';
 import type { Hub } from './realtime/hub.ts';
+import type { Tracker } from './realtime/tracker.ts';
 
 /**
  * Everything with a side effect, passed into the app instead of imported. main.ts passes the
@@ -14,6 +15,8 @@ export type Deps = {
   payments: Payments;
   push: Push;
   hub: Hub;
+  /** The latest positions of orders on their way (memory only). */
+  tracker: Tracker;
   /** The current time in ms. Always use this, never Date.now(), so tests can move time. */
   now: () => number;
   uploadsDir: string;
