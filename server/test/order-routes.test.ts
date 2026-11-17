@@ -178,3 +178,17 @@ test('bad order bodies are 400, not 500', async () => {
     assert.equal(response.status, 400, JSON.stringify(body));
   }
 });
+
+test('confirming twice answers 409 and leaves one received order (what the app’s retry relies on)', async () => {
+  const { app, customer, seller } = await setup();
+  const order = await paidOrder(app, customer);
+  const again = await send(app, 'POST', `/orders/${order.id}/confirm`, undefined, customer);
+  assert.equal(again.status, 409);
+  assert.equal((await json<{ error: string }>(again)).error, 'status_conflict');
+
+  const queue = await json<Order[]>(await send(app, 'GET', '/seller/orders', undefined, seller));
+  assert.deepEqual(
+    queue.map((o) => [o.id, o.status]),
+    [[order.id, 'received']],
+  );
+});

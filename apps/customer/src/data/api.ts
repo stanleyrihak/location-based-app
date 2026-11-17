@@ -152,47 +152,83 @@ async function uploadPhoto(source: PhotoSource): Promise<string> {
   return body.path;
 }
 
-/**
- * 2.8 "Confirm payment": uploads the photos, then asks the server to charge and place the
- * order in one step. The server's "no" answers become errors the screens know.
- */
-export async function placeOrder(input: PlaceOrderInput): Promise<Order> {
-  const delivery =
-    input.delivery.kind === 'photos'
-      ? {
-          kind: 'photos' as const,
-          // Both at once: each upload waits for the network, so in parallel is about twice as fast.
-          ...Object.fromEntries(
-            await Promise.all([
-              uploadPhoto(input.delivery.selfie).then((path) => ['selfie', path]),
-              uploadPhoto(input.delivery.spot).then((path) => ['spot', path]),
-            ]),
-          ),
-        }
-      : input.delivery;
+/** Thrown when the spot code was valid at 2.6 but isn't any more (the café removed the sticker). */
+export class SpotNotValidError extends Error {
+  constructor() {
+    super('The spot code isn’t valid any more');
+    this.name = 'SpotNotValidError';
+  }
+}
 
+/** The server's "no" answers, as errors the screens know. Anything else stays an ApiError. */
+function toAppError(error: unknown): unknown {
+  if (!(error instanceof ApiError)) return error;
+  switch (error.code) {
+    case 'payment_declined':
+      return new PaymentDeclinedError();
+    case 'out_of_range':
+      return new OutOfRangeError();
+    case 'sold_out':
+      return new SoldOutError(error.details.itemIds as string[]);
+    case 'cafe_paused':
+    case 'cafe_closed':
+      return new CafePausedError();
+    case 'not_a_spot':
+      return new SpotNotValidError();
+    default:
+      return error;
+  }
+}
+
+/**
+ * 2.8 "Confirm payment", step 1: uploads the photos, then the server checks the order and
+ * reserves the money. Nothing is charged yet. Returns the new order's id and the secret
+ * Stripe's payment sheet needs (null with the test server's fake payments).
+ */
+export async function startOrder(
+  input: PlaceOrderInput,
+): Promise<{ orderId: string; clientSecret: string | null }> {
   try {
-    // Step 1: the server checks the order and reserves the money. Nothing is charged yet.
+    const delivery =
+      input.delivery.kind === 'photos'
+        ? {
+            kind: 'photos' as const,
+            // Both at once: each upload waits for the network, so in parallel is about twice as fast.
+            ...Object.fromEntries(
+              await Promise.all([
+                uploadPhoto(input.delivery.selfie).then((path) => ['selfie', path]),
+                uploadPhoto(input.delivery.spot).then((path) => ['spot', path]),
+              ]),
+            ),
+          }
+        : input.delivery;
+
     const { order, payment } = await request<{
       order: Order;
       payment: { clientSecret: string | null };
     }>('/orders', { method: 'POST', json: { ...input, delivery } });
-
-    // Stripe's payment sheet goes here (build step 4), using payment.clientSecret. The test
-    // server's fake payments send null and need no sheet.
-    void payment;
-
-    // Step 2: tell the server the customer paid. It checks with the payment provider and
-    // hands the order to the café, which then has 5 minutes to accept.
-    return await request<Order>(`/orders/${order.id}/confirm`, { method: 'POST' });
+    return { orderId: order.id, clientSecret: payment.clientSecret };
   } catch (error) {
-    if (error instanceof ApiError) {
-      if (error.code === 'payment_declined') throw new PaymentDeclinedError();
-      if (error.code === 'out_of_range') throw new OutOfRangeError();
-      if (error.code === 'sold_out') throw new SoldOutError(error.details.itemIds as string[]);
-      if (error.code === 'cafe_paused') throw new CafePausedError();
+    throw toAppError(error);
+  }
+}
+
+/**
+ * Step 2, after the customer paid: the server checks the money is held and hands the order to
+ * the café, which then has 5 minutes to accept.
+ *
+ * Safe to call again for the same order. If an earlier try reached the server but its answer
+ * was lost (a timeout), the server says 409 "already received": then the order went through,
+ * so it's fetched instead of showing an error.
+ */
+export async function confirmOrder(orderId: string): Promise<Order> {
+  try {
+    return await request<Order>(`/orders/${orderId}/confirm`, { method: 'POST' });
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'status_conflict') {
+      return request<Order>(`/orders/${orderId}`);
     }
-    throw error;
+    throw toAppError(error);
   }
 }
 
