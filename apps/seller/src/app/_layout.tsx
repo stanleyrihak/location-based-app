@@ -114,6 +114,7 @@ function RootNavigator() {
             contentStyle: { backgroundColor: theme.bg },
           }}
         />
+        <Stack.Screen name="stand-location" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="sign-in" />
