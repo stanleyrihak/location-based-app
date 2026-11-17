@@ -1,11 +1,10 @@
+import { Button, ThemedText } from '@shoot/ui';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { PrivacyNote } from '@/components/privacy-note';
 import { SpotMap } from '@/components/spot-map';
-import { ThemedText } from '@/components/themed-text';
 import { useNearbyCafe } from '@/data/queries';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { useCart } from '@/providers/cart-provider';

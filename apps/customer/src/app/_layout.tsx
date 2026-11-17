@@ -5,6 +5,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { Shrikhand_400Regular } from '@expo-google-fonts/shrikhand';
+import { NavigationTheme, useTheme } from '@shoot/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack, ThemeProvider } from 'expo-router';
@@ -12,8 +13,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
 import { SplashOverlay } from '@/components/splash-overlay';
-import { NavigationTheme } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { CartProvider } from '@/providers/cart-provider';
 import { OnboardingProvider, useOnboarding } from '@/providers/onboarding-provider';
 

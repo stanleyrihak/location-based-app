@@ -1,7 +1,7 @@
+import { Icon } from '@shoot/ui';
 import { Pressable, View } from 'react-native';
 
 import { CheckoutSteps } from '@/components/checkout-steps';
-import { Icon } from '@/components/icon';
 
 type Props = {
   onClose: () => void;

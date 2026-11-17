@@ -1,3 +1,4 @@
+import { Wordmark, WORDMARK_RATIO, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -9,9 +10,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
-import { Wordmark, WORDMARK_RATIO } from '@/components/wordmark';
-import { useTheme } from '@/hooks/use-theme';
 
 const WORDMARK_WIDTH = 230;
 const ART_RATIO = 609.663 / 720;

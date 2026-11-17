@@ -1,19 +1,15 @@
+import { Button, Icon, type IconName, Radius, ThemedText, useTheme } from '@shoot/ui';
 import { router, Stack } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { Icon, type IconName } from '@/components/icon';
 import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
 import { CafePausedError, PaymentDeclinedError, SoldOutError, SpotNotValidError } from '@/data/api';
 import { type NearbyCafe, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
 import { usePlaceOrder } from '@/data/use-place-order';
-import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 import { formatDistance } from '@/utils/format';

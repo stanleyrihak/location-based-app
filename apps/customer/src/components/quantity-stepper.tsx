@@ -1,8 +1,5 @@
+import { Icon, type IconName, ThemedText, useTheme } from '@shoot/ui';
 import { Pressable, View } from 'react-native';
-
-import { Icon, type IconName } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   /** Used in the VoiceOver labels: "Remove one cappuccino". */

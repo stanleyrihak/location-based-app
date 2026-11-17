@@ -1,23 +1,18 @@
 import type { MenuItem } from '@shoot/shared';
+import { Banner, Button, TextField, ThemedText, ThemedView, useTheme } from '@shoot/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner } from '@/components/banner';
-import { Button } from '@/components/button';
 import { CheckoutHeader } from '@/components/checkout-header';
 import { CheckoutSteps } from '@/components/checkout-steps';
 import { PriceSummary } from '@/components/price-summary';
 import { ProductThumb } from '@/components/product-thumb';
 import { QuantityStepper } from '@/components/quantity-stepper';
-import { TextField } from '@/components/text-field';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { getMenu, sellOutForTesting } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 import { type CartLine, useCart } from '@/providers/cart-provider';
 import { formatDistance, formatPrice } from '@/utils/format';
 

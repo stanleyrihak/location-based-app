@@ -1,3 +1,4 @@
+import { Button, Icon, ThemedText, CameraColors, Radius, useTheme } from '@shoot/ui';
 import { type BarcodeScanningResult, CameraView } from 'expo-camera';
 import { router, useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -5,17 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { CameraHeader } from '@/components/camera/camera-header';
 import { CameraNote, Viewfinder, ViewfinderHint } from '@/components/camera/viewfinder';
 import { CameraAccessDenied } from '@/components/camera-access-denied';
-import { Icon } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { CameraColors, Radius } from '@/constants/theme';
 import { getSpotByCode } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
 import { useCameraAccess } from '@/hooks/use-camera-access';
-import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 

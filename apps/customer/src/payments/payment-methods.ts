@@ -1,6 +1,5 @@
+import type { IconName } from '@shoot/ui';
 import { Platform } from 'react-native';
-
-import type { IconName } from '@/components/icon';
 
 export type PaymentMethod = {
   id: string;

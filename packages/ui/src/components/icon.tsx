@@ -1,8 +1,8 @@
 import Svg from 'react-native-svg';
 
-import { type IconName, IconShapes } from '@/components/icon-shapes';
-import { IconSize, type ThemeColor } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { type IconName, IconShapes } from './icon-shapes';
+import { IconSize, type ThemeColor } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
 
 export type { IconName };
 

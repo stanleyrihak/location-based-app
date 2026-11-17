@@ -1,9 +1,5 @@
+import { Icon, type IconName, Radius, ThemedText, useTheme } from '@shoot/ui';
 import { StyleSheet, View } from 'react-native';
-
-import { Icon, type IconName } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export type SettingsTileProps = {
   name: string;

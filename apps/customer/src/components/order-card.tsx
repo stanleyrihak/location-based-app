@@ -1,12 +1,10 @@
 import type { Order } from '@shoot/shared';
+import { ThemedText, Radius, Shadow, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
-import { Radius, Shadow } from '@/constants/theme';
 import { ORDER_STEPS, orderItemCount, shortDate, STATUS_LABEL, stepOf } from '@/data/order-format';
-import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 
 /** Four bars, filled up to the current step (`.progress`). Green once delivered. */

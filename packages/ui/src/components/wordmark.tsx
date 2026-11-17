@@ -1,7 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
 
-import { type ThemeColor } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { type ThemeColor } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
 
 /** The "Shoot" letters in Shrikhand, as a vector path (font units). */
 const PATH =

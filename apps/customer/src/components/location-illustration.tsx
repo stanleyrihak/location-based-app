@@ -1,7 +1,6 @@
+import { useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
-
-import { useTheme } from '@/hooks/use-theme';
 
 const SIZE = 160;
 const STROKE = 3;

@@ -1,12 +1,9 @@
+import { Button, ThemedText, Radius, Shadow, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 
-import { Button } from '@/components/button';
-import { ThemedText } from '@/components/themed-text';
-import { Radius, Shadow } from '@/constants/theme';
 import { orderContents } from '@/data/order-format';
 import { type NearbyCafe, useOrders } from '@/data/queries';
 import { useOrderAgain } from '@/data/use-order-again';
-import { useTheme } from '@/hooks/use-theme';
 import { formatPrice } from '@/utils/format';
 
 /**

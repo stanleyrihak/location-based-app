@@ -1,8 +1,7 @@
+import { ThemedText, Radius } from '@shoot/ui';
 import { StyleSheet, View } from 'react-native';
 
 import { SettingsTile, type SettingsTileProps } from '@/components/settings-tile';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
 
 type Props = {
   title: string;

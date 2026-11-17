@@ -1,13 +1,8 @@
+import { Banner, Button, ThemedText, ThemedView, FontWeight, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner } from '@/components/banner';
-import { Button } from '@/components/button';
 import { LocationIllustration } from '@/components/location-illustration';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { FontWeight } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   onOpenSettings: () => void;

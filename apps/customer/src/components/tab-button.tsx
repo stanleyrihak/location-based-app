@@ -1,11 +1,7 @@
+import { Icon, type IconName, Radius, ThemedText, useTheme } from '@shoot/ui';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 import type { ComponentRef, Ref } from 'react';
 import { Pressable, View } from 'react-native';
-
-import { Icon, type IconName } from '@/components/icon';
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = TabTriggerSlotProps & {
   icon: IconName;

@@ -1,11 +1,9 @@
+import { ThemedText, Radius, Shadow, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { ThemedText } from '@/components/themed-text';
-import { Radius, Shadow } from '@/constants/theme';
 import type { NearbyCafe } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 import { formatDistance, formatPrice } from '@/utils/format';
 
 type Props = {

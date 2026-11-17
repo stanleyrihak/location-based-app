@@ -1,3 +1,4 @@
+import { Button, Icon, CameraColors, Radius, useTheme } from '@shoot/ui';
 import { CameraView } from 'expo-camera';
 import { Image } from 'expo-image';
 import { router, useIsFocused } from 'expo-router';
@@ -12,16 +13,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { CameraHeader } from '@/components/camera/camera-header';
 import { ShutterButton } from '@/components/camera/shutter-button';
 import { CameraNote, Viewfinder, ViewfinderHint } from '@/components/camera/viewfinder';
 import { CameraAccessDenied } from '@/components/camera-access-denied';
-import { Icon } from '@/components/icon';
-import { CameraColors, Radius } from '@/constants/theme';
 import { useNearbyCafe } from '@/data/queries';
 import { useCameraAccess } from '@/hooks/use-camera-access';
-import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 

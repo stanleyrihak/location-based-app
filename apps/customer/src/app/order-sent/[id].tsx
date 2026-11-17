@@ -1,17 +1,13 @@
+import { Button, Icon, ThemedText, ThemedView, useTheme } from '@shoot/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { Icon } from '@/components/icon';
 import { LiveOrderCard } from '@/components/order-card';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { minutesLeft, readyTime, STATUS_LABEL, stepOf } from '@/data/order-format';
 import { useOrders } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 
 /** 2.9 Order sent: a short success moment, and the order already on its way. */
 export default function OrderSentScreen() {

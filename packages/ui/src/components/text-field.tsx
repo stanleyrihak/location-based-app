@@ -7,8 +7,8 @@ import {
   type TextInputProps,
 } from 'react-native';
 
-import { Radius, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Radius, Typography } from '../constants/theme';
+import { useTheme } from '../hooks/use-theme';
 
 export function TextField({ style, onFocus, onBlur, ...other }: TextInputProps) {
   const theme = useTheme();

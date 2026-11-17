@@ -1,6 +1,6 @@
+import { useTheme } from '@shoot/ui';
 import { Stack } from 'expo-router';
 
-import { useTheme } from '@/hooks/use-theme';
 import { CheckoutProvider } from '@/providers/checkout-provider';
 
 /**

@@ -1,8 +1,5 @@
+import { Icon, type IconName, Shadow, useTheme } from '@shoot/ui';
 import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
-
-import { Icon, type IconName } from '@/components/icon';
-import { Shadow } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   icon: IconName;

@@ -1,9 +1,8 @@
 import type { Coordinates } from '@shoot/shared';
+import { Radius, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { offsetInMetres } from '@/utils/geo';
 
 const WIDTH = 300;

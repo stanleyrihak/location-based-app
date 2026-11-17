@@ -1,14 +1,10 @@
+import { Button, ThemedText, ThemedView, Radius, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
 import { TextLink } from '@/components/text-link';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();

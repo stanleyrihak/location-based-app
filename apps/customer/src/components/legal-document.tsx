@@ -1,9 +1,6 @@
+import { ThemedText, ThemedView, Radius } from '@shoot/ui';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Radius } from '@/constants/theme';
 
 export type LegalSection = {
   title: string;

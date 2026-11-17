@@ -1,9 +1,6 @@
+import { ThemedText, Radius, useTheme } from '@shoot/ui';
 import { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 const ADVANCE_DELAY_MS = 450;
 

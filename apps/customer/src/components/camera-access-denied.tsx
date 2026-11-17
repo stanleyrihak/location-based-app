@@ -1,12 +1,9 @@
+import { Banner, Button, ThemedText, ThemedView } from '@shoot/ui';
 import { router } from 'expo-router';
 import { Linking, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner } from '@/components/banner';
-import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 
 type Props = {
   title: string;

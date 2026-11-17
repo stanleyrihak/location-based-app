@@ -1,17 +1,13 @@
+import { Banner, Button, ThemedText, ThemedView, useTheme } from '@shoot/ui';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Banner } from '@/components/banner';
-import { Button } from '@/components/button';
 import { CheckoutHeader } from '@/components/checkout-header';
 import { CheckoutSteps } from '@/components/checkout-steps';
 import { ExamplePhoto } from '@/components/example-photo';
 import { PrivacyNote } from '@/components/privacy-note';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { useNearbyCafe } from '@/data/queries';
-import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/providers/cart-provider';
 import { formatDistance } from '@/utils/format';
 

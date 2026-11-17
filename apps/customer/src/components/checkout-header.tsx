@@ -1,8 +1,8 @@
+import { ThemedText } from '@shoot/ui';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { IconButton } from '@/components/icon-button';
-import { ThemedText } from '@/components/themed-text';
 
 type Props = {
   title: string;
