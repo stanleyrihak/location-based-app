@@ -84,7 +84,7 @@ export default function SignInScreen() {
         )}
         {__DEV__ && (
           <ThemedText type="subhead" color="ink2">
-            {'Test server: saaripaahtimo@shoot.test / shoot-demo (dev only).'}
+            {'Test server: seller@shoot.com / 1234 (dev only).'}
           </ThemedText>
         )}
       </View>

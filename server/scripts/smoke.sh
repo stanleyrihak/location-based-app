@@ -30,7 +30,7 @@ curl -sf -X POST "$BASE/auth/code" -H 'Content-Type: application/json' -d '{"pho
 CUSTOMER=$(curl -sf -X POST "$BASE/auth/verify" -H 'Content-Type: application/json' \
   -d '{"phone":"+358401234567","code":"123456"}' | field token)
 SELLER=$(curl -sf -X POST "$BASE/seller/auth/sign-in" -H 'Content-Type: application/json' \
-  -d '{"email":"saaripaahtimo@shoot.test","password":"shoot-demo"}' | field token)
+  -d '{"email":"seller@shoot.com","password":"1234"}' | field token)
 
 place() {
   local id

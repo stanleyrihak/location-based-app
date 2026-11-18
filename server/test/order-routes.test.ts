@@ -93,7 +93,7 @@ test('decline needs a known reason', async () => {
 test('seller of another café gets 404', async () => {
   const { app, customer } = await setup();
   const order = await paidOrder(app, customer);
-  const other = await signInSeller(app, 'kampuskuppi@shoot.test');
+  const other = await signInSeller(app, 'seller2@shoot.com');
 
   const accept = await send(app, 'POST', `/seller/orders/${order.id}/accept`, undefined, other);
   assert.equal(accept.status, 404);

@@ -27,7 +27,7 @@ Put them in `server/.env.local` (git ignores it) or on the command line.
 ### Accounts for testing
 
 - **Customer.** Any phone number, code `123456`.
-- **Seller.** `<café id>@shoot.test`, password `shoot-demo`, for example `saaripaahtimo@shoot.test`.
+- **Seller.** Password `1234`: `seller@shoot.com` (Saaripaahtimo), `seller2@shoot.com` (Kampuskuppi), `seller3@shoot.com` (Torikahvila Ruska).
 - **More sellers.** `npm run create-seller -w @shoot/server -- --cafe saaripaahtimo --email anna@example.com --name Anna --password 'a long password'`
 
 ### Test data

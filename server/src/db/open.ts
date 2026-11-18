@@ -80,7 +80,7 @@ function seed(db: DatabaseSync) {
     insertSpot.run(spot.id, spot.cafeId, spot.label, spot.code);
   }
 
-  // One seller per café: "<café id>@shoot.test", password SEED_SELLER_PASSWORD.
+  // One seller per café: its sellerEmail, password SEED_SELLER_PASSWORD.
   seedPasswordHash ??= hashPasswordSync(SEED_SELLER_PASSWORD);
   const insertStaff = db.prepare(
     'INSERT INTO staff (id, cafe_id, email, name, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)',
@@ -89,7 +89,7 @@ function seed(db: DatabaseSync) {
     insertStaff.run(
       randomUUID(),
       cafe.id,
-      `${cafe.id}@shoot.test`,
+      cafe.sellerEmail,
       `${cafe.name} seller`,
       seedPasswordHash,
       new Date().toISOString(),

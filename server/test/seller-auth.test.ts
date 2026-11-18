@@ -6,8 +6,8 @@ import { createTestApp, send, signInCustomer, signInSeller } from './helpers.ts'
 test('seller signs in with the seeded account', async () => {
   const { app } = createTestApp();
   const response = await send(app, 'POST', '/seller/auth/sign-in', {
-    email: 'saaripaahtimo@shoot.test',
-    password: 'shoot-demo',
+    email: 'seller@shoot.com',
+    password: '1234',
   });
   assert.equal(response.status, 200);
   const body = (await response.json()) as {
@@ -19,18 +19,18 @@ test('seller signs in with the seeded account', async () => {
 
   const me = await send(app, 'GET', '/seller/me', undefined, body.token);
   assert.equal(me.status, 200);
-  assert.equal(((await me.json()) as { email: string }).email, 'saaripaahtimo@shoot.test');
+  assert.equal(((await me.json()) as { email: string }).email, 'seller@shoot.com');
 });
 
 test('wrong password and unknown email give the same 401', async () => {
   const { app } = createTestApp();
   const wrong = await send(app, 'POST', '/seller/auth/sign-in', {
-    email: 'saaripaahtimo@shoot.test',
+    email: 'seller@shoot.com',
     password: 'nope',
   });
   const unknown = await send(app, 'POST', '/seller/auth/sign-in', {
-    email: 'nobody@shoot.test',
-    password: 'shoot-demo',
+    email: 'nobody@shoot.com',
+    password: '1234',
   });
   assert.equal(wrong.status, 401);
   assert.equal(unknown.status, 401);
@@ -53,8 +53,8 @@ test('stored hash is not the password', async () => {
   const { deps } = createTestApp();
   const { password_hash } = deps.db
     .prepare('SELECT password_hash FROM staff WHERE email = ?')
-    .get('saaripaahtimo@shoot.test') as { password_hash: string };
-  assert.notEqual(password_hash, 'shoot-demo');
+    .get('seller@shoot.com') as { password_hash: string };
+  assert.notEqual(password_hash, '1234');
   assert.match(password_hash, /^scrypt\$[0-9a-f]{32}\$[0-9a-f]+$/);
 });
 

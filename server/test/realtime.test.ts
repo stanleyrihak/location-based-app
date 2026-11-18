@@ -67,7 +67,7 @@ test('another café’s seller receives nothing', async () => {
   const s = await start();
   try {
     const customer = await signInCustomer(s.app);
-    const other = await connect(s.url, await signInSeller(s.app, 'kampuskuppi@shoot.test'));
+    const other = await connect(s.url, await signInSeller(s.app, 'seller2@shoot.com'));
     await placePaidOrder(s.app, customer);
     await wait(200);
     assert.equal(other.messages.length, 0);

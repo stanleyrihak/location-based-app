@@ -19,7 +19,7 @@ cd apps/customer && npx expo start --dev-client  # the customer app
 cd apps/seller && npx expo start --dev-client    # the seller app
 ```
 
-Your phone and your computer must be on the same Wi-Fi. In development, the SMS code is always `123456`, and the seller app signs in with `saaripaahtimo@shoot.test` / `shoot-demo`.
+Your phone and your computer must be on the same Wi-Fi. In development, the SMS code is always `123456`, and the seller app signs in with `seller@shoot.com` / `1234`.
 
 Both apps need a development build (they use native modules Expo Go doesn't have). Each app runs on both platforms:
 

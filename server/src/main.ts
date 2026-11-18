@@ -66,7 +66,7 @@ const server = serve({ fetch: root.fetch, port: config.port, hostname: '0.0.0.0'
     console.log('  ! STRIPE_PUBLISHABLE_KEY is missing: the app can’t show the payment sheet.');
   }
   if (config.devRoutes) {
-    console.log(`  seller sign-in: <café id>@shoot.test / ${SEED_SELLER_PASSWORD}`);
+    console.log(`  seller sign-in: seller@shoot.com / ${SEED_SELLER_PASSWORD} (also seller2@, seller3@)`);
   }
 });
 app.injectWebSocket(server);

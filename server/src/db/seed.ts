@@ -15,6 +15,8 @@ type SeedCafe = {
   categories: string[];
   /** Made up, for the Call button. */
   phone: string;
+  /** The café's seller account in development (password SEED_SELLER_PASSWORD). */
+  sellerEmail: string;
 };
 
 type SeedItem = {
@@ -30,8 +32,8 @@ type SeedItem = {
 
 type SeedSpot = { id: string; cafeId: string; label: string; code: string };
 
-/** Development only: every seeded seller account ("<café id>@shoot.test") uses this. */
-export const SEED_SELLER_PASSWORD = 'shoot-demo';
+/** Development only: every seeded seller account (seller@shoot.com, seller2@…) uses this. */
+export const SEED_SELLER_PASSWORD = '1234';
 
 const AMERICANO = '/static/images/menu/americano.jpg';
 const CAPPUCCINO = '/static/images/menu/cappuccino.jpg';
@@ -41,6 +43,7 @@ const ESPRESSO = '/static/images/menu/espresso.jpg';
 export const SEED_CAFES: SeedCafe[] = [
   {
     id: 'saaripaahtimo',
+    sellerEmail: 'seller@shoot.com',
     name: 'Saaripaahtimo',
     image: '/static/images/cafes/coffee-shop-3.jpg',
     coverImage: '/static/images/cafes/coffee-shop-3-cover.jpg',
@@ -54,6 +57,7 @@ export const SEED_CAFES: SeedCafe[] = [
   },
   {
     id: 'kampuskuppi',
+    sellerEmail: 'seller2@shoot.com',
     name: 'Kampuskuppi',
     image: '/static/images/cafes/coffee-shop-1.jpg',
     coverImage: '/static/images/cafes/coffee-shop-1.jpg',
@@ -67,6 +71,7 @@ export const SEED_CAFES: SeedCafe[] = [
   },
   {
     id: 'torikahvila-ruska',
+    sellerEmail: 'seller3@shoot.com',
     name: 'Torikahvila Ruska',
     image: '/static/images/cafes/coffee-shop-2.jpg',
     coverImage: '/static/images/cafes/coffee-shop-2-cover.jpg',

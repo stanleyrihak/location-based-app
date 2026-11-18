@@ -76,8 +76,8 @@ export async function signInCustomer(app: App, phone = '+358401234567'): Promise
 /** Signs a seller in with a seeded development account and returns their token. */
 export async function signInSeller(
   app: App,
-  email = 'saaripaahtimo@shoot.test',
-  password = 'shoot-demo',
+  email = 'seller@shoot.com',
+  password = '1234',
 ): Promise<string> {
   const response = await send(app, 'POST', '/seller/auth/sign-in', { email, password });
   const { token } = (await response.json()) as { token: string };

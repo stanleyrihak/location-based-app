@@ -113,7 +113,7 @@ test('a position for another café’s order is 404', async () => {
   await send(app, 'GET', `/cafes?latitude=${HERE.latitude}&longitude=${HERE.longitude}`);
   const customer = await signInCustomer(app);
   const seller = await signInSeller(app);
-  const otherSeller = await signInSeller(app, 'kampuskuppi@shoot.test');
+  const otherSeller = await signInSeller(app, 'seller2@shoot.com');
   const orderId = await orderOnTheWay(app, customer, seller);
 
   const sent = await send(app, 'POST', `/seller/orders/${orderId}/position`, WALKING, otherSeller);
