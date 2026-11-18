@@ -50,7 +50,7 @@ Then pay with the test card 4242 4242 4242 4242, any future date, any CVC. The c
 The maps on Android need a Google Maps API key; the iPhone uses Apple Maps without one. Showing a map in an Android app costs nothing ("Maps SDK for Android"), but Google asks for a billing account.
 
 1. In the [Google Cloud console](https://console.cloud.google.com/apis), create a project and enable **Maps SDK for Android**.
-2. Create an API key. Under **Application restrictions** choose Android apps and add `com.stanleyr.shootseller` and `com.stanleyr.shoot` (the customer app) with the SHA-1 from expo.dev → shoot-seller → Credentials → Android. Under **API restrictions** allow only Maps SDK for Android.
+2. Create an API key. Under **Application restrictions** choose Android apps and add each app with its own SHA-1: `com.stanleyr.shootseller` from expo.dev → shoot-seller → Credentials → Android, and `com.stanleyr.shoot` from expo.dev → location-based-app → Credentials → Android (it exists after the customer's first EAS build). Or choose **None** here, as we did when the SHA-1 was refused. Under **API restrictions** allow only Maps SDK for Android.
 3. Store it for EAS builds in each app's project, before its first Android build: `npx eas-cli@latest env:create --name GOOGLE_MAPS_API_KEY --value <key> --environment development --visibility sensitive`, once in `apps/seller` and once in `apps/customer`. Without it the map crashes the Android app. For local builds, put `GOOGLE_MAPS_API_KEY=<key>` in the app's `.env.local` (not in git).
 
 ### Try an order on two phones
@@ -118,6 +118,7 @@ Run the list once with the seller on Android and the customer on the iPhone, the
 - [ ] Without "Allow all the time", the seller's order screen says to keep the app open.
 - [ ] Seller on the iPhone: "On my way" asks for location, then "Change to Always Allow". With the screen locked, the blue location indicator shows and the customer's map shows the seller moving.
 - [ ] Seller on the iPhone with "While Using the App" only: positions are shared while the app is open, and the screen says to keep it open.
+- [ ] Seller on the iPhone with "Allow Once": after about 2 s the screen says to keep the app open, positions are shared, and "Delivered" still works.
 
 **Moved to a different seat (E10)**
 - [ ] With a live order placed with photos, walk about 40 m away (still near the café) and open the app again: "Moved to a different seat?" appears.
