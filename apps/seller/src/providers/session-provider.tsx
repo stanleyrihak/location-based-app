@@ -4,7 +4,6 @@ import { createContext, type PropsWithChildren, use, useEffect, useState } from 
 import * as api from '@/data/api';
 import { endSession, getToken, onSessionEnd, setToken } from '@/data/session';
 import { askNotificationPermission } from '@/notifications/new-order-alert';
-import { registerForPush } from '@/notifications/push-token';
 
 type SessionValue = {
   /** True while a token is saved: decides between sign-in and the tabs. */
@@ -36,16 +35,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   const me = useQuery({ queryKey: ['seller-me'], queryFn: api.getMe, enabled: signedIn });
 
-  // A signed-in seller needs to hear new orders: ask once, right after sign-in (or app start),
-  // then tell the server where to send pushes. Without a push token (Expo Go, no permission)
-  // the app still rings while it's open, through the live connection.
+  // A signed-in seller needs to hear new orders: ask once, right after sign-in (or app start).
+  // There are no push notifications: the app rings only while it's open, through the live
+  // connection (notifications/new-order-alert.ts).
   useEffect(() => {
     if (!signedIn) return;
-    void (async () => {
-      await askNotificationPermission();
-      const token = await registerForPush();
-      if (token) await api.registerPushToken(token).catch(() => {});
-    })();
+    void askNotificationPermission();
   }, [signedIn]);
 
   useEffect(
@@ -66,8 +61,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }
 
   async function signOut() {
-    // Tell the server first (it stops push notifications to this phone); sign out locally
-    // even if that fails, for example without a connection.
+    // Tell the server first (it ends the session there); sign out locally even if that fails,
+    // for example without a connection.
     await api.signOut().catch(() => {});
     endSession();
   }

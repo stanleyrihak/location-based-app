@@ -74,10 +74,6 @@ export function markDelivered(id: string) {
   return request<Order>(`/seller/orders/${id}/delivered`, { method: 'POST' });
 }
 
-export function registerPushToken(token: string) {
-  return request<void>('/seller/push-token', { method: 'POST', json: { token } });
-}
-
 /** The WebSocket address for live order updates, or null when signed out. */
 export function liveUrl(token: string | null) {
   return token ? `${API_URL.replace(/^http/, 'ws')}/ws?token=${encodeURIComponent(token)}` : null;

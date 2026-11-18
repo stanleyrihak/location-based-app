@@ -38,7 +38,8 @@
       [
         "expo-notifications",
         {
-          "color": "#D06224"
+          "color": "#D06224",
+          "enableRemoteNotifications": false
         }
       ],
       "expo-maps",
@@ -47,7 +48,9 @@
         {
           "locationWhenInUsePermission": "Used to show the customer where you are while you bring their order.",
           "isAndroidBackgroundLocationEnabled": true,
-          "isAndroidForegroundServiceEnabled": true
+          "isAndroidForegroundServiceEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Used to show the customer where you are while you bring their order, also with the screen locked.",
+          "isIosBackgroundLocationEnabled": true
         }
       ]
     ],

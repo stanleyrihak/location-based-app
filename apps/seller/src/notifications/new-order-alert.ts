@@ -7,22 +7,10 @@ import { Platform, Vibration } from 'react-native';
 export const ORDERS_CHANNEL = 'orders';
 
 /**
- * Orders the app already rang for over the live connection, with when. The push for the same
- * order arrives a moment later; the handler below skips it, so the seller hears one alert, not two.
- */
-const alerted = new Map<string, number>();
-const REMEMBER_MS = 60_000;
-
-function alreadyAlerted(orderId: string) {
-  const at = alerted.get(orderId);
-  return at !== undefined && Date.now() - at < REMEMBER_MS;
-}
-
-/**
  * Sets up how notifications behave in this app. Called once at start.
  * - The Android channel for orders (importance max: sound, heads-up banner).
- * - While the app is open, notifications show as a banner with sound, except a push for an
- *   order that was just alerted over the live connection.
+ * - While the app is open, notifications show as a banner with sound. They come only from
+ *   alertNewOrder below: there are no push notifications, so a closed app doesn't ring.
  */
 export function setUpNotifications() {
   if (Platform.OS === 'android') {
@@ -35,16 +23,12 @@ export function setUpNotifications() {
   }
 
   Notifications.setNotificationHandler({
-    handleNotification: async (notification) => {
-      const data = notification.request.content.data as { orderId?: string; local?: boolean };
-      const duplicate = !data.local && data.orderId !== undefined && alreadyAlerted(data.orderId);
-      return {
-        shouldShowBanner: !duplicate,
-        shouldShowList: !duplicate,
-        shouldPlaySound: !duplicate,
-        shouldSetBadge: false,
-      };
-    },
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
   });
 }
 
@@ -66,14 +50,13 @@ function itemCount(order: Order) {
  * (trigger: null), and a vibration in case the phone is on silent.
  */
 export async function alertNewOrder(order: Order) {
-  alerted.set(order.id, Date.now());
   Vibration.vibrate([0, 400, 200, 400]);
   await Notifications.scheduleNotificationAsync({
     content: {
       title: `New order #${order.number}`,
       body: `${itemCount(order)} · accept within 5 minutes`,
       sound: 'default',
-      data: { orderId: order.id, local: true },
+      data: { orderId: order.id },
     },
     trigger: Platform.OS === 'android' ? { channelId: ORDERS_CHANNEL } : null,
   });

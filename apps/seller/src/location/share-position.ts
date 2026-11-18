@@ -7,7 +7,9 @@ import { sendPosition } from '@/data/api';
 /**
  * The seller's position during the walk ("On my way" to "Delivered"), also with the screen
  * locked. Android allows that through a foreground service: while it runs, a notification
- * says so, and the phone keeps the app alive. Background location doesn't work in Expo Go.
+ * says so, and the phone keeps the app alive. The iPhone allows it with "Always" permission
+ * (UIBackgroundModes location) and shows the blue location indicator meanwhile. Background
+ * location doesn't work in Expo Go.
  */
 export const SELLER_POSITION_TASK = 'seller-position';
 
@@ -58,7 +60,7 @@ TaskManager.defineTask<{ locations: Location.LocationObject[] }>(
   },
 );
 
-/** Background permission ("Allow all the time"), asking only if Android still lets us ask. */
+/** Background permission ("Allow all the time"), asking only if the phone still lets us ask. */
 async function hasBackgroundPermission() {
   const current = await Location.getBackgroundPermissionsAsync();
   if (current.granted) return true;
@@ -88,6 +90,10 @@ async function start(order: Order): Promise<ShareMode> {
       accuracy: Location.Accuracy.High,
       timeInterval: 5000,
       distanceInterval: 10,
+      // iPhone: show the blue indicator, and don't pause updates while the seller stands still.
+      showsBackgroundLocationIndicator: true,
+      pausesUpdatesAutomatically: false,
+      activityType: Location.ActivityType.Fitness,
       foregroundService: {
         notificationTitle: `Delivering order #${order.number}`,
         notificationBody:
