@@ -36,7 +36,7 @@ The seller app no longer uses Firebase. If the seller's EAS project still has th
 
 ### Stripe (test mode)
 
-Without keys the server uses fake payments (the card ending 0002 declines). For Stripe's real payment sheet, put both test keys from dashboard.stripe.com → Developers → API keys in `server/.env.local` (not in git):
+Without keys the server uses fake payments: every payment goes through. For Stripe's real payment sheet, put both test keys from dashboard.stripe.com → Developers → API keys in `server/.env.local` (not in git):
 
 ```
 STRIPE_SECRET_KEY=sk_test_…
@@ -55,7 +55,7 @@ The maps on Android need a Google Maps API key; the iPhone uses Apple Maps witho
 
 ### Try an order on two phones
 
-1. Start the server. Without `STRIPE_SECRET_KEY` in `server/.env.local`, payments are fake (the card ending 0002 is declined).
+1. Start the server. Without `STRIPE_SECRET_KEY` in `server/.env.local`, payments are fake and always go through.
 2. Phone A: open the seller app and sign in. Keep it open.
 3. Phone B: order from Casablanca in the customer app. Phone A rings. Tapping the notification opens the order.
 4. Accept within 5 minutes, and the customer sees Preparing. Or decline with a reason, or let the 5 minutes run out: the customer isn't charged.
