@@ -3,23 +3,15 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { COUNTRIES, type CountryCode, CountryCodeSelect } from '@/components/country-code-select';
+import {
+  COUNTRIES,
+  type CountryCode,
+  CountryCodeSelect,
+  formatPhone,
+} from '@/components/country-code-select';
 import { sendSmsCode } from '@/data/api';
 
 const MIN_DIGITS = 7;
-
-function formatPhone(digits: string, groups: readonly number[]) {
-  const parts: string[] = [];
-  let start = 0;
-
-  for (const size of groups) {
-    const part = digits.slice(start, start + size);
-    if (part) parts.push(part);
-    start += size;
-  }
-
-  return parts.join(' ');
-}
 
 /**
  * 1.2, for signing in, or (mode 'change', from Profile) for a new number. The code screen

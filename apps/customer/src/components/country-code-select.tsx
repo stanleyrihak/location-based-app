@@ -10,6 +10,25 @@ export const COUNTRIES = [
   { code: 'EE', name: 'Estonia', dial: '+372', groups: [4, 4], placeholder: '5123 4567' },
 ] as const;
 
+/** "401234567" with groups [2, 3, 5] → "40 123 4567". */
+export function formatPhone(digits: string, groups: readonly number[]) {
+  const parts: string[] = [];
+  let start = 0;
+  for (const size of groups) {
+    const part = digits.slice(start, start + size);
+    if (part) parts.push(part);
+    start += size;
+  }
+  return parts.join(' ');
+}
+
+/** "+358401234567" → "+358 40 123 4567" for a country we list; other numbers stay as they are. */
+export function displayPhone(phone: string) {
+  const country = COUNTRIES.find((item) => phone.startsWith(item.dial));
+  if (!country) return phone;
+  return `${country.dial} ${formatPhone(phone.slice(country.dial.length), country.groups)}`;
+}
+
 export type CountryCode = (typeof COUNTRIES)[number]['code'];
 
 type Props = {

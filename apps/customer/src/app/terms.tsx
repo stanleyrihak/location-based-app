@@ -4,7 +4,7 @@ const SUMMARY = [
   'Shoot connects you with cafés in Oulu. The café makes your order and brings it to your spot.',
   'You sign in with your phone number. Keep your phone and SMS codes to yourself.',
   'Be at the spot you confirmed. If the courier can’t find you, you collect the order at the counter.',
-  'You pay when you place the order. Food can’t be returned, but we refund what went wrong.',
+  'When you order, the money is only reserved. It’s taken when the café accepts. Food can’t be returned, but we refund what went wrong.',
 ];
 
 const SECTIONS: LegalSection[] = [
@@ -47,8 +47,8 @@ const SECTIONS: LegalSection[] = [
   {
     title: 'Payment',
     paragraphs: [
-      'You pay with Apple Pay, Google Pay or a payment card when you place the order. Payments are processed by our payment provider. Shoot never sees your full card number.',
-      'If you start a group order, you pay for the whole order. How you split the cost with your friends is up to you.',
+      'You pay with a payment card, or Google Pay on Android. When you place the order the amount is reserved on your card. It is taken only when the café accepts the order; if the café declines it, doesn’t answer in time, or you cancel before it accepts, the reservation is released and you aren’t charged.',
+      'Payments are processed by our payment provider, Stripe. Shoot never sees your full card number.',
     ],
   },
   {

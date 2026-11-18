@@ -2,10 +2,11 @@ import { Button, Radius, Shadow, ThemedText, ThemedView, useTheme } from '@shoot
 import { useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
-import { type ReactNode, useEffect } from 'react';
+import { Children, type ReactNode, useEffect } from 'react';
 import { Alert, AppState, Linking, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { displayPhone } from '@/components/country-code-select';
 import { deleteAccount, signOut } from '@/data/api';
 import { useMe } from '@/data/queries';
 import { endSession } from '@/data/session';
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
 
         <Section title="Phone number">
           <Row
-            label={me.data?.phone ?? ' '}
+            label={me.data ? displayPhone(me.data.phone) : ' '}
             action="Change"
             onPress={() => router.push('/change-phone')}
           />
@@ -138,7 +139,15 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
           overflow: 'hidden',
         }}
       >
-        {children}
+        {/* A thin line between rows, like a grouped list in Settings. */}
+        {Children.toArray(children).map((child, index) => (
+          <View
+            key={index}
+            style={index > 0 ? { borderTopWidth: 1, borderTopColor: theme.line } : undefined}
+          >
+            {child}
+          </View>
+        ))}
       </View>
     </View>
   );
