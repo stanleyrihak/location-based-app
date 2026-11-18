@@ -5,6 +5,11 @@ import { useEffect, useState } from 'react';
 import { AppState, Platform, type StyleProp, View, type ViewStyle } from 'react-native';
 
 import { Radius } from '../constants/theme';
+
+/** Google Maps style: no shops, gyms and the like, so only the places of this order stand out. */
+const HIDE_POINTS_OF_INTEREST = JSON.stringify([
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+]);
 import { useTheme } from '../hooks/use-theme';
 
 /** A fixed place: the café's stand or the customer's delivery spot. Drawn as a marker. */
@@ -109,8 +114,9 @@ export function DeliveryMap({
           }))}
           circles={circles}
           onMapClick={onPress && ((event) => onPress(asCoordinates(event.coordinates)))}
-          properties={{ isMyLocationEnabled: myLocation }}
-          uiSettings={{ myLocationButtonEnabled: false }}
+          // No shops, gyms and the like, and no 3D button: only the places of this order.
+          properties={{ isMyLocationEnabled: myLocation, pointsOfInterest: { including: [] } }}
+          uiSettings={{ myLocationButtonEnabled: false, togglePitchEnabled: false }}
         />
       ) : (
         <GoogleMaps.View
@@ -124,7 +130,10 @@ export function DeliveryMap({
           }))}
           circles={circles}
           onMapClick={onPress && ((event) => onPress(asCoordinates(event.coordinates)))}
-          properties={{ isMyLocationEnabled: myLocation }}
+          properties={{
+            isMyLocationEnabled: myLocation,
+            mapStyleOptions: { json: HIDE_POINTS_OF_INTEREST },
+          }}
           uiSettings={{ myLocationButtonEnabled: false, mapToolbarEnabled: false }}
         />
       )}

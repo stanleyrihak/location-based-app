@@ -104,11 +104,12 @@ export default function OrderSentScreen() {
       </View>
 
       <Button
-        // Close this screen (the tabs are under it), then switch to the Orders tab,
-        // where this order now sits at the top.
+        // Close this screen (the tabs are under it), switch to the Orders tab, and open this
+        // order on top of it. Back from the order then lands on the Orders tab.
         onPress={() => {
           router.back();
           router.navigate('/orders');
+          router.push({ pathname: '/order/[id]', params: { id } });
         }}
       >
         {'See your order'}

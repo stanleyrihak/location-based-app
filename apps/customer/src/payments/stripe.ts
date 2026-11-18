@@ -1,5 +1,37 @@
-import { initPaymentSheet, initStripe, presentPaymentSheet } from '@stripe/stripe-react-native';
+import { Palette } from '@shoot/ui';
+import {
+  type AppearanceParams,
+  initPaymentSheet,
+  initStripe,
+  presentPaymentSheet,
+} from '@stripe/stripe-react-native';
 import Constants from 'expo-constants';
+
+/**
+ * Stripe's sheet in Shoot's colours, so it reads as part of the app: cream background, white
+ * fields, brown text and the same brown pill button as our pay sheet. The font stays the
+ * system one: Inter is loaded at runtime, and Stripe's native sheet can't see it.
+ */
+const APPEARANCE: AppearanceParams = {
+  colors: {
+    primary: Palette.brown,
+    background: Palette.cream,
+    componentBackground: Palette.white,
+    componentBorder: 'rgba(74, 44, 30, 0.14)',
+    componentDivider: 'rgba(74, 44, 30, 0.14)',
+    primaryText: Palette.brown,
+    secondaryText: Palette.brownSoft,
+    componentText: Palette.brown,
+    placeholderText: Palette.brownFaint,
+    icon: Palette.brownSoft,
+    error: Palette.rust,
+  },
+  shapes: { borderRadius: 14, borderWidth: 1 },
+  primaryButton: {
+    colors: { background: Palette.brown, text: Palette.cream, border: Palette.brown },
+    shapes: { borderRadius: 28, height: 56 },
+  },
+};
 
 /** The customer closed Stripe's sheet: nothing was paid, and that's not an error to show. */
 export class PaymentCancelledError extends Error {
@@ -43,6 +75,7 @@ export async function payWithStripe(publishableKey: string | null, clientSecret:
   const init = await initPaymentSheet({
     paymentIntentClientSecret: clientSecret,
     merchantDisplayName: 'Shoot',
+    appearance: APPEARANCE,
     returnURL: `${String(Constants.expoConfig?.scheme)}://stripe-redirect`,
     defaultBillingDetails: { address: { country: 'FI' } },
     // Android only (iPhone has no Google Pay). Test keys need Google's test environment.
