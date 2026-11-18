@@ -57,7 +57,7 @@ The maps on Android need a Google Maps API key; the iPhone uses Apple Maps witho
 
 1. Start the server. Without `STRIPE_SECRET_KEY` in `server/.env.local`, payments are fake (the card ending 0002 is declined).
 2. Phone A: open the seller app and sign in. Keep it open.
-3. Phone B: order from Saaripaahtimo in the customer app. Phone A rings. Tapping the notification opens the order.
+3. Phone B: order from Casablanca in the customer app. Phone A rings. Tapping the notification opens the order.
 4. Accept within 5 minutes, and the customer sees Preparing. Or decline with a reason, or let the 5 minutes run out: the customer isn't charged.
 
 `npm run check` type-checks every part.

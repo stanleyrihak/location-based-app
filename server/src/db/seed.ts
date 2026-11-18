@@ -44,7 +44,7 @@ export const SEED_CAFES: SeedCafe[] = [
   {
     id: 'saaripaahtimo',
     sellerEmail: 'seller@shoot.com',
-    name: 'Saaripaahtimo',
+    name: 'Casablanca',
     image: '/static/images/cafes/coffee-shop-3.jpg',
     coverImage: '/static/images/cafes/coffee-shop-3-cover.jpg',
     offset: { northM: 36, eastM: 27 }, // 45 m away
@@ -58,7 +58,7 @@ export const SEED_CAFES: SeedCafe[] = [
   {
     id: 'kampuskuppi',
     sellerEmail: 'seller2@shoot.com',
-    name: 'Kampuskuppi',
+    name: 'BlueBell',
     image: '/static/images/cafes/coffee-shop-1.jpg',
     coverImage: '/static/images/cafes/coffee-shop-1.jpg',
     offset: { northM: -48, eastM: 64 }, // 80 m away
@@ -72,7 +72,7 @@ export const SEED_CAFES: SeedCafe[] = [
   {
     id: 'torikahvila-ruska',
     sellerEmail: 'seller3@shoot.com',
-    name: 'Torikahvila Ruska',
+    name: 'SantaMonica',
     image: '/static/images/cafes/coffee-shop-2.jpg',
     coverImage: '/static/images/cafes/coffee-shop-2-cover.jpg',
     offset: { northM: 210, eastM: -280 }, // 350 m away
@@ -86,7 +86,7 @@ export const SEED_CAFES: SeedCafe[] = [
 ];
 
 export const SEED_MENU: SeedItem[] = [
-  // Saaripaahtimo
+  // Casablanca
   {
     id: 'saari-cappuccino',
     cafeId: 'saaripaahtimo',
@@ -140,7 +140,7 @@ export const SEED_MENU: SeedItem[] = [
     priceCents: 380,
     section: 'pastry',
   },
-  // Kampuskuppi
+  // BlueBell
   {
     id: 'kampus-cappuccino',
     cafeId: 'kampuskuppi',
@@ -174,7 +174,7 @@ export const SEED_MENU: SeedItem[] = [
     priceCents: 790,
     section: 'lunch',
   },
-  // Torikahvila Ruska
+  // SantaMonica
   {
     id: 'ruska-cappuccino',
     cafeId: 'torikahvila-ruska',

@@ -6,7 +6,7 @@ import { formatPrice } from '@/utils/format';
 type Props = {
   subtotalCents: number;
   deliveryFeeCents: number;
-  /** "Total" by default. The payment sheet says who gets the money: "Pay Saaripaahtimo". */
+  /** "Total" by default. The payment sheet says who gets the money: "Pay Casablanca". */
   totalLabel?: string;
   /**
    * `plain`: a line above, no box (`.summary.plain`, the cart footer).

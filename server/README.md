@@ -27,7 +27,7 @@ Put them in `server/.env.local` (git ignores it) or on the command line.
 ### Accounts for testing
 
 - **Customer.** Any phone number, code `123456`.
-- **Seller.** Password `1234`: `seller@shoot.com` (Saaripaahtimo), `seller2@shoot.com` (Kampuskuppi), `seller3@shoot.com` (Torikahvila Ruska).
+- **Seller.** Password `1234`: `seller@shoot.com` (Casablanca), `seller2@shoot.com` (BlueBell), `seller3@shoot.com` (SantaMonica).
 - **More sellers.** `npm run create-seller -w @shoot/server -- --cafe saaripaahtimo --email anna@example.com --name Anna --password 'a long password'`
 
 ### Test data
@@ -52,7 +52,7 @@ Customer routes need `Authorization: Bearer <token>` from customer sign-in, and 
 An error has a status code and a body like this. The apps use `error`, people read `message`, and some errors add fields:
 
 ```json
-{ "error": "out_of_range", "message": "Saaripaahtimo delivers within 100 m.", "distanceM": 140, "radiusM": 100 }
+{ "error": "out_of_range", "message": "Casablanca delivers within 100 m.", "distanceM": 140, "radiusM": 100 }
 ```
 
 ### Customer sign-in

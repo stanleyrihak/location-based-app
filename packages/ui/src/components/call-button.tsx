@@ -5,7 +5,7 @@ import { Button } from './button';
 type Props = {
   /** As the server sends it, spaces allowed ("+358 40 123 4501"). Empty: no button. */
   phone: string;
-  /** "Call Saaripaahtimo", "Call the customer". */
+  /** "Call Casablanca", "Call the customer". */
   label: string;
 };
 

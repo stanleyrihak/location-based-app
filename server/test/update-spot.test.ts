@@ -23,7 +23,7 @@ type Order = {
   delivery: { kind: string; spotLabel?: string; selfie?: string; spot?: string };
 };
 
-/** About 20 m north of HERE: still inside Saaripaahtimo's 100 m. */
+/** About 20 m north of HERE: still inside Casablanca's 100 m. */
 const NEARBY = { latitude: HERE.latitude + 0.00018, longitude: HERE.longitude };
 /** About 1 km north: outside every café's range. */
 const FAR = { latitude: HERE.latitude + 0.009, longitude: HERE.longitude };
