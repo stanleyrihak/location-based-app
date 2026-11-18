@@ -14,7 +14,7 @@
     "android": {
       "package": "com.stanleyr.shootseller",
       "adaptiveIcon": {
-        "backgroundColor": "#D06224",
+        "backgroundColor": "#2B1B14",
         "foregroundImage": "./assets/images/app-icon-foreground.png",
         "monochromeImage": "./assets/images/app-icon-monochrome.png"
       },
