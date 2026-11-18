@@ -31,7 +31,9 @@ export function FormScreen({ title, lede, children, footer }: Props) {
           style={{
             flex: 1,
             paddingHorizontal: 24,
-            paddingTop: 12,
+            // Under a header, the header already clears the status bar. Without one (the
+            // seller's sign-in), the content must start below the status bar itself.
+            paddingTop: (headerHeight > 0 ? 0 : insets.top) + 12,
             paddingBottom: keyboardVisible ? 16 : insets.bottom + 16,
           }}
         >

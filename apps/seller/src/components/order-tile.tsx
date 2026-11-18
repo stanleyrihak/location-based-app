@@ -1,10 +1,18 @@
-import type { Order } from '@shoot/shared';
+import { isEndedStatus, type Order } from '@shoot/shared';
 import { Icon, Radius, Shadow, ThemedText, useTheme } from '@shoot/ui';
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Countdown } from '@/components/countdown';
 import { ago, formatPrice, itemCount } from '@/utils/format';
+
+/** How a finished order ended, next to its time, so the list says what happened to it. */
+const ENDED: Partial<Record<Order['status'], string>> = {
+  delivered: 'Delivered',
+  declined: 'Declined',
+  expired: 'Not accepted',
+  cancelled: 'Cancelled',
+};
 
 type Props = {
   order: Order;
@@ -60,6 +68,11 @@ export function OrderTile({ order, now, onPress, actions }: Props) {
         <ThemedText numberOfLines={1}>
           {order.lines.map((line) => `${line.quantity} × ${line.name}`).join(', ')}
         </ThemedText>
+        {isEndedStatus(order.status) && (
+          <ThemedText type="subhead" weight="semibold" color="ink2">
+            {ENDED[order.status]}
+          </ThemedText>
+        )}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Icon name={byPhoto ? 'camera' : 'qr'} size="sm" color="ink2" />
           <ThemedText type="subhead" color="ink2" numberOfLines={1} style={{ flex: 1 }}>

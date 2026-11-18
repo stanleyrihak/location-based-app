@@ -1,4 +1,4 @@
-import { type Order, secondsToAccept } from '@shoot/shared';
+import { type Order, paymentLine, secondsToAccept } from '@shoot/shared';
 import {
   Button,
   CallButton,
@@ -97,7 +97,15 @@ export default function OrderScreen() {
         <Items order={order} />
       </ScrollView>
 
-      <View style={{ paddingHorizontal: GUTTER, paddingBottom: insets.bottom + 12, gap: 8 }}>
+      {/* paddingTop: the list scrolls under the buttons, so leave a gap above them. */}
+      <View
+        style={{
+          paddingHorizontal: GUTTER,
+          paddingTop: 12,
+          paddingBottom: insets.bottom + 12,
+          gap: 8,
+        }}
+      >
         <NextStep order={order} now={now} />
       </View>
     </ThemedView>
@@ -243,7 +251,7 @@ function Items({ order }: { order: Order }) {
           paddingTop: 10,
         }}
       >
-        <ThemedText color="ink2">{`Paid with ${order.paymentLabel}`}</ThemedText>
+        <ThemedText color="ink2">{paymentLine(order.status, order.paymentLabel)}</ThemedText>
         <ThemedText weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>
           {formatPrice(order.totalCents)}
         </ThemedText>
