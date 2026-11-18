@@ -5,7 +5,7 @@ Order a coffee from your seat, and the café brings it to you. A school project:
 ## Layout
 
 - `apps/customer`: the customer app (Expo, iOS and Android)
-- `apps/seller`: the café's app (Expo, Android first): sign in, see orders, accept or decline
+- `apps/seller`: the café's app (Expo, iOS and Android): sign in, see orders, accept or decline
 - `server`: the backend (Node, TypeScript, SQLite). Its API is described in `server/README.md`.
 - `packages/shared`: types, order rules and the HTTP client, shared by the apps and the server (no React Native)
 - `packages/ui`: the design system (theme and components), shared by both apps
@@ -15,13 +15,24 @@ Order a coffee from your seat, and the café brings it to you. A school project:
 ```bash
 npm install                        # once, at the root
 npm run dev -w @shoot/server       # the server, on port 4000
-cd apps/customer && npx expo start # the customer app (iPhone)
-cd apps/seller && npx expo start --dev-client  # the seller app (Android, development build)
+cd apps/customer && npx expo start --dev-client  # the customer app
+cd apps/seller && npx expo start --dev-client    # the seller app
 ```
 
 Your phone and your computer must be on the same Wi-Fi. In development, the SMS code is always `123456`, and the seller app signs in with `saaripaahtimo@shoot.test` / `shoot-demo`.
 
-The seller app needs a development build, because Expo Go can't receive push notifications. Install the APK from the latest EAS build (`npx eas-cli@latest build --profile development --platform android` in `apps/seller`), then start it with `--dev-client` as above. The build server gets `google-services.json` from the EAS secret `GOOGLE_SERVICES_JSON`; locally it's `apps/seller/google-services.json`, which is not in git.
+Both apps need a development build (they use native modules Expo Go doesn't have). Each app runs on both platforms:
+
+| | iPhone | Android |
+|---|---|---|
+| How to install | Plug the phone in, then `npx expo run:ios --device` in the app's folder. The first time, trust the developer in Settings → General → VPN & Device Management. | `npx eas-cli@latest build --profile development --platform android` in the app's folder, then install the APK from the link EAS prints. |
+| Then | Metro starts by itself. | `npx expo start --dev-client` in the app's folder. |
+
+There are no push notifications. The seller app rings for a new order (sound, vibration, banner) only while it's open; in the background or closed it stays silent, and shows the order when opened again. On the demo, keep the seller app open.
+
+A free Apple account allows at most 3 such apps on one iPhone, and they stop opening after 7 days. Then run `npx expo run:ios --device` again.
+
+The seller app no longer uses Firebase. If the seller's EAS project still has the old file variable, delete it: `npx eas-cli@latest env:delete --variable-name GOOGLE_SERVICES_JSON` in `apps/seller`.
 
 ### Stripe (test mode)
 
@@ -39,32 +50,34 @@ Then pay with the test card 4242 4242 4242 4242, any future date, any CVC. The c
 The maps on Android need a Google Maps API key; the iPhone uses Apple Maps without one. Showing a map in an Android app costs nothing ("Maps SDK for Android"), but Google asks for a billing account.
 
 1. In the [Google Cloud console](https://console.cloud.google.com/apis), create a project and enable **Maps SDK for Android**.
-2. Create an API key. Under **Application restrictions** choose Android apps and add `com.stanleyr.shootseller` with the SHA-1 from expo.dev → shoot-seller → Credentials → Android. Under **API restrictions** allow only Maps SDK for Android.
-3. In `apps/seller`, store it for EAS builds: `npx eas-cli@latest env:create --name GOOGLE_MAPS_API_KEY --value <key> --environment development --visibility sensitive`. For local builds, put `GOOGLE_MAPS_API_KEY=<key>` in `apps/seller/.env.local` (not in git).
+2. Create an API key. Under **Application restrictions** choose Android apps and add `com.stanleyr.shootseller` and `com.stanleyr.shoot` (the customer app) with the SHA-1 from expo.dev → shoot-seller → Credentials → Android. Under **API restrictions** allow only Maps SDK for Android.
+3. Store it for EAS builds in each app's project, before its first Android build: `npx eas-cli@latest env:create --name GOOGLE_MAPS_API_KEY --value <key> --environment development --visibility sensitive`, once in `apps/seller` and once in `apps/customer`. Without it the map crashes the Android app. For local builds, put `GOOGLE_MAPS_API_KEY=<key>` in the app's `.env.local` (not in git).
 
 ### Try an order on two phones
 
 1. Start the server. Without `STRIPE_SECRET_KEY` in `server/.env.local`, payments are fake (the card ending 0002 is declined).
-2. Android: open the seller app and sign in. The server log shows `POST /seller/push-token 204`.
-3. iPhone: order from Saaripaahtimo. The Android phone rings, also when locked. Tapping the notification opens the order.
+2. Phone A: open the seller app and sign in. Keep it open.
+3. Phone B: order from Saaripaahtimo in the customer app. Phone A rings. Tapping the notification opens the order.
 4. Accept within 5 minutes, and the customer sees Preparing. Or decline with a reason, or let the 5 minutes run out: the customer isn't charged.
 
 `npm run check` type-checks every part.
 
 ## Demo day
 
-On demo day nothing depends on the Wi-Fi: the laptop runs the server, and an HTTPS tunnel (ngrok, fixed address `https://chance-clean-petted.ngrok-free.dev`) makes it reachable from both phones, also on mobile data. Both apps are release builds with that address inside: no `npx expo start` needed.
+On demo day nothing depends on the Wi-Fi: the laptop runs the server, and an HTTPS tunnel (ngrok, fixed address `https://chance-clean-petted.ngrok-free.dev`) makes it reachable from both phones, also on mobile data. All builds have that address inside: no `npx expo start` needed.
 
 **Once, on the laptop:** `ngrok config add-authtoken <token>` (the token from dashboard.ngrok.com, never in git).
 
 **The builds** (rebuild the iPhone one at most 7 days before the demo: a free Apple account's apps stop opening after that):
 
 ```bash
-# Android, seller app: an APK with the address inside. Download it from the link EAS prints.
+# Android: APKs with the address inside. Download them from the links EAS prints.
 cd apps/seller && npx eas-cli@latest build --profile demo --platform android
+cd apps/customer && npx eas-cli@latest build --profile demo --platform android
 
-# iPhone, customer app: plugged in by cable, trusted in Settings → General → VPN & Device Management.
+# iPhone: plugged in by cable, trusted in Settings → General → VPN & Device Management.
 cd apps/customer && EXPO_PUBLIC_API_URL=https://chance-clean-petted.ngrok-free.dev npx expo run:ios --device --configuration Release
+cd apps/seller && EXPO_PUBLIC_API_URL=https://chance-clean-petted.ngrok-free.dev npx expo run:ios --device --configuration Release
 ```
 
 **On the day,** two terminals:
@@ -80,9 +93,17 @@ Check the tunnel: `https://chance-clean-petted.ngrok-free.dev/config` in a brows
 
 Everything here was built without trying it on a phone. Reset the database first (`npm run reset -w @shoot/server`), then start the server and both apps.
 
-**Orders arriving (seller app on Android)**
-- [ ] Sign in; the server log shows `POST /seller/push-token 204`.
-- [ ] An order from the iPhone rings the Android phone once, also when it's locked. Tapping the notification opens that order, also when the app was closed.
+Run the list once with the seller on Android and the customer on the iPhone, then swap the phones for the lines marked *both ways*.
+
+**Both platforms**
+- [ ] Each app installs and opens on the iPhone and on Android (*both ways*).
+- [ ] Customer on Android: the café list and order screen show a Google map; Stripe's sheet offers Google Pay (with Google Wallet set up).
+- [ ] Seller on the iPhone: "Allow notifications" is asked once after sign-in, and the app installs with a free Apple account.
+
+**Orders arriving**
+- [ ] With the seller app open, a new order rings once: sound, vibration and a banner (*both ways*).
+- [ ] Tapping the "New order" banner opens that order (*both ways*).
+- [ ] With the seller app in the background, nothing rings; opening it shows the new order at once.
 - [ ] Accept: the iPhone shows Preparing within a second. Decline with a reason, and let one run out the 5 minutes: the customer isn't charged.
 - [ ] Stop the server mid-way and start it again: both apps catch up within 30 s.
 
@@ -95,6 +116,8 @@ Everything here was built without trying it on a phone. Reset the database first
 - [ ] "Delivered" removes the Android notification; the dots disappear.
 - [ ] Call opens the dialler with the café's number (iPhone) and the customer's number (Android).
 - [ ] Without "Allow all the time", the seller's order screen says to keep the app open.
+- [ ] Seller on the iPhone: "On my way" asks for location, then "Change to Always Allow". With the screen locked, the blue location indicator shows and the customer's map shows the seller moving.
+- [ ] Seller on the iPhone with "While Using the App" only: positions are shared while the app is open, and the screen says to keep it open.
 
 **Moved to a different seat (E10)**
 - [ ] With a live order placed with photos, walk about 40 m away (still near the café) and open the app again: "Moved to a different seat?" appears.

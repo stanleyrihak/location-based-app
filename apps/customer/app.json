@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.stanley-r.location-based-app"
     },
     "android": {
+      "package": "com.stanleyr.shoot",
       "adaptiveIcon": {
         "backgroundColor": "#D06224",
         "foregroundImage": "./assets/images/app-icon-foreground.png",
@@ -64,6 +65,17 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "stanley_r",
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "4052bedc-1262-4ad3-a387-e276686fd217"
+      }
     }
   }
 }
