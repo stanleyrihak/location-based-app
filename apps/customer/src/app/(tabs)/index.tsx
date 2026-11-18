@@ -11,11 +11,9 @@ import { OrderAgain } from '@/components/order-again';
 import { SearchField } from '@/components/search-field';
 import { CAFE_FILTERS, type CafeFilterId, filterCafes, searchCafes } from '@/data/cafe-filters';
 import { type NearbyCafe, useMenuItems, useNearbyCafes } from '@/data/queries';
-import { useOnboarding } from '@/providers/onboarding-provider';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { resetOnboarding } = useOnboarding();
   const { cafes, errorMessage, retry } = useNearbyCafes();
   // Hooks run on every render in the same order, so this sits above the early return.
   const [filter, setFilter] = useState<CafeFilterId>('all');
@@ -94,10 +92,6 @@ export default function HomeScreen() {
             </ThemedText>
           )}
         </View>
-
-        <Button variant="text" size="small" onPress={resetOnboarding} style={{ marginTop: 32 }}>
-          {'Reset onboarding'}
-        </Button>
       </ScrollView>
     </ThemedView>
   );

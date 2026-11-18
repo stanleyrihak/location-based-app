@@ -1,4 +1,13 @@
-import { Button, Radius, Shadow, ThemedText, ThemedView, useTheme } from '@shoot/ui';
+import {
+  Button,
+  Icon,
+  type IconName,
+  Radius,
+  Shadow,
+  ThemedText,
+  ThemedView,
+  useTheme,
+} from '@shoot/ui';
 import { useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
@@ -58,30 +67,33 @@ export default function ProfileScreen() {
 
         <Section title="Phone number">
           <Row
+            icon="phone"
             label={me.data ? displayPhone(me.data.phone) : ' '}
-            action="Change"
+            hint="Change phone number"
             onPress={() => router.push('/change-phone')}
           />
         </Section>
 
         <Section title="Permissions">
           <Row
+            icon="pin"
             label="Location"
             detail={location?.granted ? 'Allowed' : 'Not allowed'}
-            action="Open Settings"
+            hint="Opens Settings"
             onPress={() => void Linking.openSettings()}
           />
           <Row
+            icon="camera"
             label="Camera"
             detail={camera?.granted ? 'Allowed' : 'Not allowed'}
-            action="Open Settings"
+            hint="Opens Settings"
             onPress={() => void Linking.openSettings()}
           />
         </Section>
 
         <Section title="About">
-          <Row label="Terms of service" onPress={() => router.push('/terms')} />
-          <Row label="Privacy" onPress={() => router.push('/privacy')} />
+          <Row icon="help" label="Terms of service" onPress={() => router.push('/terms')} />
+          <Row icon="shield" label="Privacy" onPress={() => router.push('/privacy')} />
         </Section>
 
         {/*
@@ -111,12 +123,17 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
           overflow: 'hidden',
         }}
       >
-        {/* A thin line between rows, like a grouped list in Settings. */}
+        {/*
+          A thin line between rows. It starts where the text starts, not under the badge,
+          so each badge and its text read as one row.
+        */}
         {Children.toArray(children).map((child, index) => (
-          <View
-            key={index}
-            style={index > 0 ? { borderTopWidth: 1, borderTopColor: theme.line } : undefined}
-          >
+          <View key={index}>
+            {index > 0 && (
+              <View
+                style={{ height: 1, marginLeft: ROW_TEXT_START, backgroundColor: theme.line }}
+              />
+            )}
             {child}
           </View>
         ))}
@@ -125,15 +142,28 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+// Padding, badge and gap of a Row: where its text starts.
+const ROW_PADDING = 16;
+const BADGE_SIZE = 36;
+const ROW_GAP = 14;
+const ROW_TEXT_START = ROW_PADDING + BADGE_SIZE + ROW_GAP;
+
+/**
+ * One row, drawn like the other rows in the app (the payment row on 2.8): a sand badge with
+ * an icon, the text, and a chevron that says "this opens something".
+ */
 function Row({
+  icon,
   label,
   detail,
-  action,
+  hint,
   onPress,
 }: {
+  icon: IconName;
   label: string;
   detail?: string;
-  action?: string;
+  /** What a tap does, for VoiceOver. The chevron shows it on screen. */
+  hint?: string;
   onPress: () => void;
 }) {
   const theme = useTheme();
@@ -141,29 +171,42 @@ function Row({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={[label, detail, action].filter(Boolean).join(', ')}
+      accessibilityLabel={[label, detail].filter(Boolean).join(', ')}
+      accessibilityHint={hint}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        minHeight: 52,
-        paddingHorizontal: 16,
+        gap: ROW_GAP,
+        minHeight: 64,
+        paddingVertical: 12,
+        paddingHorizontal: ROW_PADDING,
         backgroundColor: pressed ? theme.surface2 : 'transparent',
       })}
     >
-      <View style={{ flex: 1 }}>
-        <ThemedText style={{ fontVariant: ['tabular-nums'] }}>{label}</ThemedText>
+      <View
+        style={{
+          width: BADGE_SIZE,
+          height: BADGE_SIZE,
+          borderRadius: Radius.sm,
+          borderCurve: 'continuous',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.surface2,
+        }}
+      >
+        <Icon name={icon} size="md" />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <ThemedText weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>
+          {label}
+        </ThemedText>
         {detail && (
           <ThemedText type="subhead" color="ink2">
             {detail}
           </ThemedText>
         )}
       </View>
-      {action && (
-        <ThemedText weight="semibold" color="primary">
-          {action}
-        </ThemedText>
-      )}
+      <Icon name="chev-r" color="ink2" />
     </Pressable>
   );
 }

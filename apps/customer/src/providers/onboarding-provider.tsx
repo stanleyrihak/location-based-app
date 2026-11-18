@@ -2,13 +2,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createContext, type PropsWithChildren, use, useEffect, useState } from 'react';
 import 'expo-sqlite/localStorage/install';
 
-import { endSession, getToken, onSessionEnd } from '@/data/session';
+import { getToken, onSessionEnd } from '@/data/session';
 
 const STORAGE_KEY = 'hasOnboarded';
 
 const OnboardingContext = createContext<{
   completeOnboarding: () => void;
-  resetOnboarding: () => void;
   hasOnboarded: boolean;
 } | null>(null);
 
@@ -48,8 +47,6 @@ export function OnboardingProvider({ children }: PropsWithChildren) {
           localStorage.setItem(STORAGE_KEY, 'true');
           setHasOnboarded(true);
         },
-        // Ends the session too, so "Reset onboarding" really starts again from sign-in.
-        resetOnboarding: endSession,
         hasOnboarded,
       }}
     >
