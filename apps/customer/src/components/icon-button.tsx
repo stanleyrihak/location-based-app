@@ -8,18 +8,29 @@ type Props = {
   onPress: () => void;
   /** `raised` is the white circle with a shadow (`.icon-btn`), for use on photos. */
   variant?: 'raised' | 'plain';
+  /** Doesn't react to taps, and is drawn faded. */
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
 /** A round 44 pt icon-only button. */
-export function IconButton({ icon, accessibilityLabel, onPress, variant = 'plain', style }: Props) {
+export function IconButton({
+  icon,
+  accessibilityLabel,
+  onPress,
+  variant = 'plain',
+  disabled = false,
+  style,
+}: Props) {
   const theme = useTheme();
 
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
       hitSlop={4}
       style={({ pressed }) => [
         {
@@ -31,6 +42,7 @@ export function IconButton({ icon, accessibilityLabel, onPress, variant = 'plain
         },
         variant === 'raised' && { backgroundColor: theme.surface, boxShadow: Shadow.card },
         pressed && { backgroundColor: variant === 'raised' ? theme.surface2 : theme.tintPress },
+        disabled && { opacity: 0.4 },
         style,
       ]}
     >

@@ -8,10 +8,12 @@ import {
   PaymentDeclinedError,
   type PlaceOrderInput,
   PriceChangedError,
+  type ServerConfig,
   startOrder,
 } from '@/data/api';
 import { CONFIG_KEY, useNearbyCafe } from '@/data/queries';
 import { OutOfRangeError, useCheckRange } from '@/data/use-check-range';
+import { paymentFor } from '@/payments/payment-methods';
 import { payWithStripe } from '@/payments/stripe';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
@@ -28,7 +30,7 @@ export function usePlaceOrder() {
   const queryClient = useQueryClient();
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
-  const { spot, photos, paymentMethod } = useCheckout();
+  const { spot, photos } = useCheckout();
   const checkRange = useCheckRange();
   /**
    * The order started by an earlier try that didn't finish, with its Stripe client secret.
@@ -54,7 +56,7 @@ export function usePlaceOrder() {
   }
 
   /** Step 1: checks the range, uploads the photos, and reserves on the server. */
-  async function start() {
+  async function start(config: ServerConfig) {
     if (!cafe || cart.lines.length === 0) {
       throw new Error('The order is missing its café or items.');
     }
@@ -81,21 +83,21 @@ export function usePlaceOrder() {
       note: cart.note.trim(),
       coordinates: here,
       delivery,
-      payment: { methodId: paymentMethod.id, label: paymentMethod.shortLabel },
+      payment: paymentFor(config.payments),
       expectedTotalCents: cart.subtotalCents + cafe.deliveryFeeCents,
     });
   }
 
   return useMutation({
     mutationFn: async () => {
+      const config = await queryClient.fetchQuery({ queryKey: CONFIG_KEY, queryFn: getConfig });
       if (!started.current) {
-        started.current = await start();
+        started.current = await start(config);
       }
       const { orderId, clientSecret } = started.current;
       // With Stripe: its sheet reserves the money. A closed sheet keeps the order and its
       // client secret, so paying again uses the same PaymentIntent, not a second one.
       if (clientSecret) {
-        const config = await queryClient.fetchQuery({ queryKey: CONFIG_KEY, queryFn: getConfig });
         await payWithStripe(config.stripePublishableKey, clientSecret);
         // Paid: the money is held. If confirming fails now (a network blip), "Try again" only
         // confirms. Stripe won't open its sheet again for a payment that's already done.

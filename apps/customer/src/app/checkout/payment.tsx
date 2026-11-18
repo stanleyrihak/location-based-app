@@ -1,28 +1,35 @@
 import { Button, Icon, ThemedText, ThemedView, Radius, Shadow, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
-import { Redirect, router } from 'expo-router';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Redirect, router, Stack } from 'expo-router';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CheckoutHeader } from '@/components/checkout-header';
 import { CheckoutSteps } from '@/components/checkout-steps';
-import { PaymentMark } from '@/components/payment-mark';
+import { PaymentProblem } from '@/components/payment-problem';
 import { PriceSummary } from '@/components/price-summary';
 import { useNearbyCafe } from '@/data/queries';
-import { type PaymentMethod, usePaymentMethods } from '@/payments/payment-methods';
+import { usePlaceOrder } from '@/data/use-place-order';
+import { PaymentCancelledError } from '@/payments/stripe';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 import { formatPrice } from '@/utils/format';
 
 const GUTTER = 24;
 
-/** 2.7 Checkout: where it goes, how you pay, what it costs. */
+/**
+ * 2.7 Checkout: where it goes, what it costs, and the pay button.
+ *
+ * There's no payment method to choose here. "Pay" opens Stripe's sheet, and the customer picks
+ * a card or a wallet there. Without a Stripe key, the server fakes the payment, so "Pay" sends
+ * the order at once. If paying fails, the bottom of this screen shows what went wrong.
+ */
 export default function PaymentScreen() {
   const insets = useSafeAreaInsets();
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
-  const { spot, photos, paymentMethod, setPaymentMethod } = useCheckout();
-  const paymentMethods = usePaymentMethods();
+  const { spot, photos } = useCheckout();
+  const placeOrder = usePlaceOrder();
 
   // Neither a code nor photos (say, after a reload in development): prove the spot first.
   if (!spot && !photos) {
@@ -31,9 +38,34 @@ export default function PaymentScreen() {
 
   const deliveryFeeCents = cafe?.deliveryFeeCents ?? 0;
   const total = cart.subtotalCents + deliveryFeeCents;
+  // Closing Stripe's sheet isn't a failure, so it never shows a message (see onError below).
+  const failed = placeOrder.isError && !(placeOrder.error instanceof PaymentCancelledError);
+
+  function pay() {
+    placeOrder.mutate(undefined, {
+      onSuccess: (order) => {
+        // Leave checkout completely: back to the tabs, then show the confirmation on top.
+        // "Back" from the confirmation can then never return to a paid checkout.
+        router.dismissTo('/');
+        router.push({ pathname: '/order-sent/[id]', params: { id: order.id } });
+        // The order has its own copy of the items, so the cart can go.
+        cart.clear();
+      },
+      onError: (error) => {
+        if (error instanceof PaymentCancelledError) placeOrder.reset();
+      },
+    });
+  }
 
   return (
     <ThemedView style={{ flex: 1 }}>
+      {/*
+        While paying, the customer can't leave this screen, by swipe or by the back button.
+        The range check and the photo upload run before Stripe's sheet opens, and the result
+        must have a screen to come back to.
+      */}
+      <Stack.Screen options={{ gestureEnabled: !placeOrder.isPending }} />
+
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
@@ -43,46 +75,35 @@ export default function PaymentScreen() {
           gap: 12,
         }}
       >
-        <CheckoutHeader title="Checkout" backLabel="Back" />
+        <CheckoutHeader title="Checkout" backLabel="Back" backDisabled={placeOrder.isPending} />
         <CheckoutSteps current={3} />
 
         <SpotCard
           image={photos?.spot}
           title={spot ? spot.label : `Your spot near ${cafe?.name ?? 'the café'}`}
           doneText={spot ? 'Spot code scanned' : 'Photo added'}
+          changeDisabled={placeOrder.isPending}
         />
-
-        <View
-          accessibilityRole="radiogroup"
-          accessibilityLabel="Payment method"
-          style={{ gap: 12, marginTop: 12 }}
-        >
-          <ThemedText type="title" weight="bold" accessibilityRole="header">
-            {'Payment method'}
-          </ThemedText>
-          {paymentMethods.map((method) => (
-            <PaymentOption
-              key={method.id}
-              method={method}
-              selected={method.id === paymentMethod.id}
-              onSelect={() => setPaymentMethod(method)}
-            />
-          ))}
-        </View>
 
         <View style={{ marginTop: 12 }}>
           <PriceSummary
             variant="card"
             subtotalCents={cart.subtotalCents}
             deliveryFeeCents={deliveryFeeCents}
+            totalLabel={`Pay ${cafe?.name ?? 'the café'}`}
           />
         </View>
       </ScrollView>
 
       <View style={{ paddingTop: 12, paddingHorizontal: GUTTER, paddingBottom: insets.bottom + 8 }}>
-        <Button onPress={() => router.push('/checkout/pay-sheet')}>
-          {`Pay ${formatPrice(total)} with ${paymentMethod.shortLabel}`}
-        </Button>
+        {failed ? (
+          // reset() clears the error, so the pay button comes back.
+          <PaymentProblem error={placeOrder.error} cafe={cafe} onReset={() => placeOrder.reset()} />
+        ) : (
+          <Button onPress={pay} loading={placeOrder.isPending}>
+            {placeOrder.isPending ? 'Paying…' : `Pay ${formatPrice(total)}`}
+          </Button>
+        )}
       </View>
     </ThemedView>
   );
@@ -93,10 +114,13 @@ function SpotCard({
   image,
   title,
   doneText,
+  changeDisabled,
 }: {
   image: string | number | undefined;
   title: string;
   doneText: string;
+  /** True while paying: the spot can't change under a payment that's running. */
+  changeDisabled: boolean;
 }) {
   const theme = useTheme();
 
@@ -148,65 +172,12 @@ function SpotCard({
       <Button
         variant="text"
         size="small"
+        disabled={changeDisabled}
         // Back to 2.3, closing every checkout screen above it.
         onPress={() => router.dismissTo('/checkout/spot')}
       >
         {'Change'}
       </Button>
     </View>
-  );
-}
-
-/** One payment method as a radio row (`.option`). The selected one gets a dark outline. */
-function PaymentOption({
-  method,
-  selected,
-  onSelect,
-}: {
-  method: PaymentMethod;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  const theme = useTheme();
-
-  return (
-    <Pressable
-      onPress={onSelect}
-      accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
-      accessibilityLabel={method.label}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 14,
-        minHeight: 56,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: Radius.input,
-        backgroundColor: theme.surface,
-        borderWidth: 2,
-        borderColor: selected ? theme.ink : 'transparent',
-      }}
-    >
-      <PaymentMark method={method} />
-      <ThemedText weight={method.isWallet ? 'semibold' : 'regular'} style={{ flex: 1 }}>
-        {method.label}
-      </ThemedText>
-      <View
-        style={{
-          width: 22,
-          height: 22,
-          borderRadius: 11,
-          borderWidth: 2,
-          borderColor: selected ? theme.ink : theme.lineStrong,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {selected && (
-          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: theme.ink }} />
-        )}
-      </View>
-    </Pressable>
   );
 }

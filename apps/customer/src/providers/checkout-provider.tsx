@@ -1,8 +1,6 @@
 import type { Spot } from '@shoot/shared';
 import { createContext, type PropsWithChildren, use, useState } from 'react';
 
-import { type PaymentMethod, usePaymentMethods } from '@/payments/payment-methods';
-
 /**
  * The two photos that prove where you are. Each is a file URI from the camera
  * (in the app's cache folder), or a bundled image (a number) for the dev sample.
@@ -19,9 +17,6 @@ type CheckoutContextValue = {
   /** Set when the user took the two photos (2.4, 2.4b). */
   photos: SpotPhotos | null;
   setPhotos: (photos: SpotPhotos | null) => void;
-  /** Chosen on 2.7, shown again on the payment sheet (2.8). The wallet is the default. */
-  paymentMethod: PaymentMethod;
-  setPaymentMethod: (method: PaymentMethod) => void;
 };
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -46,10 +41,6 @@ export function useCheckout() {
 export function CheckoutProvider({ children }: PropsWithChildren) {
   const [spot, setSpotState] = useState<Spot | null>(null);
   const [photos, setPhotosState] = useState<SpotPhotos | null>(null);
-  const methods = usePaymentMethods();
-  const [chosen, setPaymentMethod] = useState<PaymentMethod | null>(null);
-  // The chosen method while the server still offers it, otherwise the first one.
-  const paymentMethod = methods.find((method) => method.id === chosen?.id) ?? methods[0];
 
   return (
     <CheckoutContext.Provider
@@ -64,8 +55,6 @@ export function CheckoutProvider({ children }: PropsWithChildren) {
           setPhotosState(next);
           if (next) setSpotState(null);
         },
-        paymentMethod,
-        setPaymentMethod,
       }}
     >
       {children}

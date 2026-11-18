@@ -35,17 +35,6 @@ export default function CheckoutLayout() {
             contentStyle: { backgroundColor: theme.surface },
           }}
         />
-        <Stack.Screen
-          name="pay-sheet"
-          options={{
-            presentation: 'formSheet',
-            sheetAllowedDetents: 'fitToContents',
-            sheetGrabberVisible: true,
-            sheetCornerRadius: 28,
-            // Cream, so the white payment row and summary stand out on it.
-            contentStyle: { backgroundColor: theme.bg },
-          }}
-        />
         {/*
           The camera screens slide up, like the system camera, instead of in from the side.
           They are dark, so the status bar is light. On iOS each screen sets its own, so
