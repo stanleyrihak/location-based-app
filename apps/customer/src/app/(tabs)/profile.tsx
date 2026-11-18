@@ -3,11 +3,11 @@ import { useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import { Children, type ReactNode, useEffect } from 'react';
-import { Alert, AppState, Linking, Pressable, ScrollView, View } from 'react-native';
+import { AppState, Linking, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { displayPhone } from '@/components/country-code-select';
-import { deleteAccount, signOut } from '@/data/api';
+import { signOut } from '@/data/api';
 import { useMe } from '@/data/queries';
 import { endSession } from '@/data/session';
 
@@ -38,28 +38,6 @@ export default function ProfileScreen() {
     // Tell the server first; sign out here even if that fails (no connection).
     await signOut().catch(() => {});
     endSession();
-  }
-
-  function confirmDelete() {
-    Alert.alert(
-      'Delete your account?',
-      'Your number and sign-in are deleted. Cafés keep past orders for their accounts, without your number. This can’t be undone.',
-      [
-        { text: 'Keep account', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAccount();
-              endSession();
-            } catch {
-              Alert.alert('It didn’t work', 'Check your connection and try again.');
-            }
-          },
-        },
-      ],
-    );
   }
 
   return (
@@ -104,14 +82,10 @@ export default function ProfileScreen() {
           <Row label="Privacy" onPress={() => router.push('/privacy')} />
         </Section>
 
-        <View style={{ gap: 12 }}>
-          <Button variant="secondary" onPress={handleSignOut}>
-            {'Sign out'}
-          </Button>
-          <Button variant="text" onPress={confirmDelete}>
-            {'Delete account'}
-          </Button>
-        </View>
+        {/* Signing in again with the same number brings back the same account and its orders. */}
+        <Button variant="secondary" onPress={handleSignOut}>
+          {'Sign out'}
+        </Button>
       </ScrollView>
     </ThemedView>
   );

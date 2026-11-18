@@ -52,11 +52,6 @@ export function signOut() {
   return request<void>('/auth/sign-out', { method: 'POST' });
 }
 
-/** Profile: deletes the account. Past orders stay with the café, without your number. */
-export function deleteAccount() {
-  return request<void>('/me', { method: 'DELETE' });
-}
-
 // ── Cafés and menus ──────────────────────────────────────────────────────
 
 /** Cafés near `near`. The app works out each café's distance and whether it's in range. */

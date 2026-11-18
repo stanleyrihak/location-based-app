@@ -149,5 +149,5 @@ Run the list once with the seller on Android and the customer on the iPhone, the
 - [ ] Your number shows. "Change" sends a code to a new number; after the code, Profile shows the new number. A number another account uses is refused with a message.
 - [ ] Location and Camera say "Allowed" or "Not allowed"; "Open Settings" opens the phone's settings, and coming back shows the change.
 - [ ] Terms and Privacy open.
-- [ ] Sign out goes back to the welcome screen. Delete account asks first, then does the same; signing in again with that number makes a new account.
+- [ ] Sign out goes back to the welcome screen. Signing in again with the same number shows the same past orders; a new number starts with none.
 

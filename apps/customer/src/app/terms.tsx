@@ -21,7 +21,7 @@ const SECTIONS: LegalSection[] = [
       'You need to be at least 16 years old to use Shoot.',
       'You sign in with a Finnish or other supported phone number and a one-time code we send by SMS.',
       'You are responsible for everything ordered from your account. Don’t share your codes with anyone.',
-      'You can delete your account at any time in Profile. Order receipts we have to keep by law are kept after that.',
+      'To delete your account, write to privacy@shoot.example. Order receipts we have to keep by law are kept after that.',
     ],
   },
   {

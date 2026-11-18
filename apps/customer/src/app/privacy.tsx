@@ -4,7 +4,7 @@ const SUMMARY = [
   'We use your location only while the app is open, to find cafés near you and deliver to your spot.',
   'Photos of your spot go only to the café handling that order, and are deleted 24 hours after delivery.',
   'We never sell your data and never see your full card number.',
-  'You can see, download or delete your data at any time.',
+  'You can ask us to show, send or delete your data at any time.',
 ];
 
 const SECTIONS: LegalSection[] = [
@@ -56,14 +56,14 @@ const SECTIONS: LegalSection[] = [
     bullets: [
       'Spot photos: 24 hours after delivery.',
       'Messages with the courier: 30 days.',
-      'Order history: until you delete your account.',
+      'Order history: until you ask us to delete your account.',
       'Receipts and payment records: as long as Finnish accounting law requires, usually 6 years.',
     ],
   },
   {
     title: 'Your rights',
     paragraphs: [
-      'You have the right to see the data we have about you, correct it, download it, object to its use or have it deleted. Most of this you can do in Profile. For anything else, write to privacy@shoot.example and we will reply within 30 days.',
+      'You have the right to see the data we have about you, correct it, download it, object to its use or have it deleted. For any of this, write to privacy@shoot.example and we will reply within 30 days.',
       'If you think we handle your data wrongly, you can complain to the Finnish Data Protection Ombudsman (Tietosuojavaltuutettu).',
     ],
   },
