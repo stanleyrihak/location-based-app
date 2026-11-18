@@ -16,15 +16,6 @@ import { useCameraAccess } from '@/hooks/use-camera-access';
 import { useCart } from '@/providers/cart-provider';
 import { useCheckout } from '@/providers/checkout-provider';
 
-/**
- * For "Simulate a scan (dev only)": one sticker code per test café, from server/src/seed.ts.
- * A café without one shows E5, which is useful to test too.
- */
-const DEV_SPOT_CODES: Record<string, string> = {
-  saaripaahtimo: 'shoot-spot:saari-table-4',
-  kampuskuppi: 'shoot-spot:kampus-table-12',
-};
-
 /** scanning → checking (asking the "server") → done, or invalid (the E5 sheet). */
 type ScanState = 'scanning' | 'checking' | 'invalid';
 
@@ -134,22 +125,6 @@ function Scanner() {
         <Button variant="secondary" camera onPress={() => router.replace('/checkout/photo')}>
           {'No code here? Take a photo instead'}
         </Button>
-        {/*
-          The simulator has no camera, so in development builds this button pretends a
-          code of this café was scanned. __DEV__ is false in release builds, so users never see it.
-        */}
-        {__DEV__ && (
-          <Button
-            variant="text"
-            size="small"
-            camera
-            onPress={() => {
-              handleCode(DEV_SPOT_CODES[cart.cafeId ?? ''] ?? 'not-a-spot');
-            }}
-          >
-            {'Simulate a scan (dev only)'}
-          </Button>
-        )}
       </View>
 
       {state === 'invalid' && (

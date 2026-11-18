@@ -1,4 +1,4 @@
-import { Button, Icon, CameraColors, Radius, useTheme } from '@shoot/ui';
+import { Icon, CameraColors, Radius, useTheme } from '@shoot/ui';
 import { CameraView } from 'expo-camera';
 import { Image } from 'expo-image';
 import { router, useIsFocused } from 'expo-router';
@@ -65,7 +65,7 @@ function TwoShotCamera() {
     if (!camera.current || taking) return;
     setTaking(true);
     // A quick white flash, so it's clear the picture was taken.
-    flash.value = withSequence(withTiming(1, { duration: 40 }), withTiming(0, { duration: 240 }));
+    flash.set(withSequence(withTiming(1, { duration: 40 }), withTiming(0, { duration: 240 })));
     try {
       const picture = await camera.current.takePictureAsync({ quality: 0.7 });
       if (shot === 'selfie') {
@@ -158,27 +158,6 @@ function TwoShotCamera() {
           </Pressable>
         </View>
       </View>
-
-      {/*
-        The simulator has no camera, so in development builds this skips both shots with
-        sample pictures. __DEV__ is false in release builds, so users never see it.
-      */}
-      {__DEV__ && (
-        <Button
-          variant="text"
-          size="small"
-          camera
-          onPress={() =>
-            finish(
-              require('@/assets/images/selfie-example.svg'),
-              require('@/assets/images/spot/spot-tall.jpg'),
-            )
-          }
-          style={{ marginBottom: insets.bottom }}
-        >
-          {'Use sample photos (dev only)'}
-        </Button>
-      )}
     </View>
   );
 }

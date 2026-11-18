@@ -35,14 +35,9 @@ function card(last4: string): PaymentMethod {
 
 /**
  * The saved methods. A real backend (Stripe) would return the user's own cards.
- * 4242 and 0002 are Stripe's test card numbers: 4242 is paid, 0002 is declined.
- * The declining card only exists in development, to try the "Payment failed" sheet (E7).
+ * 4242 is Stripe's test card number that pays.
  */
-export const PAYMENT_METHODS: PaymentMethod[] = [
-  WALLET,
-  card('4242'),
-  ...(__DEV__ ? [{ ...card('0002'), label: 'Card ending in 0002 (declines, dev only)' }] : []),
-];
+export const PAYMENT_METHODS: PaymentMethod[] = [WALLET, card('4242')];
 
 /**
  * With Stripe, its payment sheet asks for the card (and offers Google Pay on Android), so the

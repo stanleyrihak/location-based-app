@@ -96,7 +96,7 @@ export function authRoutes(deps: Deps) {
       .prepare('SELECT id FROM users WHERE phone = ? AND id != ?')
       .get(phone, user.id);
     if (taken) {
-      throw new HttpError(409, 'phone_taken', 'Another account already uses this number.');
+      throw new HttpError(409, 'phone_taken', 'This number already has its own Shoot account. Sign out and sign in with it to use that account.');
     }
     useCode(phone, asString(body.code, 'code', 10));
     db.prepare('UPDATE users SET phone = ? WHERE id = ?').run(phone, user.id);

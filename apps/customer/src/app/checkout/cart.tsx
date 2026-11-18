@@ -11,7 +11,7 @@ import { CheckoutSteps } from '@/components/checkout-steps';
 import { PriceSummary } from '@/components/price-summary';
 import { ProductThumb } from '@/components/product-thumb';
 import { QuantityStepper } from '@/components/quantity-stepper';
-import { getMenu, sellOutForTesting } from '@/data/api';
+import { getMenu } from '@/data/api';
 import { useNearbyCafe } from '@/data/queries';
 import { type CartLine, useCart } from '@/providers/cart-provider';
 import { formatDistance, formatPrice } from '@/utils/format';
@@ -173,22 +173,6 @@ export default function CartScreen() {
             style={{ minHeight: 0, paddingVertical: 12, lineHeight: 25 }}
           />
         </View>
-
-        {/*
-          The test server's menu never sells out by itself. In development builds this marks the
-          first item as sold out on the server (POST /dev/sell-out), so "Go to checkout" shows E6.
-          It stays sold out until you reset the server's data. Users never see this button.
-        */}
-        {__DEV__ && (
-          <Button
-            variant="text"
-            size="small"
-            onPress={() => sellOutForTesting(cart.lines[0].item.id)}
-            style={{ marginBottom: 16 }}
-          >
-            {'Sell out the first item (dev only)'}
-          </Button>
-        )}
       </ScrollView>
 
       <View style={{ paddingHorizontal: GUTTER, paddingBottom: insets.bottom + 12, gap: 12 }}>

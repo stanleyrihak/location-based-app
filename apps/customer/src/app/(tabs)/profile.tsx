@@ -112,13 +112,6 @@ export default function ProfileScreen() {
             {'Delete account'}
           </Button>
         </View>
-
-        {/* Development builds only: __DEV__ is false in release builds. */}
-        {__DEV__ && (
-          <Section title="Developer">
-            <Row label="Reset onboarding" onPress={endSession} />
-          </Section>
-        )}
       </ScrollView>
     </ThemedView>
   );

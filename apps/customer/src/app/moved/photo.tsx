@@ -1,4 +1,4 @@
-import { Button, CameraColors } from '@shoot/ui';
+import { CameraColors } from '@shoot/ui';
 import { CameraView } from 'expo-camera';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -97,19 +97,6 @@ function OneShotCamera() {
               accessibilityLabel="Take photo of your new spot"
             />
           </View>
-        )}
-        {/* The simulator has no camera. __DEV__ is false in release builds. */}
-        {__DEV__ && !save.isPending && !save.isError && (
-          <Button
-            variant="text"
-            size="small"
-            camera
-            onPress={() =>
-              save.mutate({ kind: 'photo', spot: require('@/assets/images/spot/spot-tall.jpg') })
-            }
-          >
-            {'Use a sample photo (dev only)'}
-          </Button>
         )}
       </View>
     </View>

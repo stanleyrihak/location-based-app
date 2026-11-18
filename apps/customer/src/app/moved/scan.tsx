@@ -1,4 +1,4 @@
-import { Button, CameraColors } from '@shoot/ui';
+import { CameraColors } from '@shoot/ui';
 import { type BarcodeScanningResult, CameraView } from 'expo-camera';
 import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -14,9 +14,6 @@ import { MovedError } from '@/components/moved-error';
 import { useOrders } from '@/data/queries';
 import { useCameraAccess } from '@/hooks/use-camera-access';
 import { useUpdateSpot } from '@/hooks/use-update-spot';
-
-/** For "Simulate a scan (dev only)": another sticker of the first test café (server seed). */
-const DEV_SPOT_CODE = 'shoot-spot:saari-bench-fountain';
 
 /** E10, scan the code at the new seat. The server checks it belongs to this café. */
 export default function MovedScanScreen() {
@@ -86,11 +83,6 @@ function Scanner() {
         style={{ gap: 12, paddingTop: 16, paddingHorizontal: 16, paddingBottom: insets.bottom + 8 }}
       >
         {save.isError && order && <MovedError error={save.error} order={order} onRetry={retry} />}
-        {__DEV__ && scanning && (
-          <Button variant="text" size="small" camera onPress={() => handleCode(DEV_SPOT_CODE)}>
-            {'Simulate a scan (dev only)'}
-          </Button>
-        )}
       </View>
     </View>
   );

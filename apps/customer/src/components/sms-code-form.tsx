@@ -112,11 +112,6 @@ export function SmsCodeForm({ mode }: { mode: 'sign-in' | 'change' }) {
             {error}
           </ThemedText>
         )}
-        {__DEV__ && (
-          <ThemedText type="subhead" color="ink2" style={{ marginTop: 12 }}>
-            {'Test server: the code is 123456 (dev only).'}
-          </ThemedText>
-        )}
       </View>
 
       <Button

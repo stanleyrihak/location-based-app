@@ -326,10 +326,3 @@ export function getTrack(orderId: string) {
 export function sendMyPosition(orderId: string, coordinates: Coordinates) {
   return request<void>(`/orders/${orderId}/position`, { method: 'POST', json: coordinates });
 }
-
-// ── Development only ─────────────────────────────────────────────────────
-
-/** Marks an item as sold out on the server, to try E6. The route only exists in development. */
-export function sellOutForTesting(itemId: string) {
-  return request<void>('/dev/sell-out', { method: 'POST', json: { itemId } });
-}

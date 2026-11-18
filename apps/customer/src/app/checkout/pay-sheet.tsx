@@ -163,12 +163,6 @@ function PaymentFailed({
       }
       text={FAILURE_TEXT[reason]}
     >
-      {/* Development builds only: the real reason, to fix it. */}
-      {__DEV__ && detail && (
-        <ThemedText type="caption" color="ink2">
-          {detail}
-        </ThemedText>
-      )}
       {/* reset() clears the error, so the sheet shows the payment details again. */}
       <Button onPress={onTryAgain}>{'Try again'}</Button>
       <Button variant="secondary" onPress={() => router.dismissTo('/checkout/cart')}>

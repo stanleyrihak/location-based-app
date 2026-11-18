@@ -82,11 +82,6 @@ export default function SignInScreen() {
             {error}
           </ThemedText>
         )}
-        {__DEV__ && (
-          <ThemedText type="subhead" color="ink2">
-            {'Test server: seller@shoot.com / 1234 (dev only).'}
-          </ThemedText>
-        )}
       </View>
     </FormScreen>
   );

@@ -73,6 +73,7 @@ function RootNavigator() {
   const { hasOnboarded } = useOnboarding();
   const theme = useTheme();
 
+  // Terms, Privacy and changing the number: a plain header with a back arrow.
   const legalScreenOptions = {
     headerShown: true,
     title: '',
@@ -106,8 +107,9 @@ function RootNavigator() {
           {/* Dark camera screens: light status bar. On iOS each screen sets its own, so
               expo-status-bar's <StatusBar> inside the screen isn't enough there. */}
           <Stack.Screen name="moved/photo" options={{ statusBarStyle: 'light' }} />
-          <Stack.Screen name="change-phone" />
-          <Stack.Screen name="change-code" />
+          {/* A header with a back arrow, so you can give up and return to Profile. */}
+          <Stack.Screen name="change-phone" options={legalScreenOptions} />
+          <Stack.Screen name="change-code" options={legalScreenOptions} />
           <Stack.Screen name="moved/scan" options={{ statusBarStyle: 'light' }} />
         </Stack.Protected>
 
