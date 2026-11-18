@@ -1,7 +1,5 @@
-import { Button, ThemedText } from '@shoot/ui';
+import { Button, ThemedText, SheetContent } from '@shoot/ui';
 import { router } from 'expo-router';
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ExamplePhoto } from '@/components/example-photo';
 
@@ -10,12 +8,8 @@ import { ExamplePhoto } from '@/components/example-photo';
  * Sized to its content, so nothing here uses flex: 1.
  */
 export default function PhotoTipsSheet() {
-  const insets = useSafeAreaInsets();
-
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 8, gap: 14 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 20, gap: 14 }}>
       <ThemedText type="title" weight="bold" accessibilityRole="header">
         {'A good photo'}
       </ThemedText>
@@ -28,6 +22,6 @@ export default function PhotoTipsSheet() {
       <Button onPress={() => router.back()} style={{ marginTop: 4 }}>
         {'Got it'}
       </Button>
-    </View>
+    </SheetContent>
   );
 }

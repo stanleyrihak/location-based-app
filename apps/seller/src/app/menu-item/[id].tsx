@@ -1,9 +1,7 @@
 import { parsePriceInput } from '@shoot/shared';
-import { Button, TextField, ThemedText } from '@shoot/ui';
+import { Button, TextField, ThemedText, SheetContent } from '@shoot/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMenu } from '@/data/queries';
 import { useUpdateMenuItem } from '@/data/use-menu-item';
@@ -31,16 +29,13 @@ export default function MenuItemSheet() {
 }
 
 function ItemForm(props: { id: string; name: string; priceCents: number; description: string }) {
-  const insets = useSafeAreaInsets();
   const update = useUpdateMenuItem(props.id);
   const [price, setPrice] = useState(priceText(props.priceCents));
   const [description, setDescription] = useState(props.description);
   const priceCents = parsePriceInput(price);
 
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 8, gap: 12 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 20, gap: 12 }}>
       <ThemedText type="title" weight="bold" accessibilityRole="header">
         {props.name}
       </ThemedText>
@@ -95,6 +90,6 @@ function ItemForm(props: { id: string; name: string; priceCents: number; descrip
       <Button variant="text" onPress={() => router.back()} disabled={update.isPending}>
         {'Cancel'}
       </Button>
-    </View>
+    </SheetContent>
   );
 }

@@ -1,7 +1,5 @@
-import { Button, ThemedText } from '@shoot/ui';
+import { Button, ThemedText, SheetContent } from '@shoot/ui';
 import { router } from 'expo-router';
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrivacyNote } from '@/components/privacy-note';
 import { SpotMap } from '@/components/spot-map';
@@ -15,7 +13,6 @@ import { formatDistance } from '@/utils/format';
  * The sheet sizes itself to this content ('fitToContents'), so nothing here uses flex: 1.
  */
 export default function SpotMapSheet() {
-  const insets = useSafeAreaInsets();
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
   // Same query as on Home, so this is read from the cache, not fetched again.
@@ -32,9 +29,7 @@ export default function SpotMapSheet() {
     : `${distance} from ${cafe.name}, outside its ${radius} delivery area.`;
 
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 8, gap: 14 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 20, gap: 14 }}>
       <ThemedText type="title" weight="bold" accessibilityRole="header">
         {'Your spot'}
       </ThemedText>
@@ -51,6 +46,6 @@ export default function SpotMapSheet() {
       <Button onPress={() => router.back()} style={{ marginTop: 4 }}>
         {'Done'}
       </Button>
-    </View>
+    </SheetContent>
   );
 }

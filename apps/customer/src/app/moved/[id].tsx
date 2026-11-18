@@ -1,9 +1,8 @@
 import { isLiveStatus } from '@shoot/shared';
-import { Button, CallButton, ThemedText } from '@shoot/ui';
+import { Button, CallButton, ThemedText, SheetContent } from '@shoot/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useNearbyCafe, useOrders } from '@/data/queries';
 import { formatDistance } from '@/utils/format';
@@ -15,7 +14,6 @@ import { distanceInMetres } from '@/utils/geo';
  * or a scan of the code at the new seat. "No" closes it until the app is opened again.
  */
 export default function MovedSheet() {
-  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
     id: string;
     distance?: string;
@@ -44,9 +42,7 @@ export default function MovedSheet() {
 
   if (outOfRange) {
     return (
-      <View
-        style={{ paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 8, gap: 12 }}
-      >
+      <SheetContent style={{ paddingHorizontal: 20, gap: 12 }}>
         <ThemedText type="title" weight="bold" accessibilityRole="header">
           {'You’re outside the delivery area'}
         </ThemedText>
@@ -59,14 +55,12 @@ export default function MovedSheet() {
             {'OK'}
           </Button>
         </View>
-      </View>
+      </SheetContent>
     );
   }
 
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 8, gap: 12 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 20, gap: 12 }}>
       <ThemedText type="title" weight="bold" accessibilityRole="header">
         {'Moved to a different seat?'}
       </ThemedText>
@@ -95,6 +89,6 @@ export default function MovedSheet() {
           {'No, I’m still here'}
         </Button>
       </View>
-    </View>
+    </SheetContent>
   );
 }

@@ -8,6 +8,7 @@ export * from './components/delivery-map';
 export * from './components/form-screen';
 export * from './components/icon';
 export * from './components/page-header';
+export * from './components/sheet-content';
 export * from './components/tab-button';
 export * from './components/text-field';
 export * from './components/themed-text';

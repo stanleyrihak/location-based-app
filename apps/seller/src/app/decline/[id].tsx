@@ -1,9 +1,8 @@
 import type { DeclineReason } from '@shoot/shared';
-import { Button, Radius, ThemedText, useTheme } from '@shoot/ui';
+import { Button, Radius, ThemedText, useTheme, SheetContent } from '@shoot/ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { actionErrorMessage, useOrderActions } from '@/data/use-order-actions';
 
@@ -19,15 +18,12 @@ const REASONS: { value: DeclineReason; label: string }[] = [
  * their card is released; they're never charged.
  */
 export default function DeclineSheet() {
-  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { decline } = useOrderActions(id);
   const [reason, setReason] = useState<DeclineReason>('too-busy');
 
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 16, paddingBottom: insets.bottom + 8, gap: 12 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 16, gap: 12 }}>
       <ThemedText
         type="title"
         weight="bold"
@@ -68,7 +64,7 @@ export default function DeclineSheet() {
       <Button variant="text" onPress={() => router.back()} disabled={decline.isPending}>
         {'Cancel'}
       </Button>
-    </View>
+    </SheetContent>
   );
 }
 

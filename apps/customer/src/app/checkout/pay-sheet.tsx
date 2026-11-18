@@ -1,8 +1,7 @@
-import { Button, Icon, type IconName, Radius, ThemedText, useTheme } from '@shoot/ui';
+import { Button, Icon, type IconName, Radius, ThemedText, useTheme, SheetContent } from '@shoot/ui';
 import { router, Stack } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PaymentMark } from '@/components/payment-mark';
 import { PriceSummary } from '@/components/price-summary';
@@ -27,7 +26,6 @@ import { formatDistance } from '@/utils/format';
  * When paying fails, the same sheet shows E7 instead, and E1 when you've walked out of range.
  */
 export default function PaySheet() {
-  const insets = useSafeAreaInsets();
   const theme = useTheme();
   const cart = useCart();
   const { cafe } = useNearbyCafe(cart.cafeId ?? '');
@@ -52,9 +50,7 @@ export default function PaySheet() {
   }
 
   return (
-    <View
-      style={{ paddingTop: 28, paddingHorizontal: 16, paddingBottom: insets.bottom + 8, gap: 12 }}
-    >
+    <SheetContent style={{ paddingHorizontal: 16, gap: 12 }}>
       {/* While paying, the sheet can't be swiped away: the result must have somewhere to land. */}
       <Stack.Screen options={{ gestureEnabled: !placeOrder.isPending }} />
 
@@ -123,7 +119,7 @@ export default function PaySheet() {
           </Button>
         </>
       )}
-    </View>
+    </SheetContent>
   );
 }
 
