@@ -17,8 +17,9 @@ const APPEARANCE: AppearanceParams = {
     primary: Palette.brown,
     background: Palette.cream,
     componentBackground: Palette.white,
-    componentBorder: 'rgba(74, 44, 30, 0.14)',
-    componentDivider: 'rgba(74, 44, 30, 0.14)',
+    // Stripe takes hex only: this is the theme's line colour (brown at 14%) laid on white.
+    componentBorder: '#E6E1E0',
+    componentDivider: '#E6E1E0',
     primaryText: Palette.brown,
     secondaryText: Palette.brownSoft,
     componentText: Palette.brown,

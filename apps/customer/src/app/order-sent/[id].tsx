@@ -83,7 +83,10 @@ export default function OrderSentScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
                 {/* Until the café accepts there's no ready time yet: it starts at accept. */}
                 {order.readyAt === null ? (
-                  <ThemedText weight="semibold">{`Waiting for ${order.cafeName} to accept`}</ThemedText>
+                  // flexShrink: a long café name wraps instead of pushing "Step 1 of 4" out of the card.
+                  <ThemedText weight="semibold" style={{ flexShrink: 1 }}>
+                    {`Waiting for ${order.cafeName} to accept`}
+                  </ThemedText>
                 ) : (
                   <>
                     <ThemedText type="headlineLarge" style={{ fontVariant: ['tabular-nums'] }}>
