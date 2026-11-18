@@ -13,6 +13,11 @@ import Constants from 'expo-constants';
  * system one: Inter is loaded at runtime, and Stripe's native sheet can't see it.
  */
 const APPEARANCE: AppearanceParams = {
+  // iOS 26 only. Stripe's own "Liquid Glass" preset: the sheet gets 34 pt corners (like our
+  // other sheets) instead of 12, and a round glass close button. Stripe applies the preset
+  // first and our colours and shapes below after it, so they still win. On older iPhones
+  // and on Android, Stripe ignores it.
+  applyLiquidGlass: true,
   colors: {
     primary: Palette.brown,
     background: Palette.cream,
