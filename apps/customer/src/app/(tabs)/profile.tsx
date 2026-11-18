@@ -43,10 +43,12 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={{ flex: 1 }}>
       <ScrollView
+        // flexGrow: the content fills the screen, so Sign out can sit at the bottom.
         contentContainerStyle={{
+          flexGrow: 1,
           paddingTop: insets.top + 16,
           paddingHorizontal: GUTTER,
-          paddingBottom: 32,
+          paddingBottom: 24,
           gap: 24,
         }}
       >
@@ -82,8 +84,11 @@ export default function ProfileScreen() {
           <Row label="Privacy" onPress={() => router.push('/privacy')} />
         </Section>
 
-        {/* Signing in again with the same number brings back the same account and its orders. */}
-        <Button variant="secondary" onPress={handleSignOut}>
+        {/*
+          At the bottom, like the seller's Stand tab. Signing in again with the same number
+          brings back the same account and its orders.
+        */}
+        <Button variant="secondary" onPress={handleSignOut} style={{ marginTop: 'auto' }}>
           {'Sign out'}
         </Button>
       </ScrollView>
