@@ -5,7 +5,6 @@ import { Hono } from 'hono';
 import { requireUser } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
 import { HttpError } from '../errors.ts';
-import { savePushToken } from '../push/tokens.ts';
 import { bearerToken, readJson } from '../request.ts';
 import { asPhone, asString } from '../validate.ts';
 
@@ -77,17 +76,8 @@ export function authRoutes(deps: Deps) {
   });
 
   app.post('/auth/sign-out', (c) => {
-    const user = requireUser(c, deps);
+    requireUser(c, deps);
     db.prepare('DELETE FROM sessions WHERE token = ?').run(bearerToken(c));
-    // A signed-out phone shouldn't keep getting this person's notifications.
-    db.prepare('DELETE FROM push_tokens WHERE user_id = ?').run(user.id);
-    return c.body(null, 204);
-  });
-
-  /** The app registers its Expo push token after sign-in, to get order notifications. */
-  app.post('/me/push-token', async (c) => {
-    const user = requireUser(c, deps);
-    savePushToken(db, (await readJson(c)).token, { userId: user.id }, deps.now());
     return c.body(null, 204);
   });
 

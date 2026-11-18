@@ -2,7 +2,6 @@ import type { DatabaseSync } from 'node:sqlite';
 
 import type { Config } from './config.ts';
 import type { Payments } from './payments/types.ts';
-import type { Push } from './push/types.ts';
 import type { Hub } from './realtime/hub.ts';
 import type { Tracker } from './realtime/tracker.ts';
 
@@ -13,7 +12,6 @@ import type { Tracker } from './realtime/tracker.ts';
 export type Deps = {
   db: DatabaseSync;
   payments: Payments;
-  push: Push;
   hub: Hub;
   /** The latest positions of orders on their way (memory only). */
   tracker: Tracker;

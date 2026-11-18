@@ -10,7 +10,6 @@ import { loadConfig } from '../src/config.ts';
 import { openDb } from '../src/db/open.ts';
 import type { Deps } from '../src/deps.ts';
 import { createFakePayments } from '../src/payments/fake.ts';
-import { createFakePush } from '../src/push/fake.ts';
 import { createHub } from '../src/realtime/hub.ts';
 import { createTracker } from '../src/realtime/tracker.ts';
 
@@ -30,20 +29,18 @@ export function createClock(start = Date.parse('2026-11-17T09:00:00Z')) {
 
 /**
  * The whole server in memory: an empty database with the test cafés, a temp folder for
- * uploads, fake payments and push, and a clock the test controls. Nothing touches the network.
+ * uploads, fake payments, and a clock the test controls. Nothing touches the network.
  */
 /** `env` sets configuration (like STRIPE_PUBLISHABLE_KEY); payments stay fake either way. */
 export function createTestApp(env: Record<string, string> = {}) {
   const clock = createClock();
   const payments = createFakePayments();
   const db = openDb(':memory:');
-  const push = createFakePush(db);
   const hub = createHub();
   const config = loadConfig(env);
   const deps: Deps = {
     db,
     payments,
-    push,
     hub,
     tracker: createTracker(),
     now: clock.now,
@@ -51,7 +48,7 @@ export function createTestApp(env: Record<string, string> = {}) {
     publicDir: config.publicDir,
     config,
   };
-  return { app: createApp(deps), deps, clock, payments, push, hub };
+  return { app: createApp(deps), deps, clock, payments, hub };
 }
 
 type App = ReturnType<typeof createTestApp>['app'];

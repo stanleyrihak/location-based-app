@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { createTestApp, send } from './helpers.ts';
+import { createTestApp, send, signInCustomer, signInSeller } from './helpers.ts';
 
 const PHONE = '+358401234567';
 
@@ -51,4 +51,14 @@ test('GET /me needs a token', async () => {
   const me = await send(app, 'GET', '/me', undefined, token);
   assert.equal(me.status, 200);
   assert.equal(((await me.json()) as { phone: string }).phone, PHONE);
+});
+
+test('push token routes are gone', async () => {
+  const { app } = createTestApp();
+  const customer = await signInCustomer(app);
+  const seller = await signInSeller(app);
+  const forCustomer = await send(app, 'POST', '/me/push-token', { token: 'x' }, customer);
+  const forSeller = await send(app, 'POST', '/seller/push-token', { token: 'x' }, seller);
+  assert.equal(forCustomer.status, 404);
+  assert.equal(forSeller.status, 404);
 });

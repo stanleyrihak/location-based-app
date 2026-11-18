@@ -32,10 +32,9 @@ export type NewOrderInput = {
   expectedTotalCents?: number;
 };
 
-/** Tells the live connections and push about a change. Exactly once per status change. */
+/** Tells the live connections about a change. Exactly once per status change. */
 function emit(deps: Deps, order: OrderRow, event: OrderEvent) {
   deps.hub.orderChanged(order);
-  deps.push.orderChanged(order, event);
 }
 
 function iso(ms: number) {

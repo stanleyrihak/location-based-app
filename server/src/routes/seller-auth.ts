@@ -6,7 +6,6 @@ import { hashPasswordSync, verifyPassword } from '../auth/passwords.ts';
 import { requireSeller } from '../auth/sessions.ts';
 import type { Deps } from '../deps.ts';
 import { HttpError } from '../errors.ts';
-import { savePushToken } from '../push/tokens.ts';
 import { bearerToken, originOf, readJson } from '../request.ts';
 import { type CafeRow, toCafe } from '../views.ts';
 import { asString } from '../validate.ts';
@@ -52,17 +51,8 @@ export function sellerAuthRoutes(deps: Deps) {
   });
 
   app.post('/seller/auth/sign-out', (c) => {
-    const seller = requireSeller(c, deps);
+    requireSeller(c, deps);
     db.prepare('DELETE FROM sessions WHERE token = ?').run(bearerToken(c));
-    // A signed-out phone shouldn't keep ringing for new orders.
-    db.prepare('DELETE FROM push_tokens WHERE staff_id = ?').run(seller.staffId);
-    return c.body(null, 204);
-  });
-
-  /** The seller app registers its Expo push token after sign-in, to hear about new orders. */
-  app.post('/seller/push-token', async (c) => {
-    const seller = requireSeller(c, deps);
-    savePushToken(db, (await readJson(c)).token, { staffId: seller.staffId }, deps.now());
     return c.body(null, 204);
   });
 

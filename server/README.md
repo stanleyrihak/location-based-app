@@ -1,6 +1,6 @@
 # Shoot server
 
-The backend for the customer app and the seller app: accounts, cafés and menus, orders with payment, live updates and push notifications. Node with Hono and SQLite. Node 24+ runs the TypeScript files directly, so there's no build step.
+The backend for the customer app and the seller app: accounts, cafés and menus, orders with payment, and live updates over a WebSocket (no push notifications). Node with Hono and SQLite. Node 24+ runs the TypeScript files directly, so there's no build step.
 
 ## Run it
 
@@ -38,9 +38,9 @@ The first time anyone asks for cafés, the three test cafés are placed around t
 
 ## How the code is laid out
 
-- `src/app.ts` builds the API from `Deps` (database, payments, push, live connections, clock). `src/main.ts` passes the real ones; tests pass fakes and run without a network.
+- `src/app.ts` builds the API from `Deps` (database, payments, live connections, clock). `src/main.ts` passes the real ones; tests pass fakes and run without a network.
 - `src/domain/orders.ts` has every order rule. Routes only check who is asking and call it.
-- `src/routes/` has one file per area. `src/payments/`, `src/push/` and `src/realtime/` have the side effects.
+- `src/routes/` has one file per area. `src/payments/` and `src/realtime/` have the side effects.
 - `test/` runs with Node's built-in test runner.
 
 ## API
@@ -61,11 +61,10 @@ An error has a status code and a body like this. The apps use `error`, people re
 |---|---|
 | `POST /auth/code` `{ phone }` | 204. Texts a code (here: always `123456`). `phone` like `+358401234567`. |
 | `POST /auth/verify` `{ phone, code }` | `{ token, user }`. Creates the account the first time. Errors: `wrong_code`, `code_expired` (also after 5 wrong tries). |
-| `POST /auth/sign-out` | 204. Also stops push notifications to this person. |
+| `POST /auth/sign-out` | 204. |
 | `GET /me` | `{ id, phone, createdAt }` |
 | `POST /me/phone` `{ phone, code }` | The user with the new number. Send `/auth/code` to the new number first. Error: `phone_taken`. |
 | `DELETE /me` | 204. Deletes the account. Its orders stay, without the user. |
-| `POST /me/push-token` `{ token }` | 204. The phone's Expo push token. |
 
 ### Cafés (no sign-in needed)
 
@@ -145,9 +144,8 @@ pending-payment ──confirm──► received ──accept──► preparing 
 | Request | Answer |
 |---|---|
 | `POST /seller/auth/sign-in` `{ email, password }` | `{ token, seller: { id, name, email, cafe } }`. Wrong email or password: 401 `wrong_credentials`. |
-| `POST /seller/auth/sign-out` | 204. Also stops push notifications to this seller. |
+| `POST /seller/auth/sign-out` | 204. |
 | `GET /seller/me` | The seller with their café. |
-| `POST /seller/push-token` `{ token }` | 204. |
 | `GET /seller/orders` | The café's live orders, oldest first, then the last 20 finished ones. |
 | `POST /seller/orders/:id/accept` | `preparing`. Errors: 409 `expired`, 409 `status_conflict`, 402 `payment_failed` (the money couldn't be taken; the order stays `received`). |
 | `POST /seller/orders/:id/decline` `{ reason }` | `declined`. `reason`: `sold-out`, `too-busy`, `closing-soon`, `other`. |
@@ -188,21 +186,6 @@ Only while an order is `on-the-way`. The server keeps the latest position per si
 | `GET /orders/:id/track`, `GET /seller/orders/:id/track` | `{ seller, customer }`: the latest positions, or null. Both null unless on the way. |
 
 Errors: 404 `order_not_found` for an order that isn't yours, 409 `status_conflict` when it isn't on the way, 400 for bad coordinates. Positions go in over HTTP, not the WebSocket, because the seller's phone sends them from a background task while the app's live connection is closed.
-
-### Push notifications
-
-Through Expo's push service, to the tokens registered above:
-
-| When | Who | Title |
-|---|---|---|
-| Order paid | the café's sellers | New order #2044 (with sound) |
-| Accepted | customer | Saaripaahtimo accepted your order |
-| On the way | customer | Your order is on its way |
-| Delivered | customer | Delivered. Enjoy! |
-| Declined | customer | Saaripaahtimo couldn't take your order |
-| Expired | customer | Your order wasn't accepted |
-
-Every push has `data: { orderId }`, so a tap opens that order. Pushes to sellers use the Android channel `orders` (loud, on the lock screen), which the seller app creates.
 
 ### Development only
 

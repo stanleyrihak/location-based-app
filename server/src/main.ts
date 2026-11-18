@@ -14,7 +14,6 @@ import type { Deps } from './deps.ts';
 import { abandonUnpaid, expireOverdue } from './domain/orders.ts';
 import { createFakePayments } from './payments/fake.ts';
 import { createStripePayments } from './payments/stripe.ts';
-import { createExpoPush } from './push/expo.ts';
 import { createHub } from './realtime/hub.ts';
 import { createTracker } from './realtime/tracker.ts';
 
@@ -32,7 +31,6 @@ const db = openDb(path.join(config.dataDir, 'shoot.db'));
 const deps: Deps = {
   db,
   payments,
-  push: createExpoPush(db),
   hub: createHub(),
   tracker: createTracker(),
   now: Date.now,
