@@ -1,3 +1,4 @@
+import { orderToRepeat } from '@shoot/shared';
 import { Button, ThemedText, Radius, Shadow, useTheme } from '@shoot/ui';
 import { View } from 'react-native';
 
@@ -7,7 +8,7 @@ import { useOrderAgain } from '@/data/use-order-again';
 import { formatPrice } from '@/utils/format';
 
 /**
- * "Order again" on Home (1.6): your latest order from a café that can deliver to you now.
+ * "Order again" on Home (1.6): your latest finished order from a café that can deliver to you now.
  * Renders nothing when there is none, so Home looks the same as before your first order.
  */
 export function OrderAgain({ cafes }: { cafes: NearbyCafe[] }) {
@@ -15,9 +16,9 @@ export function OrderAgain({ cafes }: { cafes: NearbyCafe[] }) {
   const orders = useOrders();
   const orderAgain = useOrderAgain();
 
-  // Newest first, so find() gives the latest one whose café is in range.
-  const order = orders.data?.find((candidate) =>
-    cafes.some((cafe) => cafe.id === candidate.cafeId && cafe.inRange),
+  const order = orderToRepeat(
+    orders.data ?? [],
+    cafes.filter((cafe) => cafe.inRange).map((cafe) => cafe.id),
   );
   if (!order) {
     return null;

@@ -70,3 +70,27 @@ export function groupSellerQueue(orders: Order[]): SellerQueue {
 export function deliveringOrderId(orders: Order[] | undefined): string | null {
   return orders?.find((order) => order.status === 'on-the-way')?.id ?? null;
 }
+
+/**
+ * What happened to the customer's money, for the order screen. While the café hasn't
+ * accepted, the money is only reserved; it is taken when the café accepts, and released
+ * when the order is declined, not accepted in time or cancelled.
+ */
+export function paymentLine(status: OrderStatus, paymentLabel: string): string {
+  if (status === 'received') return `Reserved on ${paymentLabel}`;
+  if (status === 'declined' || status === 'expired' || status === 'cancelled') return 'Not charged';
+  return `Paid with ${paymentLabel}`;
+}
+
+/**
+ * "Order again" on Home: the newest finished order from a café that can deliver now.
+ * An order still on its way isn't offered; it's on the Orders tab. `orders` is newest first.
+ */
+export function orderToRepeat<T extends Pick<Order, 'cafeId' | 'status'>>(
+  orders: T[],
+  inRangeCafeIds: string[],
+): T | undefined {
+  return orders.find(
+    (order) => !isLiveStatus(order.status) && inRangeCafeIds.includes(order.cafeId),
+  );
+}

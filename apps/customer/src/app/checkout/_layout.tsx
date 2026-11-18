@@ -46,11 +46,24 @@ export default function CheckoutLayout() {
             contentStyle: { backgroundColor: theme.bg },
           }}
         />
-        {/* The camera screens slide up, like the system camera, instead of in from the side. */}
-        <Stack.Screen name="scan" options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="photo" options={{ animation: 'slide_from_bottom' }} />
+        {/*
+          The camera screens slide up, like the system camera, instead of in from the side.
+          They are dark, so the status bar is light. On iOS each screen sets its own, so
+          expo-status-bar's <StatusBar> inside the screen isn't enough there.
+        */}
+        <Stack.Screen
+          name="scan"
+          options={{ animation: 'slide_from_bottom', statusBarStyle: 'light' }}
+        />
+        <Stack.Screen
+          name="photo"
+          options={{ animation: 'slide_from_bottom', statusBarStyle: 'light' }}
+        />
         {/* Replaces the camera in place, so a cross-fade reads better than a slide. */}
-        <Stack.Screen name="photo-review" options={{ animation: 'fade' }} />
+        <Stack.Screen
+          name="photo-review"
+          options={{ animation: 'fade', statusBarStyle: 'light' }}
+        />
       </Stack>
     </CheckoutProvider>
   );

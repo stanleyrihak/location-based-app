@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { ACCEPT_WINDOW_MS, canMove, isLiveStatus } from '../src/orders.ts';
+import {
+  ACCEPT_WINDOW_MS,
+  canMove,
+  isLiveStatus,
+  orderToRepeat,
+  paymentLine,
+} from '../src/orders.ts';
 
 test('statuses only move forward', () => {
   assert.equal(canMove('received', 'preparing'), true);
@@ -63,4 +69,26 @@ test('deliveringOrderId is the on-the-way order', async () => {
   assert.equal(deliveringOrderId([o('a', 'preparing'), o('b', 'on-the-way')]), 'b');
   assert.equal(deliveringOrderId([o('a', 'delivered')]), null);
   assert.equal(deliveringOrderId(undefined), null);
+});
+
+test('the payment line says reserved until the café accepts, then paid, and not charged when it ends', () => {
+  assert.equal(paymentLine('received', 'Card'), 'Reserved on Card');
+  assert.equal(paymentLine('preparing', 'Card'), 'Paid with Card');
+  assert.equal(paymentLine('on-the-way', 'Card'), 'Paid with Card');
+  assert.equal(paymentLine('delivered', 'Card'), 'Paid with Card');
+  assert.equal(paymentLine('declined', 'Card'), 'Not charged');
+  assert.equal(paymentLine('expired', 'Card'), 'Not charged');
+  assert.equal(paymentLine('cancelled', 'Card'), 'Not charged');
+});
+
+test('order again picks the newest finished order from a café in range, never a live one', () => {
+  const orders = [
+    { id: 'live', cafeId: 'a', status: 'received' as const },
+    { id: 'far', cafeId: 'b', status: 'delivered' as const },
+    { id: 'done', cafeId: 'a', status: 'delivered' as const },
+    { id: 'older', cafeId: 'a', status: 'declined' as const },
+  ];
+  assert.equal(orderToRepeat(orders, ['a'])?.id, 'done');
+  assert.equal(orderToRepeat(orders, ['b'])?.id, 'far');
+  assert.equal(orderToRepeat([orders[0]], ['a']), undefined);
 });

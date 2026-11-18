@@ -1,7 +1,7 @@
 import type { MenuItem, MenuSection } from '@shoot/shared';
 import { Banner, Button, ThemedText, ThemedView, useTheme } from '@shoot/ui';
 import { Image } from 'expo-image';
-import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
@@ -108,7 +108,12 @@ function CafeMenu({ cafe }: { cafe: NearbyCafe }) {
 
   return (
     <ThemedView style={{ flex: 1 }}>
-      {/* Light text over the photo, dark again once the photo has scrolled away. */}
+      {/*
+        Light text over the photo, dark again once the photo has scrolled away. On iOS each
+        screen sets its own status bar, so the screen option does it there; <StatusBar> does
+        it on Android.
+      */}
+      <Stack.Screen options={{ statusBarStyle: pastCover ? 'dark' : 'light' }} />
       {isFocused && <StatusBar style={pastCover ? 'dark' : 'light'} />}
       <ScrollView
         // Tells us how far the menu has scrolled, at most once per frame (16 ms).

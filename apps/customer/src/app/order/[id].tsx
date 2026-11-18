@@ -1,4 +1,4 @@
-import { applyOrderUpdate, type Order } from '@shoot/shared';
+import { applyOrderUpdate, type Order, paymentLine } from '@shoot/shared';
 import {
   Button,
   CallButton,
@@ -228,7 +228,7 @@ function Items({ order }: { order: Order }) {
           paddingTop: 10,
         }}
       >
-        <ThemedText color="ink2">{`Paid with ${order.paymentLabel}`}</ThemedText>
+        <ThemedText color="ink2">{paymentLine(order.status, order.paymentLabel)}</ThemedText>
         <ThemedText weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>
           {formatPrice(order.totalCents)}
         </ThemedText>

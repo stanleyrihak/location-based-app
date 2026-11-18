@@ -103,10 +103,12 @@ function RootNavigator() {
               contentStyle: { backgroundColor: theme.surface },
             }}
           />
-          <Stack.Screen name="moved/photo" />
+          {/* Dark camera screens: light status bar. On iOS each screen sets its own, so
+              expo-status-bar's <StatusBar> inside the screen isn't enough there. */}
+          <Stack.Screen name="moved/photo" options={{ statusBarStyle: 'light' }} />
           <Stack.Screen name="change-phone" />
           <Stack.Screen name="change-code" />
-          <Stack.Screen name="moved/scan" />
+          <Stack.Screen name="moved/scan" options={{ statusBarStyle: 'light' }} />
         </Stack.Protected>
 
         <Stack.Protected guard={!hasOnboarded} redirectTo="/">
