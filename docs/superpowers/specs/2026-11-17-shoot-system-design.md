@@ -157,7 +157,7 @@ Tabs: Orders, Menu, Stand. Built from the existing design system (`tokens.css`, 
 
 ## Customer app changes
 
-- Stripe payment sheet in place of the 2.8 stand-in. 2.7 offers the methods Stripe offers.
+- Stripe payment sheet in place of the 2.8 stand-in. 2.7 has no method picker and one "Pay" button, which opens Stripe's sheet. The customer picks a card or a wallet there: Google Pay on Android, and Apple Pay once the app has an Apple merchant ID. Payment problems (E1, E6, E7) show at the bottom of 2.7.
 - Status "Waiting for the café to accept", and screens for declined, expired and cancelled ("You weren't charged"). Cancel is possible while waiting.
 - 4.2 Order status: a real map with the delivery spot, the seller walking over and the customer's own dot, plus a Call button for the café.
 - The E10 sheet.

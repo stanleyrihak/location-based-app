@@ -135,7 +135,7 @@ Run the list once with the seller on Android and the customer on the iPhone, the
 
 **Paying with Stripe (customer app)**
 - [ ] With both Stripe keys set, "Pay" opens Stripe's sheet; 4242… pays, and the order reaches the café.
-- [ ] Close Stripe's sheet: back to the pay sheet with no error; paying again works (Stripe's dashboard shows one payment, not two).
+- [ ] Close Stripe's sheet: back to checkout with no error; paying again works (Stripe's dashboard shows one payment, not two).
 - [ ] 4000 0000 0000 0002 is declined inside Stripe's sheet; nothing is charged.
 - [ ] Accept on the seller app: the payment in Stripe's dashboard turns from "Uncaptured" to "Succeeded". Decline: it's cancelled.
 
